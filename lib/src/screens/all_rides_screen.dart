@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
+import '../widgets/network_image_widget.dart';
 import 'ride_details_screen.dart';
 
 class AllRidesScreen extends StatefulWidget {
@@ -121,7 +122,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> with SingleTickerProvid
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RideDetailsScreen(rideId: r['id']))),
       child: Container(margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))]), child: Row(children: [
-        ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network(ApiService.getFullImageUrl(r['coverImage']), width: 60, height: 60, fit: BoxFit.cover)),
+        ClipRRect(borderRadius: BorderRadius.circular(16), child: SafeNetworkImage(url: ApiService.getFullImageUrl(r['coverImage']), width: 60, height: 60, fit: BoxFit.cover)),
         const SizedBox(width: 16),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(r['name'] ?? 'Route', style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.bold), maxLines: 1),

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import '../constants/locations.dart';
 import '../services/api_service.dart';
+import '../widgets/network_image_widget.dart';
 import 'create_ride_screen.dart' show TransportMode, GenderPreference;
 
 class EditRideScreen extends StatefulWidget {
@@ -270,7 +271,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                         borderRadius: BorderRadius.circular(24),
                         color: Colors.grey[100],
                         image: _coverImageController.text.isNotEmpty
-                            ? DecorationImage(image: NetworkImage(_coverImageController.text), fit: BoxFit.cover)
+                            ? DecorationImage(image: networkImageProvider(_coverImageController.text), fit: BoxFit.cover)
                             : null,
                       ),
                       child: _coverImageController.text.isEmpty

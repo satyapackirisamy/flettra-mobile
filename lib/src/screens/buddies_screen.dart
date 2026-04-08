@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../widgets/network_image_widget.dart';
 import 'chat_screen.dart'; // Assuming ChatScreen exists or we used ChatWidget before
 // Note: Previous buddies_screen had basic ChatWidget directly in file or imported. 
 // I will check if I need to re-implement Chat or if it was external. 
@@ -453,11 +454,11 @@ class _BuddiesScreenState extends State<BuddiesScreen> with SingleTickerProvider
       decoration: BoxDecoration(
         color: Colors.grey[100],
         shape: BoxShape.circle,
-        image: (pic != null && pic.startsWith('http')) 
-            ? DecorationImage(image: NetworkImage(pic), fit: BoxFit.cover)
+        image: pic != null && pic.isNotEmpty
+            ? DecorationImage(image: networkImageProvider(ApiService.getFullImageUrl(pic)), fit: BoxFit.cover)
             : null,
       ),
-      child: (pic == null || !pic.startsWith('http'))
+      child: (pic == null || pic.isEmpty)
           ? Center(child: Text(initial, style: GoogleFonts.outfit(fontWeight: FontWeight.w800, color: primaryOrange, fontSize: size * 0.4)))
           : null,
     );

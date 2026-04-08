@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
+import '../../widgets/network_image_widget.dart';
 
 class AdminUserManagementScreen extends StatefulWidget {
   const AdminUserManagementScreen({super.key});
@@ -186,10 +187,8 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         leading: CircleAvatar(
           radius: 24,
           backgroundColor: const Color(0xFF4F46E5).withOpacity(0.1),
-          backgroundImage: user['profilePicture'] != null ? NetworkImage(user['profilePicture']) : null,
-          child: user['profilePicture'] == null 
-              ? Text(user['name']?[0]?.toUpperCase() ?? 'U', style: const TextStyle(color: Color(0xFF4F46E5), fontWeight: FontWeight.bold))
-              : null,
+          backgroundImage: networkImageProvider(ApiService.getAvatarUrl(user['profilePicture'], name: user['name'] ?? 'U')),
+          child: null,
         ),
         title: Text(
           user['name'] ?? 'No Name',

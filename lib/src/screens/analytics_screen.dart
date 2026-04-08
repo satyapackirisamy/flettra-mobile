@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../widgets/network_image_widget.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -210,8 +211,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with SingleTickerProv
               CircleAvatar(
                 radius: 20,
                 backgroundColor: const Color(0xFFEEF2FF),
-                backgroundImage: user['profilePicture'] != null ? NetworkImage(user['profilePicture']) : null,
-                child: user['profilePicture'] == null ? Text((user['name'] ?? 'U')[0], style: const TextStyle(color: Color(0xFF4F46E5), fontWeight: FontWeight.bold)) : null,
+                backgroundImage: networkImageProvider(ApiService.getAvatarUrl(user['profilePicture'], name: user['name'] ?? 'U')),
+                child: null,
               ),
               const SizedBox(width: 12),
               Expanded(child: Text(user['name'] ?? 'User', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 15))),

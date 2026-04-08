@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
+import '../../widgets/network_image_widget.dart';
 import 'destination_form_screen.dart';
 
 class AdminDestinationManagementScreen extends StatefulWidget {
@@ -149,8 +150,8 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             child: (dest['imageUrl'] != null && dest['imageUrl'].toString().isNotEmpty)
-                ? Image.network(
-                    dest['imageUrl'],
+                ? SafeNetworkImage(
+                    url: dest['imageUrl'],
                     height: 160,
                     width: double.infinity,
                     fit: BoxFit.cover,
