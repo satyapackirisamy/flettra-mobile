@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../utils/snackbar_helper.dart';
 import '../widgets/chat_widget.dart';
+import '../widgets/network_image_widget.dart';
 import 'create_ride_screen.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
@@ -112,7 +113,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network('https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=800', fit: BoxFit.cover),
+                  SafeNetworkImage(url: 'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=800', fit: BoxFit.cover),
                   Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black.withOpacity(0.7)]))),
                   Positioned(
                     bottom: 20, left: 24, right: 24,

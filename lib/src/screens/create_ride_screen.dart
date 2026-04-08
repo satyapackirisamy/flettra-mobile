@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../constants/locations.dart';
 import '../utils/snackbar_helper.dart';
+import '../widgets/network_image_widget.dart';
 
 // Values mirror backend ride.enums.ts
 enum TransportMode {
@@ -227,7 +228,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                           border: isSelected
                               ? Border.all(color: primary, width: 3)
                               : Border.all(color: Colors.transparent),
-                          image: DecorationImage(image: NetworkImage(entry.value), fit: BoxFit.cover),
+                          image: DecorationImage(image: networkImageProvider(entry.value), fit: BoxFit.cover),
                           boxShadow: isSelected
                               ? [BoxShadow(color: primary.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))]
                               : null,

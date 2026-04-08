@@ -4,6 +4,7 @@ import 'dart:async';
 import 'login_screen.dart';
 import 'main_screen.dart';
 import '../services/api_service.dart';
+import '../widgets/network_image_widget.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final bool isPostAuth;
@@ -260,16 +261,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 fit: StackFit.expand,
                 children: [
                   // Background Image
-                  Image.network(
-                    slide['image'] as String,
+                  SafeNetworkImage(
+                    url: slide['image'] as String,
                     fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(color: const Color(0xFF1E293B));
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(color: const Color(0xFF1E293B));
-                    },
+                    errorWidget: Container(color: const Color(0xFF1E293B)),
                   ),
                   
                   // Gradient Overlay

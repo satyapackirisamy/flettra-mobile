@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/chat_widget.dart';
 import '../widgets/rating_dialog.dart';
+import '../widgets/network_image_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../utils/snackbar_helper.dart';
@@ -364,8 +365,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   flexibleSpace: FlexibleSpaceBar(
                     background: Hero(
                       tag: 'ride-image-${widget.rideId}',
-                      child: Image.network(
-                        _getCoverImage(_ride!['coverImage'], _ride!['destination']),
+                      child: SafeNetworkImage(
+                        url: _getCoverImage(_ride!['coverImage'], _ride!['destination']),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -1036,7 +1037,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                       const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(ApiService.getFullImageUrl(dayImage), height: 160, width: double.infinity, fit: BoxFit.cover),
+                        child: SafeNetworkImage(url: ApiService.getFullImageUrl(dayImage), height: 160, width: double.infinity, fit: BoxFit.cover),
                       ),
                     ],
                     Padding(

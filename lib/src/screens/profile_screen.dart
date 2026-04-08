@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../widgets/network_image_widget.dart';
 import 'onboarding_screen.dart';
 import 'analytics_screen.dart';
 import 'all_rides_screen.dart';
@@ -80,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         CircleAvatar(
           radius: 56, 
-          backgroundImage: NetworkImage(ApiService.getFullImageUrl(null)), 
+          backgroundImage: networkImageProvider(ApiService.getAvatarUrl(_user?['profilePicture'], name: '${_user?['firstName'] ?? 'U'}')),
           child: Align(
             alignment: Alignment.bottomRight, 
             child: CircleAvatar(

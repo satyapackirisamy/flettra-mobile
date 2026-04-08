@@ -5,8 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'ride_details_screen.dart';
 import 'create_post_screen.dart';
+import 'edit_post_screen.dart';
 import 'create_ride_screen.dart';
 import '../widgets/common_fab.dart';
+import '../widgets/network_image_widget.dart';
 
 class TimelineScreen extends StatefulWidget {
   const TimelineScreen({super.key});
@@ -125,6 +127,10 @@ class _TimelineScreenState extends State<TimelineScreen> {
   }
 
   Widget _buildPostItem(dynamic post) {
+    final avatarUrl = ApiService.getAvatarUrl(
+      post['author']?['profilePicture'],
+      name: post['author']?['name'] ?? 'U',
+    );
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -133,15 +139,18 @@ class _TimelineScreenState extends State<TimelineScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(children: [
-              CircleAvatar(backgroundImage: NetworkImage(ApiService.getFullImageUrl(null)), radius: 18),
+              CircleAvatar(backgroundImage: networkImageProvider(avatarUrl), radius: 18),
               const SizedBox(width: 10),
               Text(post['author']?['name'] ?? 'Unknown', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 14)),
               const Spacer(),
-              const Icon(Icons.more_horiz_rounded, color: Colors.grey),
+              GestureDetector(
+                onTap: () => _showPostOptions(post),
+                child: const Icon(Icons.more_horiz_rounded, color: Colors.grey),
+              ),
             ]),
           ),
           const SizedBox(height: 12),
-          if (post['imageUrl'] != null) Container(height: 300, width: double.infinity, decoration: BoxDecoration(image: DecorationImage(image: NetworkImage(ApiService.getFullImageUrl(post['imageUrl'])), fit: BoxFit.cover))),
+          if (post['imageUrl'] != null) Container(height: 300, width: double.infinity, decoration: BoxDecoration(image: DecorationImage(image: networkImageProvider(ApiService.getFullImageUrl(post['imageUrl'])), fit: BoxFit.cover))),
           if (post['imageUrls'] != null && (post['imageUrls'] as List).isNotEmpty)
             SizedBox(
               height: 300,
@@ -151,7 +160,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 itemBuilder: (context, idx) => Container(
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
-                    image: DecorationImage(image: NetworkImage(ApiService.getFullImageUrl(post['imageUrls'][idx])), fit: BoxFit.cover),
+                    image: DecorationImage(image: networkImageProvider(ApiService.getFullImageUrl(post['imageUrls'][idx])), fit: BoxFit.cover),
                   ),
                 ),
               ),
@@ -177,6 +186,58 @@ class _TimelineScreenState extends State<TimelineScreen> {
           ),
           const Divider(height: 1, indent: 20, endIndent: 20),
         ],
+      ),
+    );
+  }
+
+  void _showPostOptions(dynamic post) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.edit_rounded),
+              title: Text('Edit Post', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
+              onTap: () async {
+                Navigator.pop(context);
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => EditPostScreen(post: post)),
+                );
+                if (result == true) _loadData();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+              title: Text('Delete Post', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: Colors.red)),
+              onTap: () async {
+                Navigator.pop(context);
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('Delete Post'),
+                    content: const Text('Are you sure you want to delete this post?'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                      TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                    ],
+                  ),
+                );
+                if (confirmed == true) {
+                  try {
+                    await ApiService().deletePost(post['id']);
+                    _loadData();
+                  } catch (_) {}
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }

@@ -1,21 +1,19 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../widgets/network_image_widget.dart' as img_helper;
 
 class ApiService {
   late Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  static String get baseUrl {
-    if (kIsWeb) return 'http://localhost:3000';
-    try {
-      if (Platform.isAndroid) return 'http://10.0.2.2:3000';
-    } catch (e) {
-      return 'http://localhost:3000';
-    }
-    return 'http://localhost:3000';
-  }
+  // Set via: flutter run --dart-define=API_URL=http://192.168.x.x:3000
+  // Production builds use https://api.flettra.com by default
+  static const String baseUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'https://api.flettra.com',
+  );
 
   ApiService() {
     _dio = Dio(BaseOptions(
@@ -124,6 +122,8 @@ class ApiService {
   Future<Response> getGlobalTimeline() => _dio.get('/timeline/global');
   Future<Response> getFriendsTimeline() => _dio.get('/timeline/friends');
   Future<Response> createPost(Map<String, dynamic> data) => _dio.post('/timeline', data: data);
+  Future<Response> updatePost(String id, Map<String, dynamic> data) => _dio.patch('/timeline/$id', data: data);
+  Future<Response> deletePost(String id) => _dio.delete('/timeline/$id');
   Future<Response> likePost(String id) => _dio.post('/timeline/$id/like');
 
   // Admin
@@ -171,9 +171,26 @@ class ApiService {
   Future<Response> startRideWithGps(String id, {double? lat, double? lng}) => _dio.post('/rides/$id/start', data: {if (lat != null) 'lat': lat, if (lng != null) 'lng': lng});
   Future<Response> completeRideWithGps(String id, {double? lat, double? lng}) => _dio.post('/rides/$id/complete', data: {if (lat != null) 'lat': lat, if (lng != null) 'lng': lng});
 
-  // Helper for all network images
+  static const String _placeholderImage = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800';
+  static const String _placeholderAvatar = 'https://ui-avatars.com/api/?background=4F46E5&color=fff&size=128&name=U';
+
+  // Helper for all network images — always returns an absolute URL
   static String getFullImageUrl(String? path) {
-    if (path == null || path.isEmpty) return 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800';
+    if (path == null || path.isEmpty) return _placeholderImage;
+    if (path.startsWith('http')) return path;
+    final cleanPath = path.startsWith('/') ? path : '/$path';
+    return "$baseUrl$cleanPath";
+  }
+
+  // Returns an ImageProvider that uses <img> element on web to bypass CanvasKit CORS issues.
+  static ImageProvider networkImageProvider(String url) => img_helper.networkImageProvider(url);
+
+  // Helper for user avatars — falls back to generated initials avatar
+  static String getAvatarUrl(String? path, {String name = 'U'}) {
+    if (path == null || path.isEmpty) {
+      final encoded = Uri.encodeComponent(name.isNotEmpty ? name : 'U');
+      return 'https://ui-avatars.com/api/?background=4F46E5&color=fff&size=128&name=$encoded';
+    }
     if (path.startsWith('http')) return path;
     final cleanPath = path.startsWith('/') ? path : '/$path';
     return "$baseUrl$cleanPath";

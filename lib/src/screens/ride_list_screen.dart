@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/notification_service.dart';
+import '../widgets/network_image_widget.dart';
 import 'ride_details_screen.dart';
 import 'main_screen.dart';
 import 'notifications_screen.dart';
@@ -162,7 +163,7 @@ class RideListScreenState extends State<RideListScreen> {
       padding: const EdgeInsets.all(24),
       child: Row(
         children: [
-          CircleAvatar(radius: 22, backgroundImage: NetworkImage(ApiService.getFullImageUrl(null))),
+          CircleAvatar(radius: 22, backgroundImage: networkImageProvider(ApiService.getAvatarUrl(null, name: _userName))),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Hello, $_userName', style: GoogleFonts.plusJakartaSans(color: Colors.grey[500], fontSize: 13, fontWeight: FontWeight.w500)),
@@ -281,7 +282,7 @@ class RideListScreenState extends State<RideListScreen> {
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.grey[50]!)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(height: 180, width: double.infinity, decoration: BoxDecoration(borderRadius: const BorderRadius.vertical(top: Radius.circular(24)), image: DecorationImage(image: NetworkImage(ApiService.getFullImageUrl(r['imageUrl'])), fit: BoxFit.cover))),
+          Container(height: 180, width: double.infinity, decoration: BoxDecoration(borderRadius: const BorderRadius.vertical(top: Radius.circular(24)), image: DecorationImage(image: networkImageProvider(ApiService.getFullImageUrl(r['imageUrl'])), fit: BoxFit.cover))),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -304,7 +305,7 @@ class RideListScreenState extends State<RideListScreen> {
     return Container(
       width: 120, margin: const EdgeInsets.only(right: 16),
       child: Column(children: [
-        CircleAvatar(radius: 40, backgroundImage: NetworkImage(ApiService.getFullImageUrl(d['imageUrl'] ?? ''))),
+        CircleAvatar(radius: 40, backgroundImage: networkImageProvider(ApiService.getFullImageUrl(d['imageUrl'] ?? ''))),
         const SizedBox(height: 8),
         Text(d['name'] ?? 'Spot', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.bold, color: textDark), maxLines: 1, overflow: TextOverflow.ellipsis),
       ]),

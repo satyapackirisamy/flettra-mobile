@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/api_service.dart';
+import '../../widgets/network_image_widget.dart';
 
 class AdminDestinationFormScreen extends StatefulWidget {
   final Map<String, dynamic>? destination;
@@ -166,12 +167,12 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
               if (_imageUrlController.text.isNotEmpty) ...[
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.network(
-                    _imageUrlController.text,
+                  child: SafeNetworkImage(
+                    url: _imageUrlController.text,
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
+                    errorWidget: Container(
                       height: 180,
                       color: Colors.grey[100],
                       child: const Center(child: Text('Invalid image URL')),

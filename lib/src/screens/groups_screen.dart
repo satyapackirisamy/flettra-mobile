@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../utils/snackbar_helper.dart';
+import '../widgets/network_image_widget.dart';
 import 'group_details_screen.dart';
 import 'notifications_screen.dart';
 
@@ -242,7 +243,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                           height: 200,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(image: NetworkImage(_groupImage(0)), fit: BoxFit.cover),
+                            image: DecorationImage(image: networkImageProvider(_groupImage(0)), fit: BoxFit.cover),
                           ),
                           child: Container(
                             decoration: BoxDecoration(

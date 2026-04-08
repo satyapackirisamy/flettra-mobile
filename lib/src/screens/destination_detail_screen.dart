@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../widgets/network_image_widget.dart';
 import 'create_ride_screen.dart';
 
 class DestinationDetailScreen extends StatefulWidget {
@@ -72,8 +73,8 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                   ),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Image.network(
-                    _destination!['imageUrl'] ?? 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop',
+                  background: SafeNetworkImage(
+                    url: _destination!['imageUrl'] ?? 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop',
                     fit: BoxFit.cover,
                   ),
                 ),
