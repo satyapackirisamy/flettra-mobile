@@ -66,8 +66,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
       setState(() => _isLoading = true);
       try {
-        await _authService.login(identifier, password);
-        final user = await _authService.getUser();
+        final user = await _authService.login(identifier, password);
         if (mounted) {
           final role = user['role']?.toString().toLowerCase();
           if (role == 'admin') {
@@ -85,8 +84,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       } catch (e) {
         if (mounted) {
           String msg = 'Login failed. Please check your credentials.';
-          if (e is DioException && e.response?.statusCode == 401) {
-            msg = 'Invalid email or password.';
+          if (e is DioException) {
+            if (e.response?.statusCode == 401) {
+              msg = 'Invalid email or password.';
+            } else if (e.type == DioExceptionType.connectionTimeout ||
+                e.type == DioExceptionType.receiveTimeout ||
+                e.type == DioExceptionType.connectionError) {
+              msg = 'Cannot reach server: ${e.requestOptions.baseUrl}';
+            } else {
+              msg = 'Error ${e.response?.statusCode}: ${e.response?.data ?? e.message}';
+            }
+          } else {
+            msg = 'Error: $e';
           }
           _showSnack(msg);
         }

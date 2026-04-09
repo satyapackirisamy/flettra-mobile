@@ -8,12 +8,14 @@ class ApiService {
   late Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  // Set via: flutter run --dart-define=API_URL=http://192.168.x.x:3000
-  // Production builds use https://api.flettra.com by default
-  static const String baseUrl = String.fromEnvironment(
-    'API_URL',
-    defaultValue: 'https://api.flettra.com',
-  );
+  // In debug mode: defaults to http://localhost:3000 (no --dart-define needed)
+  // In release mode: defaults to https://api.flettra.com
+  // Override any time: flutter run --dart-define=API_URL=http://192.168.x.x:3000
+  static final String baseUrl = () {
+    const fromEnv = String.fromEnvironment('API_URL');
+    if (fromEnv.isNotEmpty) return fromEnv;
+    return kDebugMode ? 'http://localhost:3000' : 'https://api.flettra.com';
+  }();
 
   ApiService() {
     _dio = Dio(BaseOptions(
