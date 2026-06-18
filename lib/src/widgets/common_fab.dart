@@ -40,7 +40,7 @@ class CommonFab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Text("Create New", style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
+            Text("Create New", style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
             const SizedBox(height: 24),
             _buildOptionTile(
               context, 
@@ -61,7 +61,7 @@ class CommonFab extends StatelessWidget {
               "Ride",
               "Create a new ride", 
               Icons.directions_car_rounded, 
-              const Color(0xFFFF5500),
+              const Color(0xFFFF6B2C),
               const Color(0xFFFFF1EB),
                () {
                 Navigator.pop(context);
@@ -101,7 +101,7 @@ class CommonFab extends StatelessWidget {
                     return StatefulBuilder(
                       builder: (ctx, setDialogState) => AlertDialog(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                        title: const Text('Create Group', style: TextStyle(fontWeight: FontWeight.w900)),
+                        title: const Text('Create Group', style: TextStyle(fontWeight: FontWeight.w700)),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -189,9 +189,9 @@ class CommonFab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 16, color: const Color(0xFF1E293B))),
+                  Text(title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16, color: const Color(0xFF1E293B))),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: GoogleFonts.plusJakartaSans(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text(subtitle, style: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
@@ -210,9 +210,9 @@ class CommonFab extends StatelessWidget {
         width: 64,
         height: 64,
         decoration: BoxDecoration(
-          color: const Color(0xFFFF5500),
+          color: const Color(0xFFFF6B2C),
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: const Color(0xFFFF5500).withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
+          boxShadow: [BoxShadow(color: const Color(0xFFFF6B2C).withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
           border: Border.all(color: Colors.white, width: 4),
         ),
         child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),

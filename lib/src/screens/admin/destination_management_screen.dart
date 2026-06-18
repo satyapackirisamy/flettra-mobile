@@ -104,7 +104,7 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                           const SizedBox(height: 16),
                           Text(
                             'No destinations created yet',
-                            style: GoogleFonts.plusJakartaSans(color: Colors.grey[500], fontSize: 16),
+                            style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 16),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
@@ -174,7 +174,7 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                     Expanded(
                       child: Text(
                         dest['name'] ?? 'Untitled',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800),
+                        style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800),
                       ),
                     ),
                     _buildActiveBadge(dest['isActive'] ?? true),
@@ -187,14 +187,14 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                     const SizedBox(width: 4),
                     Text(
                       dest['location'] ?? 'Global',
-                      style: GoogleFonts.plusJakartaSans(color: Colors.grey[600], fontSize: 13),
+                      style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 13),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   dest['description'] ?? 'No description provided.',
-                  style: GoogleFonts.plusJakartaSans(color: Colors.grey[500], fontSize: 13, height: 1.5),
+                  style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 13, height: 1.5),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -192,8 +192,8 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text('Active hotspot', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
-                subtitle: Text('Should this appear on user home screen', style: GoogleFonts.plusJakartaSans(fontSize: 12)),
+                title: Text('Active hotspot', style: GoogleFonts.dmSans(fontWeight: FontWeight.bold)),
+                subtitle: Text('Should this appear on user home screen', style: GoogleFonts.dmSans(fontSize: 12)),
                 value: _isActive,
                 onChanged: (v) => setState(() => _isActive = v),
                 activeColor: const Color(0xFF4F46E5),
@@ -209,7 +209,7 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
   Widget _buildInputLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B))),
+      child: Text(label, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B))),
     );
   }
 
@@ -226,10 +226,10 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
       onChanged: (v) {
         if (controller == _imageUrlController) setState(() {});
       },
-      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+      style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF94A3B8)),
+        hintStyle: GoogleFonts.dmSans(color: const Color(0xFF94A3B8)),
         filled: true,
         fillColor: const Color(0xFFF8FAFC),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),

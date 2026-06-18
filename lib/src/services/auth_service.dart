@@ -15,12 +15,15 @@ class AuthService {
     }
   }
 
-  Future<void> login(String email, String password) async {
+  // Returns the user map from the login response — no second getUser() call needed
+  Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await _apiService.client.post('/auth/login', data: {
       'email': email,
       'password': password,
     });
-    await _saveTokens(response.data as Map<String, dynamic>);
+    final body = response.data as Map<String, dynamic>;
+    await _saveTokens(body);
+    return (body['user'] as Map<String, dynamic>?) ?? {};
   }
 
   Future<void> register(Map<String, dynamic> data) async {

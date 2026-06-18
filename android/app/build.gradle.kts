@@ -1,12 +1,26 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// ── Load local.properties (MAPS_API_KEY, etc.) ────────────────────────────────
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val mapsApiKey: String = localProps.getProperty("MAPS_API_KEY") ?: ""
+
+// ── Load signing keystore (android/key.properties) ────────────────────────────
+val keyProps = Properties().apply {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
 android {
-    namespace = "com.example.flettra_mobile"
+    namespace = "com.flettra.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -19,22 +33,32 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias     = keyProps.getProperty("keyAlias")     ?: "flettra"
+            keyPassword  = keyProps.getProperty("keyPassword")  ?: ""
+            storeFile    = file(keyProps.getProperty("storeFile") ?: "flettra-release.jks")
+            storePassword = keyProps.getProperty("storePassword") ?: ""
+        }
+    }
+
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.flettra_mobile"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        applicationId  = "com.flettra.app"
+        minSdk         = 21          // covers ~99% of active Android devices
+        targetSdk      = flutter.targetSdkVersion
+        versionCode    = 1
+        versionName    = "1.0.0"
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        debug {
             signingConfig = signingConfigs.getByName("debug")
+        }
+        release {
+            signingConfig   = signingConfigs.getByName("release")
+            isMinifyEnabled = false   // set true + add proguard rules when ready
+            isShrinkResources = false
         }
     }
 }

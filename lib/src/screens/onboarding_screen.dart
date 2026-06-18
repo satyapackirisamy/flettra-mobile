@@ -155,7 +155,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: _completing ? null : _completeOnboarding,
-                child: Text('Skip', style: GoogleFonts.plusJakartaSans(color: Colors.grey, fontWeight: FontWeight.w700)),
+                child: Text('Skip', style: GoogleFonts.dmSans(color: Colors.grey, fontWeight: FontWeight.w700)),
               ),
             ),
             // Content
@@ -184,13 +184,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           s['title'] as String,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -1),
+                          style: GoogleFonts.dmSans(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -1),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           s['description'] as String,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(fontSize: 15, color: Colors.grey[600], fontWeight: FontWeight.w600, height: 1.5),
+                          style: GoogleFonts.dmSans(fontSize: 15, color: Colors.grey[600], fontWeight: FontWeight.w600, height: 1.5),
                         ),
                       ],
                     ),
@@ -224,7 +224,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   child: Text(
                     _completing ? 'Getting ready...' : isLast ? 'Get Started' : 'Next',
-                    style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

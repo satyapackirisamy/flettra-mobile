@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../services/auth_service.dart';
 import 'otp_verification_screen.dart';
 import 'registration_screen.dart';
@@ -18,17 +21,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authService = AuthService();
+  final _localStorage = const FlutterSecureStorage();
+  final _localAuth = LocalAuthentication();
   bool _isLoading = false;
   bool _isPasswordLogin = true;
   bool _obscurePassword = true;
+  bool _biometricAvailable = false;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
 
-  // Brand Colors
-  static const Color primaryIndigo = Color(0xFF4F46E5);
-  static const Color primaryIndigoDark = Color(0xFF3730A3);
-  static const Color accentOrange = Color(0xFFFF530A);
-  static const Color surfaceLight = Color(0xFFF8F7FF);
+  // Brand Colors — Flettra orange palette
+  static const Color primaryIndigo = Color(0xFFFF6B2C);   // brand primary
+  static const Color primaryIndigoDark = Color(0xFFCC3300);
+  static const Color accentOrange = Color(0xFFFF6B2C);
+  static const Color surfaceLight = Colors.white;    // warm peach background
   static const Color inputFill = Color(0xFFF5F5F7);
   static const Color textDark = Color(0xFF18181B);
   static const Color textGray = Color(0xFF71717A);
@@ -40,6 +46,65 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
     _animController.forward();
+    _checkBiometricAvailability();
+  }
+
+  Future<void> _checkBiometricAvailability() async {
+    try {
+      final canAuth = await _localAuth.canCheckBiometrics;
+      final isDeviceSupported = await _localAuth.isDeviceSupported();
+      final savedEmail = await _localStorage.read(key: 'saved_email');
+      if (mounted) {
+        setState(() {
+          _biometricAvailable = (canAuth || isDeviceSupported) && savedEmail != null;
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _handleBiometricLogin() async {
+    try {
+      final authenticated = await _localAuth.authenticate(
+        localizedReason: 'Sign in to Flettra',
+        options: const AuthenticationOptions(
+          biometricOnly: false,
+          stickyAuth: true,
+        ),
+      );
+      if (!authenticated || !mounted) return;
+
+      final savedEmail = await _localStorage.read(key: 'saved_email');
+      final savedPassword = await _localStorage.read(key: 'saved_password');
+      if (savedEmail == null || savedPassword == null) {
+        _showSnack('No saved credentials. Please sign in with your password first.');
+        return;
+      }
+
+      setState(() => _isLoading = true);
+      try {
+        final user = await _authService.login(savedEmail, savedPassword);
+        if (mounted) {
+          final role = user['role']?.toString().toLowerCase();
+          if (role == 'admin') {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+              (route) => false,
+            );
+          } else {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const MainScreen()),
+              (route) => false,
+            );
+          }
+        }
+      } catch (_) {
+        if (mounted) _showSnack('Biometric login failed. Please sign in manually.');
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    } on PlatformException {
+      if (mounted) _showSnack('Biometric authentication not available.');
+    }
   }
 
   @override
@@ -66,8 +131,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
       setState(() => _isLoading = true);
       try {
-        await _authService.login(identifier, password);
-        final user = await _authService.getUser();
+        final user = await _authService.login(identifier, password);
+        // Save credentials so biometric login can re-authenticate later
+        await _localStorage.write(key: 'saved_email', value: identifier);
+        await _localStorage.write(key: 'saved_password', value: password);
         if (mounted) {
           final role = user['role']?.toString().toLowerCase();
           if (role == 'admin') {
@@ -85,8 +152,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       } catch (e) {
         if (mounted) {
           String msg = 'Login failed. Please check your credentials.';
-          if (e is DioException && e.response?.statusCode == 401) {
-            msg = 'Invalid email or password.';
+          if (e is DioException) {
+            if (e.response?.statusCode == 401) {
+              msg = 'Invalid email or password.';
+            } else if (e.type == DioExceptionType.connectionTimeout ||
+                e.type == DioExceptionType.receiveTimeout ||
+                e.type == DioExceptionType.connectionError) {
+              msg = 'Cannot reach server: ${e.requestOptions.baseUrl}';
+            } else {
+              msg = 'Error ${e.response?.statusCode}: ${e.response?.data ?? e.message}';
+            }
+          } else {
+            msg = 'Error: $e';
           }
           _showSnack(msg);
         }
@@ -117,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600)),
+        content: Text(message, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600)),
         backgroundColor: textDark,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -158,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF4F46E5).withOpacity(0.06),
+                              color: const Color(0xFFFF6B2C).withOpacity(0.06),
                               blurRadius: 32,
                               offset: const Offset(0, 8),
                             ),
@@ -177,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   children: [
                                     Text(
                                       'Sign In',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: GoogleFonts.dmSans(
                                         fontSize: 22,
                                         fontWeight: FontWeight.w800,
                                         color: textDark,
@@ -189,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       _isPasswordLogin
                                           ? 'Welcome back, adventurer.'
                                           : 'We\'ll send a code to your email.',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: GoogleFonts.dmSans(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         color: textGray,
@@ -238,7 +315,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   ),
                                   child: Text(
                                     'Forgot password?',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.dmSans(
                                       fontSize: 12,
                                       color: accentOrange,
                                       fontWeight: FontWeight.w700,
@@ -263,7 +340,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   padding: const EdgeInsets.symmetric(horizontal: 12),
                                   child: Text(
                                     'OR',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.dmSans(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
                                       color: const Color(0xFFA1A1AA),
@@ -275,7 +352,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               ],
                             ),
 
-                            const SizedBox(height: 20),
+                            if (_biometricAvailable) ...[
+                              const SizedBox(height: 16),
+                              _buildBiometricButton(),
+                              const SizedBox(height: 16),
+                            ] else
+                              const SizedBox(height: 20),
 
                             // Register Link
                             Center(
@@ -286,7 +368,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 child: Text.rich(
                                   TextSpan(
                                     text: 'New to Flettra? ',
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: GoogleFonts.dmSans(
                                       fontSize: 13,
                                       color: textGray,
                                       fontWeight: FontWeight.w500,
@@ -294,7 +376,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     children: [
                                       TextSpan(
                                         text: 'Create account',
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.dmSans(
                                           fontSize: 13,
                                           color: primaryIndigo,
                                           fontWeight: FontWeight.w800,
@@ -337,7 +419,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [primaryIndigo, Color(0xFF7C3AED)],
+                    colors: [primaryIndigo, Color(0xFFFF7733)],
                   ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
@@ -365,9 +447,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     ),
                     Text(
                       'F',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.dmSans(
                         fontSize: 22,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
                         height: 1,
                       ),
@@ -381,9 +463,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 children: [
                   Text(
                     'FLETTRA',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.dmSans(
                       fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                       color: textDark,
                       letterSpacing: 2.0,
                       height: 1.0,
@@ -391,7 +473,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   ),
                   Text(
                     'Social Travel',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.dmSans(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: textGray,
@@ -423,9 +505,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           // Hero headline
           Text(
             'Welcome\nback.',
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.dmSans(
               fontSize: 34,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: textDark,
               height: 1.1,
               letterSpacing: -0.5,
@@ -436,7 +518,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             children: [
               Text(
                 'Your next adventure awaits  ',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.dmSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: textGray,
@@ -450,7 +532,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
                 child: Text(
                   '✦ Ride on',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.dmSans(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: primaryIndigo,
@@ -477,7 +559,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         ),
         child: Text(
           _isPasswordLogin ? 'Use OTP' : 'Use Password',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.dmSans(
             fontSize: 11,
             fontWeight: FontWeight.w800,
             color: primaryIndigo,
@@ -492,7 +574,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   Widget _buildInputLabel(String label) {
     return Text(
       label,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.dmSans(
         fontSize: 12,
         fontWeight: FontWeight.w700,
         color: textDark,
@@ -515,14 +597,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       controller: controller,
       obscureText: isObscure,
       keyboardType: keyboardType,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: textDark,
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.plusJakartaSans(
+        hintStyle: GoogleFonts.dmSans(
           fontSize: 14,
           color: const Color(0xFFA1A1AA),
           fontWeight: FontWeight.w400,
@@ -562,6 +644,30 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
   }
 
+  // ─── Biometric Button ────────────────────────────────────────────────────────
+  Widget _buildBiometricButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: _isLoading ? null : _handleBiometricLogin,
+        icon: const Icon(Icons.fingerprint_rounded, size: 22),
+        label: Text(
+          'Sign in with Face ID / Fingerprint',
+          style: GoogleFonts.dmSans(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primaryIndigo,
+          side: const BorderSide(color: primaryIndigo, width: 1.5),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      ),
+    );
+  }
+
   // ─── Primary Button ───────────────────────────────────────────────────────────
   Widget _buildPrimaryButton() {
     return SizedBox(
@@ -574,7 +680,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               : const LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
-                  colors: [primaryIndigo, Color(0xFF7C3AED)],
+                  colors: [primaryIndigo, Color(0xFFFF7733)],
                 ),
           color: _isLoading ? const Color(0xFFE0E0E0) : null,
           borderRadius: BorderRadius.circular(16),
@@ -610,7 +716,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   children: [
                     Text(
                       _isPasswordLogin ? 'Sign In' : 'Send Code',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,

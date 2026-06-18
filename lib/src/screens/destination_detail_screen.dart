@@ -91,7 +91,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                           Expanded(
                             child: Text(
                               _destination!['name'],
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.dmSans(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: -1,
@@ -121,7 +121,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                           const SizedBox(width: 4),
                           Text(
                             _destination!['location'] ?? 'India',
-                            style: GoogleFonts.plusJakartaSans(
+                            style: GoogleFonts.dmSans(
                               fontSize: 16,
                               color: Colors.grey[600],
                               fontWeight: FontWeight.w500,
@@ -132,7 +132,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                       const SizedBox(height: 32),
                       Text(
                         'About Destination',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.dmSans(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                         ),
@@ -140,7 +140,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                       const SizedBox(height: 12),
                       Text(
                         _destination!['description'] ?? 'No description available for this destination.',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.dmSans(
                           fontSize: 15,
                           height: 1.6,
                           color: Colors.grey[700],
@@ -173,7 +173,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF5500),
+                  backgroundColor: const Color(0xFFFF6B2C),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   elevation: 8,
@@ -183,7 +183,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                   children: [
                     Text(
                       'START JOURNEY TO ${_destination!['name'].toString().toUpperCase()}',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.dmSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,
