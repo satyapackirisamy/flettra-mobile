@@ -107,7 +107,7 @@ class NotificationService {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.directions_car_rounded, color: Color(0xFFFF5500), size: 24),
+                  const Icon(Icons.directions_car_rounded, color: Color(0xFFFF6B2C), size: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

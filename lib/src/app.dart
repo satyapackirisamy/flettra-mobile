@@ -14,34 +14,34 @@ class FlettraApp extends StatelessWidget {
       title: 'Flettra',
       theme: ThemeData(
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFFBFBFE),
+        scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4F46E5),
-          primary: const Color(0xFF4F46E5),
-          secondary: const Color(0xFF7C3AED),
+          seedColor: const Color(0xFFFF6B2C),
+          primary: const Color(0xFFFF6B2C),
+          secondary: const Color(0xFFFF8C5A),
           surface: Colors.white,
-          background: const Color(0xFFFBFBFE),
           error: const Color(0xFFF43F5E),
         ),
-        textTheme: GoogleFonts.plusJakartaSansTextTheme(
+        textTheme: GoogleFonts.dmSansTextTheme(
           Theme.of(context).textTheme.apply(
-            bodyColor: const Color(0xFF0F172A),
-            displayColor: const Color(0xFF0F172A),
+            bodyColor: const Color(0xFF111111),
+            displayColor: const Color(0xFF111111),
           ),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Color(0xFF0F172A),
+          backgroundColor: Colors.white,
+          foregroundColor: Color(0xFF111111),
           elevation: 0,
           scrolledUnderElevation: 0,
           centerTitle: true,
           titleTextStyle: TextStyle(
-            fontSize: 20, 
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF0F172A),
-            letterSpacing: -0.5,
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF111111),
+            letterSpacing: -0.3,
+            fontFamily: 'DM Sans',
           ),
-          iconTheme: IconThemeData(color: Color(0xFF0F172A)),
+          iconTheme: IconThemeData(color: Color(0xFF111111)),
         ),
         cardTheme: CardThemeData(
           elevation: 2,
@@ -52,29 +52,29 @@ class FlettraApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF4F46E5),
+            backgroundColor: const Color(0xFFFF6B2C),
             foregroundColor: Colors.white,
-            elevation: 8,
-            shadowColor: const Color(0x4D4F46E5),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, letterSpacing: 1.0),
+            elevation: 0,
+            shadowColor: Colors.transparent,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+            textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, fontFamily: 'DM Sans'),
           ),
         ),
         snackBarTheme: SnackBarThemeData(
     behavior: SnackBarBehavior.floating,
-    backgroundColor: Colors.white,
-    contentTextStyle: const TextStyle(fontFamily: 'Plus Jakarta Sans', fontWeight: FontWeight.w700, color: Color(0xFF1E293B), fontSize: 14),
+    backgroundColor: const Color(0xFF111111),
+    contentTextStyle: const TextStyle(fontFamily: 'DM Sans', fontWeight: FontWeight.w500, color: Colors.white, fontSize: 14),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     elevation: 4,
     insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
   ),
   inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFF8FAFC),
+          fillColor: const Color(0xFFF5F5F7),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2)),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFFF6B2C), width: 1.5)),
           contentPadding: const EdgeInsets.all(20),
           hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w600, fontSize: 14),
         ),
@@ -109,7 +109,7 @@ class _AuthCheckState extends State<AuthCheck> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
              backgroundColor: Colors.white,
-             body: Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5))),
+             body: Center(child: CircularProgressIndicator(color: Color(0xFFFF6B2C))),
           );
         }
         if (snapshot.hasData && snapshot.data == true) {
@@ -119,7 +119,7 @@ class _AuthCheckState extends State<AuthCheck> {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
                   backgroundColor: Colors.white,
-                  body: Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5))),
+                  body: Center(child: CircularProgressIndicator(color: Color(0xFFFF6B2C))),
                 );
               }
               if (userSnapshot.hasData) {

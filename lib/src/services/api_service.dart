@@ -1,27 +1,22 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../config.dart';
 import '../widgets/network_image_widget.dart' as img_helper;
 
 class ApiService {
   late Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  // In debug mode: defaults to http://localhost:3000 (no --dart-define needed)
-  // In release mode: defaults to https://api.flettra.com
-  // Override any time: flutter run --dart-define=API_URL=http://192.168.x.x:3000
-  static final String baseUrl = () {
-    const fromEnv = String.fromEnvironment('API_URL');
-    if (fromEnv.isNotEmpty) return fromEnv;
-    return kDebugMode ? 'http://localhost:3000' : 'https://api.flettra.com';
-  }();
+  // URL comes from lib/src/config.dart (gitignored).
+  // New devs: cp lib/src/config.example.dart lib/src/config.dart
+  static const String baseUrl = apiUrl;
 
   ApiService() {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 30),
       headers: {'Content-Type': 'application/json'},
     ));
 
@@ -76,6 +71,7 @@ class ApiService {
 
   // Profile
   Future<Response> getProfile() => _dio.get('/users/profile');
+  Future<Response> getUserById(String id) => _dio.get('/users/$id');
   Future<Response> updateProfile(Map<String, dynamic> data) => _dio.patch('/users/profile', data: data);
   
   // Buddies
@@ -174,7 +170,7 @@ class ApiService {
   Future<Response> completeRideWithGps(String id, {double? lat, double? lng}) => _dio.post('/rides/$id/complete', data: {if (lat != null) 'lat': lat, if (lng != null) 'lng': lng});
 
   static const String _placeholderImage = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800';
-  static const String _placeholderAvatar = 'https://ui-avatars.com/api/?background=4F46E5&color=fff&size=128&name=U';
+  static const String _placeholderAvatar = 'https://ui-avatars.com/api/?background=FF5500&color=fff&size=128&name=U';
 
   // Helper for all network images — always returns an absolute URL
   static String getFullImageUrl(String? path) {
@@ -191,20 +187,23 @@ class ApiService {
   static String getAvatarUrl(String? path, {String name = 'U'}) {
     if (path == null || path.isEmpty) {
       final encoded = Uri.encodeComponent(name.isNotEmpty ? name : 'U');
-      return 'https://ui-avatars.com/api/?background=4F46E5&color=fff&size=128&name=$encoded';
+      return 'https://ui-avatars.com/api/?background=FF5500&color=fff&size=128&name=$encoded';
     }
     if (path.startsWith('http')) return path;
     final cleanPath = path.startsWith('/') ? path : '/$path';
     return "$baseUrl$cleanPath";
   }
 
+  // Returns the RELATIVE path (e.g. /uploads/files/xxx.jpg) — callers must
+  // use getFullImageUrl() for display.  Storing the relative path in the DB
+  // keeps records portable across environments (local / production).
   Future<String> uploadImage(dynamic xFile) async {
     String fileName = xFile.name;
     final bytes = await xFile.readAsBytes();
     FormData formData = FormData.fromMap({
       "file": MultipartFile.fromBytes(bytes, filename: fileName),
     });
-    final response = await _dio.post('/uploads', data: formData);
-    return getFullImageUrl(response.data['url']);
+    final response = await _dio.post('/uploads/image', data: formData);
+    return response.data['url'] as String; // e.g. /uploads/files/xxxx.jpg
   }
 }

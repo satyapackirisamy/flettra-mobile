@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../services/cloudinary_service.dart';
 import '../constants/locations.dart';
 import '../utils/snackbar_helper.dart';
 import '../widgets/network_image_widget.dart';
@@ -56,7 +58,8 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
   GenderPreference _genderPreference = GenderPreference.any;
   bool _isPrivateCircle = false; // Visibility: false = ANYONE, true = CIRCLE
   bool _generateItinerary = false;
-  bool _isLoading = false;
+  bool _isLoading   = false;
+  bool _isUploading = false;
   late List<dynamic> _currentSelectedMembers;
 
   final Map<String, String> _themes = {
@@ -101,11 +104,33 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
       initialDate: initial,
       firstDate: first,
       lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: Color(0xFFFF6B2C),
+            onPrimary: Colors.white,
+            surface: Colors.white,
+            onSurface: Color(0xFF1A1A1A),
+          ),
+        ),
+        child: child!,
+      ),
     );
     if (date != null && mounted) {
       final time = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(initial),
+        builder: (context, child) => Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFFFF6B2C),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Color(0xFF1A1A1A),
+            ),
+          ),
+          child: child!,
+        ),
       );
       if (time != null) {
         setState(() {
@@ -127,15 +152,29 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
     return diff.inDays > 0 ? diff.inDays : 1;
   }
 
+  Future<void> _pickAndUploadImage() async {
+    setState(() => _isUploading = true);
+    try {
+      final url = await CloudinaryService.pickAndUpload(context);
+      if (url != null && mounted) {
+        setState(() => _coverImageController.text = url);
+      }
+    } catch (e) {
+      if (mounted) showError(context, 'Upload failed: $e');
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
   Future<void> _submitRide() async {
     if (!_formKey.currentState!.validate()) return;
 
     final seats = int.tryParse(_seatsController.text.trim());
-    final price = double.tryParse(_priceController.text.trim());
+    final price = double.tryParse(_priceController.text.trim()); // optional
 
-    if (seats == null || price == null) {
+    if (seats == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter valid numbers for seats and price')),
+        const SnackBar(content: Text('Please enter a valid number of seats')),
       );
       return;
     }
@@ -152,7 +191,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
         'arrivalDate': DateFormat('yyyy-MM-dd').format(_arrivalDate),
         'arrivalTime': DateFormat('HH:mm').format(_arrivalDate),
         'seatsAvailable': seats,
-        'pricePerSeat': price,
+        if (price != null) 'pricePerSeat': price,
         if (_descriptionController.text.trim().isNotEmpty) 'description': _descriptionController.text.trim(),
         if (_rulesController.text.trim().isNotEmpty) 'rules': _rulesController.text.trim(),
         'transportMode': _transportMode.value,
@@ -192,361 +231,555 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
   }
 
 
+
+  // ─── Colors ───────────────────────────────────────────────────────────────
+  static const Color _primary = Color(0xFFFF6B2C);
+  static const Color _primaryEnd = Color(0xFFFF8C5A);
+  static const Color _dark    = Color(0xFF1A1A1A);
+  static const Color _bg      = Color(0xFFF8F8F8);
+
+  // ─── Build ────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: _bg,
       appBar: AppBar(
-        title: const Text('New Ride', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -1.0)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            margin: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Color(0xFF1A1A1A)),
+          ),
+        ),
+        title: Text(
+          'Create Ride',
+          style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: _dark, letterSpacing: -0.4),
+        ),
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
+            child: GestureDetector(
+              onTap: _isLoading ? null : _submitRide,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                decoration: BoxDecoration(
+                  color: _primary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Center(
+                  child: _isLoading
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text('Publish', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
         child: Form(
           key: _formKey,
-    // Add _buildAutocompleteField inside _CreateRideScreenState if needed or use standalone
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── Cover Theme ────────────────────────────────────────────
-              const Text('Trip Theme', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 110,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: _themes.entries.map((entry) {
-                    final isSelected = _coverImageController.text == entry.value;
-                    return GestureDetector(
-                      onTap: () => setState(() => _coverImageController.text = entry.value),
-                      child: Container(
-                        width: 160,
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          border: isSelected
-                              ? Border.all(color: primary, width: 3)
-                              : Border.all(color: Colors.transparent),
-                          image: DecorationImage(image: networkImageProvider(entry.value), fit: BoxFit.cover),
-                          boxShadow: isSelected
-                              ? [BoxShadow(color: primary.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))]
-                              : null,
-                        ),
+
+              // ── Cover Photo ───────────────────────────────────────────
+              _card([
+                _label('Cover Photo', Icons.photo_camera_rounded),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 96,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      GestureDetector(
+                        onTap: _isUploading ? null : _pickAndUploadImage,
                         child: Container(
+                          width: 106,
+                          margin: const EdgeInsets.only(right: 10),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Colors.black.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(14),
+                            color: _primary.withOpacity(0.06),
+                            border: Border.all(color: _primary.withOpacity(0.35), width: 1.5),
                           ),
-                          alignment: Alignment.center,
-                          child: Text(entry.key,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.0)),
+                          child: _isUploading
+                              ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: _primary, strokeWidth: 2)))
+                              : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                  Icon(Icons.add_photo_alternate_rounded, color: _primary, size: 24),
+                                  const SizedBox(height: 5),
+                                  Text('Upload', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _primary)),
+                                ]),
+                        ),
+                      ),
+                      ..._themes.entries.map((entry) {
+                        final isSelected = _coverImageController.text == entry.value;
+                        return GestureDetector(
+                          onTap: () => setState(() => _coverImageController.text = entry.value),
+                          child: Container(
+                            width: 140,
+                            margin: const EdgeInsets.only(right: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              border: isSelected
+                                  ? Border.all(color: _primary, width: 2.5)
+                                  : Border.all(color: Colors.transparent),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(isSelected ? 12 : 14),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  SafeNetworkImage(url: entry.value, fit: BoxFit.cover),
+                                  Container(
+                                    color: Colors.black.withOpacity(isSelected ? 0.3 : 0.45),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      entry.key,
+                                      style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Positioned(
+                                      top: 6, right: 6,
+                                      child: Container(
+                                        width: 20, height: 20,
+                                        decoration: const BoxDecoration(color: _primary, shape: BoxShape.circle),
+                                        child: const Icon(Icons.check_rounded, color: Colors.white, size: 13),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                if (_coverImageController.text.isNotEmpty && !_themes.values.contains(_coverImageController.text)) ...[
+                  const SizedBox(height: 10),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      children: [
+                        SafeNetworkImage(url: _coverImageController.text, height: 140, width: double.infinity, fit: BoxFit.cover),
+                        Positioned(
+                          bottom: 8, right: 8,
+                          child: GestureDetector(
+                            onTap: _pickAndUploadImage,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(16)),
+                              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                const Icon(Icons.photo_camera_rounded, color: Colors.white, size: 12),
+                                const SizedBox(width: 4),
+                                Text('Change', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+                              ]),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ]),
+
+              // ── Passengers (if pre-selected) ──────────────────────────
+              if (_currentSelectedMembers.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _card([
+                  _label('Passengers', Icons.people_alt_rounded),
+                  const SizedBox(height: 10),
+                  ..._currentSelectedMembers.map((member) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34, height: 34,
+                          decoration: BoxDecoration(color: _primary, borderRadius: BorderRadius.circular(10)),
+                          child: Center(
+                            child: Text(
+                              (member['name'] as String).isNotEmpty ? member['name'][0].toUpperCase() : '?',
+                              style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 14),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(member['name'] as String, style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, color: _dark))),
+                        GestureDetector(
+                          onTap: () => setState(() => _currentSelectedMembers.remove(member)),
+                          child: const Icon(Icons.remove_circle_outline_rounded, color: Colors.redAccent, size: 20),
+                        ),
+                      ],
+                    ),
+                  )),
+                ]),
+              ],
+
+              // ── Route ─────────────────────────────────────────────────
+              const SizedBox(height: 12),
+              _card([
+                _label('Route', Icons.route_rounded),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _nameController,
+                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+                  decoration: _fieldDecor('Ride name (optional)', Icons.drive_file_rename_outline_rounded),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(child: _buildLocationAutocomplete(label: 'From', icon: Icons.my_location_rounded, controller: _originController)),
+                    const SizedBox(width: 10),
+                    Expanded(child: _buildLocationAutocomplete(label: 'To', icon: Icons.location_on_rounded, controller: _destinationController)),
+                  ],
+                ),
+              ]),
+
+              // ── Schedule ──────────────────────────────────────────────
+              const SizedBox(height: 12),
+              _card([
+                _label('Schedule', Icons.calendar_month_rounded),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(child: _dateTile(
+                      label: 'Departure',
+                      icon: Icons.flight_takeoff_rounded,
+                      date: _selectedDate,
+                      onTap: () => _selectDateTime(context, false),
+                    )),
+                    const SizedBox(width: 10),
+                    Expanded(child: _dateTile(
+                      label: 'Arrival',
+                      icon: Icons.flight_land_rounded,
+                      date: _arrivalDate,
+                      onTap: () => _selectDateTime(context, true),
+                    )),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _primary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '$_calculatedDuration day${_calculatedDuration != 1 ? 's' : ''} trip',
+                      style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: _primary),
+                    ),
+                  ),
+                ),
+              ]),
+
+              // ── Details ───────────────────────────────────────────────
+              const SizedBox(height: 12),
+              _card([
+                _label('Details', Icons.tune_rounded),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _seatsController,
+                        keyboardType: TextInputType.number,
+                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: _dark),
+                        decoration: _fieldDecor('Seats available', Icons.event_seat_rounded),
+                        validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _priceController,
+                        keyboardType: TextInputType.number,
+                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: _dark),
+                        decoration: _fieldDecor('Est. budget / seat (₹, optional)', Icons.currency_rupee_rounded),
+                        validator: null,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Transport mode
+                Text('Transport', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF6B7280))),
+                const SizedBox(height: 8),
+                Row(
+                  children: TransportMode.values.map((mode) {
+                    final selected = _transportMode == mode;
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _transportMode = mode),
+                        child: Container(
+                          margin: EdgeInsets.only(right: mode != TransportMode.values.last ? 8 : 0),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: selected ? _primary : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(mode.emoji, style: const TextStyle(fontSize: 16)),
+                              const SizedBox(width: 6),
+                              Text(mode.label, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: selected ? Colors.white : const Color(0xFF374151))),
+                            ],
+                          ),
                         ),
                       ),
                     );
                   }).toList(),
                 ),
-              ),
-
-              // ── Pre-selected Passengers ────────────────────────────────
-              if (_currentSelectedMembers.isNotEmpty) ...[
-                const SizedBox(height: 32),
-                const Text('Journey Passengers', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFF1F5F9)),
-                  ),
-                  child: Column(
-                    children: _currentSelectedMembers.map((member) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 36,
-                            width: 36,
-                            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(10)),
-                            child: Center(
-                              child: Text(
-                                (member['name'] as String).isNotEmpty ? member['name'][0].toUpperCase() : '?',
-                                style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF475569)),
-                              ),
-                            ),
+                const SizedBox(height: 12),
+                // Gender preference
+                Text('Traveler preference', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF6B7280))),
+                const SizedBox(height: 8),
+                Row(
+                  children: GenderPreference.values.map((pref) {
+                    final selected = _genderPreference == pref;
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _genderPreference = pref),
+                        child: Container(
+                          margin: EdgeInsets.only(right: pref != GenderPreference.values.last ? 6 : 0),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: selected ? _primary.withOpacity(0.12) : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(10),
+                            border: selected ? Border.all(color: _primary, width: 1.5) : null,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(member['name'] as String,
-                                style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+                          child: Text(
+                            pref.label,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: selected ? _primary : const Color(0xFF6B7280)),
                           ),
-                          IconButton(
-                            onPressed: () => setState(() => _currentSelectedMembers.remove(member)),
-                            icon: const Icon(Icons.remove_circle_outline_rounded, color: Colors.redAccent, size: 20),
-                          ),
-                        ],
-                      ),
-                    )).toList(),
-                  ),
-                ),
-              ],
-
-              // ── Route ─────────────────────────────────────────────────
-              const SizedBox(height: 32),
-              const Text('Route', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-              const SizedBox(height: 16),
-              // ── Ride Name ─────────────────────────────────────────────
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Ride Name (optional)',
-                  hintText: 'e.g. Winter Spiti Ride',
-                  prefixIcon: const Icon(Icons.drive_file_rename_outline_rounded),
-                  fillColor: Colors.grey[100],
-                  filled: true,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildLocationAutocomplete(
-                      label: 'From',
-                      icon: Icons.my_location,
-                      controller: _originController,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildLocationAutocomplete(
-                      label: 'To',
-                      icon: Icons.location_on,
-                      controller: _destinationController,
-                    ),
-                  ),
-                ],
-              ),
-
-              // ── Expedition Timeline (Start & Finish) ─────────────────────────
-              const SizedBox(height: 32),
-              const Text('Timeline', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectDateTime(context, false),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(16)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Start', style: TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            Text(DateFormat('MMM dd, HH:mm').format(_selectedDate), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                          ],
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectDateTime(context, true),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: Colors.indigo[50], borderRadius: BorderRadius.circular(16)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Finish', style: TextStyle(fontSize: 10, color: Colors.indigo, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            Text(DateFormat('MMM dd, HH:mm').format(_arrivalDate), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
-                  child: Text('Total Days: $_calculatedDuration', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    );
+                  }).toList(),
                 ),
-              ),
+              ]),
 
-              // ── Seats & Price ──────────────────────────────────────────
-              const SizedBox(height: 24),
-              const Text('Logistics', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _seatsController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Seats',
-                        prefixIcon: const Icon(Icons.event_seat),
-                        fillColor: Colors.grey[100],
-                        filled: true,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                      ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _priceController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Price (₹)',
-                        prefixIcon: const Icon(Icons.currency_rupee),
-                        fillColor: Colors.grey[100],
-                        filled: true,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                      ),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
-                    ),
-                  ),
-                ],
-              ),
-
-              // ── Join Policy ──────────────────────────────────────────
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(16)),
-                child: Row(
-                  children: [
-                    Icon(_isPrivateCircle ? Icons.lock_outline : Icons.public, color: Colors.blue),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Policy', style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-                          Text(_isPrivateCircle ? 'Buddies & Groups Only' : 'Open to Anyone', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    ),
-                    Switch(
-                      value: _isPrivateCircle, 
-                      onChanged: (v) => setState(() => _isPrivateCircle = v),
-                      activeColor: Colors.blue,
-                    ),
-                  ],
+              // ── Preferences ───────────────────────────────────────────
+              const SizedBox(height: 12),
+              _card([
+                _label('Preferences', Icons.settings_rounded),
+                const SizedBox(height: 4),
+                _toggleRow(
+                  icon: _isPrivateCircle ? Icons.lock_outline_rounded : Icons.public_rounded,
+                  title: _isPrivateCircle ? 'Buddies & Groups Only' : 'Open to Anyone',
+                  subtitle: 'Who can see and join this ride',
+                  value: _isPrivateCircle,
+                  onChanged: (v) => setState(() => _isPrivateCircle = v),
                 ),
-              ),
-
-              // ── Transport Mode ─────────────────────────────────────────
-              const SizedBox(height: 16),
-              DropdownButtonFormField<TransportMode>(
-                value: _transportMode,
-                decoration: InputDecoration(
-                  labelText: 'Transport Mode',
-                  prefixIcon: const Icon(Icons.directions_car),
-                  fillColor: Colors.grey[100],
-                  filled: true,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                ),
-                items: TransportMode.values.map((mode) =>
-                  DropdownMenuItem(value: mode, child: Text('${mode.emoji} ${mode.label}'))).toList(),
-                onChanged: (v) => setState(() => _transportMode = v!),
-              ),
-
-              // ── Gender Preference ──────────────────────────────────────
-              const SizedBox(height: 16),
-              DropdownButtonFormField<GenderPreference>(
-                initialValue: _genderPreference,
-                decoration: InputDecoration(
-                  labelText: 'Gender Preference',
-                  prefixIcon: const Icon(Icons.people_alt_rounded),
-                  fillColor: Colors.grey[100],
-                  filled: true,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                ),
-                items: GenderPreference.values.map((pref) =>
-                  DropdownMenuItem(value: pref, child: Text(pref.label))).toList(),
-                onChanged: (v) => setState(() => _genderPreference = v!),
-              ),
-
-              // ── Description ────────────────────────────────────────────
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Tell us about the trip',
-                  alignLabelWithHint: true,
-                  fillColor: Colors.grey[100],
-                  filled: true,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                ),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-              ),
-
-              // ── Rules ──────────────────────────────────────────────────
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _rulesController,
-                maxLines: 2,
-                decoration: InputDecoration(
-                  labelText: 'Rules & Guidelines (optional)',
-                  alignLabelWithHint: true,
-                  fillColor: Colors.grey[100],
-                  filled: true,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                ),
-              ),
-
-              // ── AI Itinerary Toggle ────────────────────────────────────
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.amber[50],
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.amber[200]!),
-                ),
-                child: SwitchListTile(
-                  title: const Text('AI Itinerary', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('Auto-draft a full travel plan ✨', style: TextStyle(fontSize: 11)),
+                const Divider(height: 1),
+                _toggleRow(
+                  icon: Icons.auto_awesome_rounded,
+                  title: 'AI Itinerary',
+                  subtitle: 'Auto-generate a travel plan',
                   value: _generateItinerary,
                   onChanged: (v) => setState(() => _generateItinerary = v),
-                  secondary: const Icon(Icons.auto_awesome, color: Colors.amber),
+                  activeColor: const Color(0xFFF59E0B),
                 ),
-              ),
+              ]),
 
-              // ── Submit ─────────────────────────────────────────────────
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _submitRide,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              // ── Description ───────────────────────────────────────────
+              const SizedBox(height: 12),
+              _card([
+                _label('About the Trip', Icons.description_rounded),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _descriptionController,
+                  maxLines: 3,
+                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+                  decoration: InputDecoration(
+                    hintText: 'What\'s this trip about? Who should join?',
+                    hintStyle: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFFAFB8C4)),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.all(14),
+                  ),
+                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Please describe the trip' : null,
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Publish Adventure 🌍', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ]),
+
+              // ── Rules ─────────────────────────────────────────────────
+              const SizedBox(height: 12),
+              _card([
+                _label('Rules & Guidelines', Icons.gavel_rounded),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _rulesController,
+                  maxLines: 2,
+                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+                  decoration: InputDecoration(
+                    hintText: 'Optional — safety rules, packing list, etc.',
+                    hintStyle: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFFAFB8C4)),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.all(14),
+                  ),
+                ),
+              ]),
+
+              // ── Submit ────────────────────────────────────────────────
+              const SizedBox(height: 24),
+              GestureDetector(
+                onTap: _isLoading ? null : _submitRide,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  height: 56,
+                  decoration: BoxDecoration(
+                    gradient: _isLoading
+                        ? null
+                        : const LinearGradient(colors: [Color(0xFFE8551A), Color(0xFFFF6B2C), Color(0xFFFF8C5A)]),
+                    color: _isLoading ? const Color(0xFFE2E8F0) : null,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: _isLoading ? null : [
+                      BoxShadow(color: _primary.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 6)),
+                    ],
+                  ),
+                  child: Center(
+                    child: _isLoading
+                        ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.rocket_launch_rounded, color: Colors.white, size: 18),
+                              const SizedBox(width: 10),
+                              Text('Publish Ride', style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
+                            ],
+                          ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
             ],
           ),
         ),
       ),
     );
   }
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+
+  Widget _card(List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+    );
+  }
+
+  Widget _label(String text, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          width: 3, height: 16,
+          decoration: BoxDecoration(color: _primary, borderRadius: BorderRadius.circular(2)),
+        ),
+        const SizedBox(width: 8),
+        Icon(icon, size: 15, color: _primary),
+        const SizedBox(width: 6),
+        Text(text, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: _dark, letterSpacing: -0.2)),
+      ],
+    );
+  }
+
+  InputDecoration _fieldDecor(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFFAFB8C4)),
+      prefixIcon: Icon(icon, size: 18, color: const Color(0xFFAFB8C4)),
+      filled: true,
+      fillColor: const Color(0xFFF8FAFC),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFFF6B2C), width: 1.5)),
+      errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF43F5E), width: 1)),
+    );
+  }
+
+  Widget _dateTile({required String label, required IconData icon, required DateTime date, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(icon, size: 12, color: _primary),
+            const SizedBox(width: 4),
+            Text(label.toUpperCase(), style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: _primary, letterSpacing: 0.6)),
+          ]),
+          const SizedBox(height: 6),
+          Text(DateFormat('dd MMM').format(date), style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: _dark)),
+          Text(DateFormat('HH:mm').format(date), style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF6B7280))),
+        ]),
+      ),
+    );
+  }
+
+  Widget _toggleRow({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    Color? activeColor,
+  }) {
+    final color = activeColor ?? _primary;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: value ? color.withOpacity(0.1) : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: value ? color : const Color(0xFF9CA3AF)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(title, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _dark)),
+              Text(subtitle, style: GoogleFonts.dmSans(fontSize: 11, color: const Color(0xFF9CA3AF))),
+            ]),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: color,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLocationAutocomplete({
     required String label,
     required IconData icon,
@@ -554,26 +787,13 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
   }) {
     return Autocomplete<String>(
       optionsBuilder: (TextEditingValue textEditingValue) async {
-        if (textEditingValue.text.length < 2) {
-          return const Iterable<String>.empty();
-        }
-
-        // 1. Search local favorites first for speed
-        final localMatches = indianCities.where((String city) {
-          return city.toLowerCase().contains(textEditingValue.text.toLowerCase());
-        }).toList();
-
-        // 2. Fetch from Network (Nominatim) for exact/obscure places
+        if (textEditingValue.text.length < 2) return const Iterable<String>.empty();
+        final localMatches = indianCities.where((city) =>
+            city.toLowerCase().contains(textEditingValue.text.toLowerCase())).toList();
         try {
           final res = await Dio().get(
             'https://nominatim.openstreetmap.org/search',
-            queryParameters: {
-              'q': textEditingValue.text,
-              'format': 'json',
-              'addressdetails': 1,
-              'limit': 10,
-              'countrycodes': 'in', // Limit to India as requested
-            },
+            queryParameters: {'q': textEditingValue.text, 'format': 'json', 'addressdetails': 1, 'limit': 10, 'countrycodes': 'in'},
           );
           if (res.statusCode == 200) {
             final List results = res.data;
@@ -581,37 +801,20 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
               final addr = item['address'];
               return addr['city'] ?? addr['town'] ?? addr['village'] ?? addr['state'] ?? item['display_name'];
             }).whereType<String>().toSet();
-            
             return {...localMatches, ...networkCities}.toList();
           }
-        } catch (e) {
-          debugPrint('Place search error: $e');
-        }
-
+        } catch (_) {}
         return localMatches;
       },
-      onSelected: (String selection) {
-        controller.text = selection;
-      },
+      onSelected: (selection) => controller.text = selection,
       fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
-        // Sync initial value
-        if (textController.text != controller.text) {
-          textController.text = controller.text;
-        }
-        textController.addListener(() {
-          controller.text = textController.text;
-        });
-
+        if (textController.text != controller.text) textController.text = controller.text;
+        textController.addListener(() => controller.text = textController.text);
         return TextFormField(
           controller: textController,
           focusNode: focusNode,
-          decoration: InputDecoration(
-            labelText: label,
-            prefixIcon: Icon(icon),
-            fillColor: Colors.grey[100],
-            filled: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-          ),
+          style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+          decoration: _fieldDecor(label, icon),
           validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
         );
       },
@@ -619,20 +822,22 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
         return Align(
           alignment: Alignment.topLeft,
           child: Material(
-            elevation: 8,
-            borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              width: (MediaQuery.of(context).size.width - 64) / 2, 
+            elevation: 6,
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.white,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width - 52) / 2, maxHeight: 200),
               child: ListView.separated(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 itemCount: options.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, __) => const Divider(height: 1, indent: 14),
                 itemBuilder: (context, index) {
                   final option = options.elementAt(index);
                   return ListTile(
                     dense: true,
-                    title: Text(option, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    leading: Icon(Icons.location_on_rounded, size: 14, color: _primary),
+                    title: Text(option, style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 13, color: _dark)),
                     onTap: () => onSelected(option),
                   );
                 },

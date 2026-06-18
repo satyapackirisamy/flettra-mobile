@@ -95,7 +95,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
              const SizedBox(height: 8),
             Text(
               'Enter the 6-digit code sent to ${widget.identifier}',
-              style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
+              style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
             ),
             const SizedBox(height: 48),
 

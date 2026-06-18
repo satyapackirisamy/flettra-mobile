@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secret config files — contain API keys
+android/local.properties
+ios/Flutter/AppEnvironment.xcconfig
+lib/src/config.dart

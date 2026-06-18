@@ -72,19 +72,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text('Notifications', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800)),
+        title: Text('Notifications', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
         actions: [
           TextButton(
             onPressed: () async {
               await _apiService.client.post('/notifications/read-all');
               _fetchNotifications();
             },
-            child: Text('Mark all read', style: GoogleFonts.plusJakartaSans(color: const Color(0xFFFF5500), fontWeight: FontWeight.w700, fontSize: 13)),
+            child: Text('Mark all read', style: GoogleFonts.dmSans(color: const Color(0xFFFF6B2C), fontWeight: FontWeight.w700, fontSize: 13)),
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF5500)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B2C)))
           : _notifications.isEmpty
               ? Center(
                   child: Column(
@@ -92,13 +92,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Icon(Icons.notifications_none_rounded, size: 56, color: Colors.grey[300]),
                       const SizedBox(height: 12),
-                      Text('No notifications yet', style: GoogleFonts.plusJakartaSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
+                      Text('No notifications yet', style: GoogleFonts.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
                     ],
                   ),
                 )
               : RefreshIndicator(
                   onRefresh: _fetchNotifications,
-                  color: const Color(0xFFFF5500),
+                  color: const Color(0xFFFF6B2C),
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: _notifications.length,
@@ -134,7 +134,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   children: [
                                     Text(
                                       n['title'] ?? '',
-                                      style: GoogleFonts.plusJakartaSans(
+                                      style: GoogleFonts.dmSans(
                                         fontWeight: isUnread ? FontWeight.w800 : FontWeight.w600,
                                         fontSize: 14,
                                       ),
@@ -142,7 +142,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       n['message'] ?? '',
-                                      style: GoogleFonts.plusJakartaSans(color: Colors.grey[600], fontSize: 12, height: 1.3),
+                                      style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 12, height: 1.3),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -152,7 +152,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               if (isUnread)
                                 Container(
                                   width: 8, height: 8,
-                                  decoration: const BoxDecoration(color: Color(0xFFFF5500), shape: BoxShape.circle),
+                                  decoration: const BoxDecoration(color: Color(0xFFFF6B2C), shape: BoxShape.circle),
                                 ),
                             ],
                           ),
@@ -179,7 +179,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'buddy_accepted':
         return _NotifIcon(Icons.people_rounded, const Color(0xFF059669), const Color(0xFFECFDF5));
       case 'ride_request':
-        return _NotifIcon(Icons.front_hand_rounded, const Color(0xFFFF5500), const Color(0xFFFFF3E0));
+        return _NotifIcon(Icons.front_hand_rounded, const Color(0xFFFF6B2C), const Color(0xFFFFF3E0));
       case 'ride_joined':
         return _NotifIcon(Icons.person_add_alt_1_rounded, const Color(0xFF059669), const Color(0xFFECFDF5));
       case 'ride_accepted':
@@ -187,7 +187,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'ride_cancelled':
         return _NotifIcon(Icons.cancel_rounded, const Color(0xFFDC2626), const Color(0xFFFEF2F2));
       case 'ride_completed':
-        return _NotifIcon(Icons.flag_rounded, const Color(0xFFFF5500), const Color(0xFFFFF3E0));
+        return _NotifIcon(Icons.flag_rounded, const Color(0xFFFF6B2C), const Color(0xFFFFF3E0));
       case 'ride_started':
         return _NotifIcon(Icons.play_circle_rounded, const Color(0xFF059669), const Color(0xFFECFDF5));
       case 'rating_received':

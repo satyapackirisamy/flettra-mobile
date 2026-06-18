@@ -18,6 +18,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final GlobalKey<RideListScreenState> _rideListKey = GlobalKey<RideListScreenState>();
+  final GlobalKey<TimelineScreenState> _timelineKey = GlobalKey<TimelineScreenState>();
 
   late final List<Widget> _pages;
 
@@ -26,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _pages = [
       RideListScreen(key: _rideListKey),
-      const TimelineScreen(),
+      TimelineScreen(key: _timelineKey),
       const AllRidesScreen(),
       const GroupsScreen(),
       const ProfileScreen(),
@@ -39,12 +40,11 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Hide FAB only on Profile tab
     final bool showFab = _currentIndex != 4;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      extendBody: true, 
+      extendBody: true,
       body: Stack(
         children: [
           // 1. The Main Content
@@ -54,17 +54,20 @@ class _MainScreenState extends State<MainScreen> {
               children: _pages,
             ),
           ),
-          
+
           // 2. The Global CREATION Action
           if (showFab) Positioned(
             right: 16,
-            bottom: 100, 
+            bottom: 100,
             child: CommonFab(
-              onPostCreated: () {},
+              onPostCreated: () {
+                setState(() => _currentIndex = 1); // switch to Feed tab
+                _timelineKey.currentState?.refresh();
+              },
               onRideCreated: () => _rideListKey.currentState?.refresh(),
             ),
           ),
-          
+
           // 3. The Premium Bottom Navigation Shell
           Positioned(
             left: 0,
@@ -74,10 +77,10 @@ class _MainScreenState extends State<MainScreen> {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  height: 90,
+                  height: 72,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
-                    border: Border(top: BorderSide(color: Colors.white.withOpacity(0.2), width: 0.5)),
+                    color: Colors.white,
+                    border: Border(top: BorderSide(color: const Color(0xFFEEEEEE), width: 1.0)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -100,8 +103,8 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavBtn(int index, IconData icon, String label) {
     bool isSelected = _currentIndex == index;
-    Color activeColor = const Color(0xFFFF5500); 
-    
+    const activeColor = Color(0xFFFF6B2C);
+
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _currentIndex = index),
@@ -112,21 +115,21 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             AnimatedScale(
               duration: const Duration(milliseconds: 200),
-              scale: isSelected ? 1.1 : 1.0,
+              scale: isSelected ? 1.05 : 1.0,
               child: Icon(
                 icon,
-                color: isSelected ? activeColor : Colors.grey[400],
-                size: 26,
+                color: isSelected ? activeColor : const Color(0xFFBBBBBB),
+                size: 24,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               label,
-              style: GoogleFonts.plusJakartaSans(
-                color: isSelected ? activeColor : Colors.grey[400],
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                letterSpacing: 0.2,
+              style: GoogleFonts.dmSans(
+                color: isSelected ? activeColor : const Color(0xFFBBBBBB),
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                letterSpacing: 0.0,
               ),
             ),
           ],

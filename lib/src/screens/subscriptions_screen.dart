@@ -66,7 +66,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFBFBFE),
       appBar: AppBar(
-        title: const Text('Society Access', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 24, letterSpacing: -1.0)),
+        title: const Text('Society Access', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24, letterSpacing: -1.0)),
       ),
       body: _isLoading 
           ? const Center(child: CircularProgressIndicator())
@@ -101,20 +101,20 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(plan['name'].toString().toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isPremium ? const Color(0xFF4F46E5) : Colors.grey[400], letterSpacing: 2.0)),
+                Text(plan['name'].toString().toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isPremium ? const Color(0xFF4F46E5) : Colors.grey[400], letterSpacing: 2.0)),
                 const SizedBox(height: 12),
                 Text(plan['description'], style: TextStyle(color: Colors.grey[600], height: 1.5, fontSize: 13, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 32),
                 RichText(
                   text: TextSpan(
                     children: [
-                      TextSpan(text: "₹${plan['price']}", style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1.0)),
+                      TextSpan(text: "₹${plan['price']}", style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w700, color: Color(0xFF1E293B), letterSpacing: -1.0)),
                       TextSpan(text: " / ${plan['durationDays']}d", style: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.w700, fontSize: 14)),
                     ],
                   ),
                 ),
                 const SizedBox(height: 32),
-                const Text('BENEFITS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF94A3B8), letterSpacing: 2.0)),
+                const Text('BENEFITS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8), letterSpacing: 2.0)),
                 const SizedBox(height: 16),
                 ... (plan['features'] as List).map((f) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
@@ -138,7 +138,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
-                    child: Text('ACTIVATE PLAN', style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 13)),
+                    child: Text('ACTIVATE PLAN', style: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: 1.5, fontSize: 13)),
                   ),
                 ),
               ],
@@ -155,7 +155,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
                 ),
-                child: const Text('RECOMMENDED', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                child: const Text('RECOMMENDED', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 1.5)),
               ),
             ),
         ],
