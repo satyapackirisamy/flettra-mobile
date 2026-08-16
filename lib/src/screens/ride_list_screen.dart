@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -168,66 +170,85 @@ class RideListScreenState extends State<RideListScreen> {
 
   // ─── Data ───────────────────────────────────────────────────────────────────
 
+  /// Loads the home screen.
+  ///
+  /// Previously this awaited a single `Future.wait` over four things — rides,
+  /// destinations, the profile, *and* a GPS fix followed by a call to a
+  /// third-party reverse-geocode API. Nothing painted until the slowest of
+  /// those finished, and on a cold start with location enabled that is seconds.
+  /// It is the single biggest contributor to "the app is not responsive".
+  ///
+  /// Now the rides request alone gates the first paint. Everything else lands
+  /// when it lands, and location — by far the slowest — never blocks anything.
   Future<void> _fetchRides() async {
     setState(() => _isLoading = true);
+
+    // Kick all of these off together; await them separately.
+    final ridesFuture = _apiService.client.get('/rides').catchError(
+        (_) => Response(requestOptions: RequestOptions(path: ''), data: []));
+    final destinationsFuture = _apiService.getDestinations().catchError(
+        (_) => Response(requestOptions: RequestOptions(path: ''), data: []));
+    final profileFuture = _apiService.getProfile().catchError(
+        (_) => Response(requestOptions: RequestOptions(path: ''), data: {}));
+
+    // ── First paint: rides only ──────────────────────────────────────────
     try {
-      final results = await Future.wait([
-        _apiService.client.get('/rides').catchError(
-            (_) => Response(requestOptions: RequestOptions(path: ''), data: [])),
-        _apiService.getDestinations().catchError(
-            (_) => Response(requestOptions: RequestOptions(path: ''), data: [])),
-        _getUserCity(),
-        _apiService.getProfile().catchError(
-            (_) => Response(requestOptions: RequestOptions(path: ''), data: {})),
-      ]);
-
+      final ridesRes = await ridesFuture;
       if (!mounted) return;
-
-      final profileRes = results[3] as Response;
-      final profile    = profileRes.data is Map ? profileRes.data as Map : <String, dynamic>{};
-
-      List<dynamic> rawRides = [];
-      final ridesData = (results[0] as Response).data;
-      if (ridesData is List) rawRides = ridesData;
-      else if (ridesData is Map) {
-        for (final k in ['data', 'rides', 'items', 'results']) {
-          if (ridesData[k] is List) { rawRides = ridesData[k]; break; }
-        }
-      }
-
-      final city = results[2] as String?;
-      if (city != null && city.isNotEmpty) {
-        rawRides.sort((a, b) {
-          final aM = (a['origin']?.toString().toLowerCase().contains(city.toLowerCase()) ?? false) ? 0 : 1;
-          final bM = (b['origin']?.toString().toLowerCase().contains(city.toLowerCase()) ?? false) ? 0 : 1;
-          return aM.compareTo(bM);
-        });
-        NotificationService().startNearbyRideCheck(city);
-        final nearby = rawRides.where((r) =>
-            r['origin']?.toString().toLowerCase().contains(city.toLowerCase()) ?? false).length;
-        if (nearby > 0 && mounted) {
-          Future.microtask(() {
-            if (mounted) {
-              NotificationService.showInAppNotification(
-                context, 'Rides near you!',
-                '$nearby ride${nearby > 1 ? 's' : ''} available from $city',
-              );
-            }
-          });
-        }
-      }
-
       setState(() {
-        _rides        = rawRides;
-        _destinations = _parseList((results[1] as Response).data);
-        _userName     = _getName(profile).split(' ').first;
-        _userId       = profile['id']?.toString();
-        _isLoading    = false;
+        _rides = _parseList(ridesRes.data);
+        _isLoading = false;
       });
-
-      _fetchUnreadCount();
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
+    }
+
+    // ── Everything below refines a screen that is already on-screen ──────
+    unawaited(destinationsFuture.then((res) {
+      if (mounted) setState(() => _destinations = _parseList(res.data));
+    }).catchError((_) {}));
+
+    unawaited(profileFuture.then((res) {
+      if (!mounted) return;
+      final profile = res.data is Map ? res.data as Map : <String, dynamic>{};
+      setState(() {
+        _userName = _getName(profile).split(' ').first;
+        _userId = profile['id']?.toString();
+      });
+    }).catchError((_) {}));
+
+    unawaited(_applyNearbySort());
+    unawaited(_fetchUnreadCount());
+  }
+
+  /// Resolves the current city and re-orders rides to put local ones first.
+  ///
+  /// Deliberately fire-and-forget: it costs a GPS fix plus a network round trip
+  /// to bigdatacloud.net, and a list that reorders a moment after it appears is
+  /// far better than a blank screen while we wait for a location the person may
+  /// never have granted.
+  Future<void> _applyNearbySort() async {
+    final city = await _getUserCity();
+    if (!mounted || city == null || city.isEmpty || _rides.isEmpty) return;
+
+    final needle = city.toLowerCase();
+    bool isLocal(dynamic r) =>
+        r['origin']?.toString().toLowerCase().contains(needle) ?? false;
+
+    final sorted = List<dynamic>.from(_rides)
+      ..sort((a, b) => (isLocal(a) ? 0 : 1).compareTo(isLocal(b) ? 0 : 1));
+
+    setState(() => _rides = sorted);
+
+    NotificationService().startNearbyRideCheck(city);
+
+    final nearby = sorted.where(isLocal).length;
+    if (nearby > 0 && mounted) {
+      NotificationService.showInAppNotification(
+        context,
+        'Rides near you!',
+        '$nearby ride${nearby > 1 ? 's' : ''} available from $city',
+      );
     }
   }
 

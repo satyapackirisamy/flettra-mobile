@@ -28,6 +28,10 @@ dependencies:
   share_plus: ^10.0.0
   url_launcher: ^6.3.0
   local_auth: ^2.1.6
+  # Disk + memory image cache. Plain NetworkImage re-fetches on every rebuild,
+  # which is most of the scroll stutter testers reported.
+  cached_network_image: ^3.4.1
+  shared_preferences: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -38,3 +42,22 @@ flutter:
   uses-material-design: true
   assets:
     - assets/privacy_policy.html
+    # Consumed by the google_fonts package so it resolves DM Sans from the
+    # bundle instead of downloading it at first launch. Delete this folder once
+    # the last GoogleFonts.dmSans() call has been migrated to the `DMSans`
+    # family declared below.
+    - google_fonts/
+
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/DMSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/DMSans-ExtraBold.ttf
+          weight: 800
