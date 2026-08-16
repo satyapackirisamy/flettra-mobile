@@ -1,30 +1,52 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flettra_mobile/src/app.dart';
+import 'package:flettra_mobile/src/theme/flettra_colors.dart';
 
+/// Replaces the generated "Counter increments" template test, which asserted on
+/// a counter this app has never had and so had been failing since the initial
+/// commit.
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  const storageChannel =
+      MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+
+  setUp(() {
+    // AuthCheck reads the stored session on build. No platform in a widget
+    // test, so answer as "nothing stored" and let it settle on signed-out.
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(storageChannel, (call) async {
+      return switch (call.method) {
+        'readAll' => <String, String>{},
+        'containsKey' => false,
+        _ => null,
+      };
+    });
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(storageChannel, null);
+  });
+
+  testWidgets('app root builds with both themes and clamps text scaling',
+      (tester) async {
     await tester.pumpWidget(const FlettraApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.theme, isNotNull);
+    expect(app.darkTheme, isNotNull,
+        reason: 'Dark mode must be wired up at the root.');
+    expect(app.theme!.extension<FlettraColors>(), isNotNull);
+    expect(app.darkTheme!.extension<FlettraColors>(), isNotNull);
+
+    // An unbounded textScaler overflows every fixed-height row in the app.
+    final context = tester.element(find.byType(MaterialApp));
+    final scaler = MediaQuery.textScalerOf(context);
+    expect(scaler.scale(100), lessThanOrEqualTo(130.0));
   });
 }
