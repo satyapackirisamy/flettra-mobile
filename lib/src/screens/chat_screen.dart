@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
+import '../utils/snackbar_helper.dart';
 import '../services/auth_service.dart';
 import '../widgets/network_image_widget.dart';
 
@@ -95,7 +96,10 @@ class _ChatScreenState extends State<ChatScreen> {
     if (token == null) return;
 
     _socket = IO.io(ApiService.baseUrl, <String, dynamic>{
-      'transports': ['websocket'],
+      // Websocket first, but keep polling as a fallback. Websocket-only meant a
+      // blocked or failed upgrade left the chat permanently silent, with no
+      // indication of why.
+      'transports': ['websocket', 'polling'],
       'autoConnect': false,
       'auth': {'token': token},
     });
@@ -125,14 +129,51 @@ class _ChatScreenState extends State<ChatScreen> {
     _socket!.onDisconnect((_) {
       if (mounted) setState(() => _isConnected = false);
     });
+
+    // The gateway answers a rejected join or send with an error event. Nothing
+    // listened for it, so "not buddies with this user" was indistinguishable
+    // from a message that simply never arrived.
+    _socket!.on('error', (data) {
+      if (mounted) showError(context, data?.toString() ?? 'Chat error');
+    });
+    _socket!.onConnectError((_) {
+      if (mounted) setState(() => _isConnected = false);
+    });
     _socket!.connect();
   }
 
   void _onMessage(dynamic data) {
-    if (mounted) {
-      setState(() => _messages.add(data));
-      _scrollToBottom();
-    }
+    if (!mounted || data is! Map) return;
+    setState(() {
+      final id = data['id']?.toString();
+
+      // Replace the optimistic copy rather than showing the message twice. It
+      // matches on content + sender because the pending copy has no server id.
+      final pending = _messages.indexWhere((m) =>
+          m is Map &&
+          m['_pending'] == true &&
+          m['content'] == data['content'] &&
+          _senderIdOf(m) == _senderIdOf(data));
+      if (pending != -1) {
+        _messages[pending] = data;
+        return;
+      }
+
+      // Guard a genuine duplicate (a reconnect can replay the room).
+      if (id != null &&
+          _messages.any((m) => m is Map && m['id']?.toString() == id)) {
+        return;
+      }
+      _messages.add(data);
+    });
+    _scrollToBottom();
+  }
+
+  static String? _senderIdOf(dynamic m) {
+    if (m is! Map) return null;
+    final sender = m['sender'];
+    if (sender is Map) return sender['id']?.toString();
+    return m['senderId']?.toString();
   }
 
   void _scrollToBottom() {
@@ -149,7 +190,28 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _sendMessage() {
     final text = _msgCtrl.text.trim();
-    if (text.isEmpty || _socket == null) return;
+    if (text.isEmpty) return;
+    if (_socket == null || !_isConnected) {
+      showError(context, 'Not connected — your message was not sent.');
+      return;
+    }
+
+    // Show it straight away. The sender's own message previously appeared only
+    // once the server echoed it back to the room, so if the room join had been
+    // rejected or the echo was lost, the message was saved on the server and
+    // invisible to the person who sent it. That is exactly what "sent but not
+    // showing" looks like.
+    setState(() {
+      _messages.add(<String, dynamic>{
+        '_pending': true,
+        'content': text,
+        'createdAt': DateTime.now().toIso8601String(),
+        'sender': {'id': _userId},
+        'senderId': _userId,
+      });
+    });
+    _scrollToBottom();
+
     if (widget.rideId != null) {
       _socket!.emit('sendRideMessage', {'rideId': widget.rideId, 'userId': _userId, 'content': text});
     } else if (widget.groupId != null) {
@@ -158,6 +220,15 @@ class _ChatScreenState extends State<ChatScreen> {
       _socket!.emit('sendBuddyMessage', {'senderId': _userId, 'receiverId': widget.buddy['id']?.toString(), 'content': text});
     }
     _msgCtrl.clear();
+
+    // Safety net: if the echo never lands, reconcile with the server so the
+    // list ends up correct instead of stuck on a pending bubble.
+    Future.delayed(const Duration(seconds: 4), () {
+      if (!mounted) return;
+      if (_messages.any((m) => m is Map && m['_pending'] == true)) {
+        _fetchHistory();
+      }
+    });
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────────

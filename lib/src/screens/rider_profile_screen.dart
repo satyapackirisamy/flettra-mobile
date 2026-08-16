@@ -26,6 +26,11 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
   bool _isLoading = true;
   bool _buddyRequestSent = false;
   bool _isAlreadyBuddy = false;
+  String? _currentUserId;
+
+  /// True when this profile belongs to the signed-in user.
+  bool get _isSelf =>
+      _currentUserId != null && _currentUserId == widget.userId;
 
   static const Color _orange = Color(0xFFFF6B2C);
   static const Color _dark   = Color(0xFF1A0A08);
@@ -40,6 +45,12 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
   /// Opens the conversation with this rider. ChatScreen takes the buddy map, so
   /// pass what we loaded and fall back to the id/name we were given.
   void _openChat() {
+    // Guard against opening a conversation with yourself. The test data has
+    // rows where sender_id == receiver_id, which is how that gets created.
+    if (_isSelf) {
+      showError(context, "That's your own profile.");
+      return;
+    }
     final buddy = _user ??
         <String, dynamic>{'id': widget.userId, 'name': widget.knownName ?? ''};
     Navigator.push(
@@ -59,6 +70,9 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
         _api.getBuddies().catchError(
           (_) => Response(requestOptions: RequestOptions(path: ''), data: []),
         ),
+        _api.getProfile().catchError(
+          (_) => Response(requestOptions: RequestOptions(path: ''), data: {}),
+        ),
       ]);
       if (mounted) {
         final userData  = results[0].data;
@@ -67,10 +81,12 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
         final buddyList = buddyData is List ? buddyData : [];
         final alreadyBuddy = buddyList.any((b) =>
             (b['id'] ?? b['_id'])?.toString() == widget.userId);
+        final me = results[3].data;
         setState(() {
           _user            = userData is Map<String, dynamic> ? userData : null;
           _rides           = ridesData is List ? ridesData : [];
           _isAlreadyBuddy  = alreadyBuddy;
+          _currentUserId   = me is Map ? me['id']?.toString() : null;
           _isLoading       = false;
         });
       }
@@ -510,7 +526,11 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
       // shows — so the whole point of opening someone's profile, messaging
       // them, had nowhere to go. Now the state is a quiet line and the action
       // is the button.
-      child: _isAlreadyBuddy
+      child: _isSelf
+          ? Text('This is your profile',
+              textAlign: TextAlign.center,
+              style: AppTypography.footnote.copyWith(color: c.ink3))
+          : _isAlreadyBuddy
           ? Row(
               children: [
                 Icon(Icons.check_circle_rounded, size: 16, color: c.ok),
