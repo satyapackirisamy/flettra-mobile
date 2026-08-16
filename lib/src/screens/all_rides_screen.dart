@@ -47,22 +47,23 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Future<void> _fetch() async {
     setState(() => _isLoading = true);
-    try {
-      final user = await _authService.getUser();
-      _myUserId  = user['id']?.toString();
 
-      final resAll = await _apiService.client.get('/rides');
-      final resMy  = await _apiService.getMyRides();
-      if (mounted) {
-        setState(() {
-          _allRides = _parseList(resAll.data);
-          _myRides  = _parseList(resMy.data);
-          _isLoading = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    // Fetch each source independently so a failure in one (e.g. /rides/my-rides)
+    // doesn't wipe out the others — previously a single throw left every list empty.
+    final results = await Future.wait([
+      _authService.getUser().then<dynamic>((u) => u).catchError((_) => null),
+      _apiService.client.get('/rides').then<dynamic>((r) => r.data).catchError((_) => null),
+      _apiService.getMyRides().then<dynamic>((r) => r.data).catchError((_) => null),
+    ]);
+
+    if (!mounted) return;
+    final user = results[0];
+    setState(() {
+      if (user is Map) _myUserId = user['id']?.toString();
+      if (results[1] != null) _allRides = _parseList(results[1]);
+      if (results[2] != null) _myRides  = _parseList(results[2]);
+      _isLoading = false;
+    });
   }
 
   List<dynamic> _parseList(dynamic raw) {

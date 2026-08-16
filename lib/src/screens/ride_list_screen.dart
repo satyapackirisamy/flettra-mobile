@@ -494,6 +494,9 @@ class RideListScreenState extends State<RideListScreen> {
   // ─── Ride card ──────────────────────────────────────────────────────────────
 
   Widget _buildRideCard(dynamic r) {
+    final isRejected = (r['adminStatus']?.toString() ?? 'active') == 'rejected';
+    final rejectionReason = r['adminRejectionReason']?.toString() ?? '';
+
     final name       = r['name']?.toString() ?? r['title']?.toString() ?? 'Ride';
     final origin     = r['origin']?.toString() ?? '';
     final dest       = r['destination']?.toString() ?? '';
@@ -506,15 +509,41 @@ class RideListScreenState extends State<RideListScreen> {
     final driver     = _extractDriver(r);
     final driverName = _driverFirstName(driver);
 
-    return _PressableCard(
+    return Opacity(
+      opacity: isRejected ? 0.55 : 1.0,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isRejected)
+            Container(
+              margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFEDED),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                border: Border.all(color: const Color(0xFFFFCDD2)),
+              ),
+              child: Row(children: [
+                const Icon(Icons.block_rounded, size: 13, color: Color(0xFFE53935)),
+                const SizedBox(width: 6),
+                const Text('Removed by admin', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFE53935))),
+                if (rejectionReason.isNotEmpty) ...[
+                  const Text('  ·  ', style: TextStyle(color: Color(0xFFE57373))),
+                  Expanded(child: Text(rejectionReason, style: const TextStyle(fontSize: 11, color: Color(0xFFE57373)), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                ],
+              ]),
+            ),
+          _PressableCard(
       onTap: () => Navigator.push(context,
           MaterialPageRoute(builder: (_) => RideDetailsScreen(rideId: r['id'].toString()))),
       child: Container(
-        margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+        margin: EdgeInsets.fromLTRB(20, isRejected ? 0 : 10, 20, 0),
         height: 110,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          color: isRejected ? const Color(0xFFF9F9F9) : Colors.white,
+          borderRadius: isRejected
+              ? const BorderRadius.vertical(bottom: Radius.circular(20))
+              : BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 4)),
           ],
@@ -581,6 +610,9 @@ class RideListScreenState extends State<RideListScreen> {
             ),
           ],
         ),
+      ),
+          ),
+        ],
       ),
     );
   }
@@ -967,10 +999,12 @@ class RideListScreenState extends State<RideListScreen> {
                     )),
                   ),
                   const SizedBox(width: 14),
-                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(_userName, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _textDark)),
-                    Text('Flettra Explorer', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
-                  ]),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(_userName, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _textDark), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text('Flettra Explorer', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
+                    ]),
+                  ),
                 ]),
               ),
               const SizedBox(height: 16),

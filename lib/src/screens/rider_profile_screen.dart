@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
 import '../utils/snackbar_helper.dart';
+import '../widgets/moderation_sheet.dart';
 
 class RiderProfileScreen extends StatefulWidget {
   final String userId;
@@ -162,17 +163,43 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                     SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.all(12),
-                        child: GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Back button
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.arrow_back_ios_new_rounded,
+                                    color: Colors.white, size: 18),
+                              ),
                             ),
-                            child: const Icon(Icons.arrow_back_ios_new_rounded,
-                                color: Colors.white, size: 18),
-                          ),
+                            // Three-dot options (only for other users)
+                            GestureDetector(
+                              onTap: () => showModerationSheet(
+                                context,
+                                targetUserId: widget.userId,
+                                targetName: _displayName(),
+                                onActionDone: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.more_vert_rounded,
+                                    color: Colors.white, size: 18),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

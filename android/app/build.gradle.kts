@@ -44,10 +44,10 @@ android {
 
     defaultConfig {
         applicationId  = "com.flettra.app"
-        minSdk         = 21          // covers ~99% of active Android devices
+        minSdk = flutter.minSdkVersion          // covers ~99% of active Android devices
         targetSdk      = flutter.targetSdkVersion
-        versionCode    = 1
-        versionName    = "1.0.0"
+        versionCode    = flutter.versionCode
+        versionName    = flutter.versionName
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 

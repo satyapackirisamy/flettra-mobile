@@ -83,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       setState(() => _isLoading = true);
       try {
         final user = await _authService.login(savedEmail, savedPassword);
+        if (user['id'] != null) await _authService.saveUserId(user['id'].toString());
         if (mounted) {
           final role = user['role']?.toString().toLowerCase();
           if (role == 'admin') {
@@ -135,6 +136,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         // Save credentials so biometric login can re-authenticate later
         await _localStorage.write(key: 'saved_email', value: identifier);
         await _localStorage.write(key: 'saved_password', value: password);
+        // Persist user ID for offline access (e.g. moderation own-post check)
+        if (user['id'] != null) await _authService.saveUserId(user['id'].toString());
         if (mounted) {
           final role = user['role']?.toString().toLowerCase();
           if (role == 'admin') {

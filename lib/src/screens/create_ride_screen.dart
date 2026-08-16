@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../services/cloudinary_service.dart';
-import '../constants/locations.dart';
 import '../utils/snackbar_helper.dart';
 import '../widgets/network_image_widget.dart';
+import '../widgets/places_autocomplete_field.dart';
 
 // Values mirror backend ride.enums.ts
 enum TransportMode {
@@ -47,7 +47,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
   final _destinationController = TextEditingController();
   final _nameController = TextEditingController();
   final _seatsController = TextEditingController(text: '3');
-  final _priceController = TextEditingController();
+  final _priceController = TextEditingController(text: '0');
   final _descriptionController = TextEditingController();
   final _rulesController = TextEditingController();
   final _coverImageController = TextEditingController();
@@ -170,7 +170,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final seats = int.tryParse(_seatsController.text.trim());
-    final price = double.tryParse(_priceController.text.trim()); // optional
+    final price = double.tryParse(_priceController.text.trim()) ?? 0.0;
 
     if (seats == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -191,7 +191,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
         'arrivalDate': DateFormat('yyyy-MM-dd').format(_arrivalDate),
         'arrivalTime': DateFormat('HH:mm').format(_arrivalDate),
         'seatsAvailable': seats,
-        if (price != null) 'pricePerSeat': price,
+        'pricePerSeat': price,
         if (_descriptionController.text.trim().isNotEmpty) 'description': _descriptionController.text.trim(),
         if (_rulesController.text.trim().isNotEmpty) 'rules': _rulesController.text.trim(),
         'transportMode': _transportMode.value,
@@ -505,8 +505,13 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                         controller: _priceController,
                         keyboardType: TextInputType.number,
                         style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: _dark),
-                        decoration: _fieldDecor('Est. budget / seat (₹, optional)', Icons.currency_rupee_rounded),
-                        validator: null,
+                        decoration: _fieldDecor('Price per seat (₹, 0 = free)', Icons.currency_rupee_rounded),
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return null;
+                          final n = double.tryParse(v.trim());
+                          if (n == null || n < 0) return 'Enter a valid price';
+                          return null;
+                        },
                       ),
                     ),
                   ],
@@ -698,7 +703,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
         const SizedBox(width: 8),
         Icon(icon, size: 15, color: _primary),
         const SizedBox(width: 6),
-        Text(text, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: _dark, letterSpacing: -0.2)),
+        Flexible(child: Text(text, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: _dark, letterSpacing: -0.2))),
       ],
     );
   }
@@ -785,67 +790,14 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
     required IconData icon,
     required TextEditingController controller,
   }) {
-    return Autocomplete<String>(
-      optionsBuilder: (TextEditingValue textEditingValue) async {
-        if (textEditingValue.text.length < 2) return const Iterable<String>.empty();
-        final localMatches = indianCities.where((city) =>
-            city.toLowerCase().contains(textEditingValue.text.toLowerCase())).toList();
-        try {
-          final res = await Dio().get(
-            'https://nominatim.openstreetmap.org/search',
-            queryParameters: {'q': textEditingValue.text, 'format': 'json', 'addressdetails': 1, 'limit': 10, 'countrycodes': 'in'},
-          );
-          if (res.statusCode == 200) {
-            final List results = res.data;
-            final networkCities = results.map((item) {
-              final addr = item['address'];
-              return addr['city'] ?? addr['town'] ?? addr['village'] ?? addr['state'] ?? item['display_name'];
-            }).whereType<String>().toSet();
-            return {...localMatches, ...networkCities}.toList();
-          }
-        } catch (_) {}
-        return localMatches;
-      },
-      onSelected: (selection) => controller.text = selection,
-      fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
-        if (textController.text != controller.text) textController.text = controller.text;
-        textController.addListener(() => controller.text = textController.text);
-        return TextFormField(
-          controller: textController,
-          focusNode: focusNode,
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
-          decoration: _fieldDecor(label, icon),
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-        );
-      },
-      optionsViewBuilder: (context, onSelected, options) {
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            elevation: 6,
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.white,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width - 52) / 2, maxHeight: 200),
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                itemCount: options.length,
-                separatorBuilder: (_, __) => const Divider(height: 1, indent: 14),
-                itemBuilder: (context, index) {
-                  final option = options.elementAt(index);
-                  return ListTile(
-                    dense: true,
-                    leading: Icon(Icons.location_on_rounded, size: 14, color: _primary),
-                    title: Text(option, style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 13, color: _dark)),
-                    onTap: () => onSelected(option),
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-      },
+    return PlacesAutocompleteField(
+      controller: controller,
+      hint: label,
+      icon: icon,
+      textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+      decorationBuilder: (hint, ico) => _fieldDecor(hint, ico),
+      validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+      dropdownMaxWidth: (MediaQuery.of(context).size.width - 52) / 2,
     );
   }
 }

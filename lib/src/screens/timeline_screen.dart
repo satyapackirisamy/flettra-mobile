@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'edit_post_screen.dart';
 import '../widgets/network_image_widget.dart';
+import '../widgets/moderation_sheet.dart';
 
 class TimelineScreen extends StatefulWidget {
   const TimelineScreen({super.key});
@@ -542,56 +543,76 @@ class _TimelineScreenState extends State<TimelineScreen> {
     );
   }
 
-  void _showPostOptions(dynamic post) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
-              const SizedBox(height: 12),
-              ListTile(
-                leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.edit_rounded, size: 20)),
-                title: Text('Edit Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => EditPostScreen(post: post)));
-                  if (result == true) _loadData();
-                },
-              ),
-              ListTile(
-                leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.08), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20)),
-                title: Text('Delete Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.red)),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      title: Text('Delete Post?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
-                      content: Text('This action cannot be undone.', style: GoogleFonts.dmSans()),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700))),
-                        TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: GoogleFonts.dmSans(color: Colors.red, fontWeight: FontWeight.w800))),
-                      ],
-                    ),
-                  );
-                  if (confirmed == true) {
-                    try { await ApiService().deletePost(post['id']); _loadData(); } catch (_) {}
-                  }
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
+  Future<void> _showPostOptions(dynamic post) async {
+    final myId = await _authService.getCurrentUserId();
+    final authorId = post['author']?['id'] ?? post['authorId'];
+    final isMyPost = myId != null && myId == authorId;
+
+    if (!mounted) return;
+
+    if (isMyPost) {
+      // Own post: edit / delete
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (_) => Container(
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.edit_rounded, size: 20)),
+                  title: Text('Edit Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => EditPostScreen(post: post)));
+                    if (result == true) _loadData();
+                  },
+                ),
+                ListTile(
+                  leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.08), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20)),
+                  title: Text('Delete Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.red)),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        title: Text('Delete Post?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
+                        content: Text('This action cannot be undone.', style: GoogleFonts.dmSans()),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700))),
+                          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: GoogleFonts.dmSans(color: Colors.red, fontWeight: FontWeight.w800))),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      try { await ApiService().deletePost(post['id']); _loadData(); } catch (_) {}
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      // Someone else's post: report / mute / block
+      final authorName = _authorName(post);
+      if (!mounted) return;
+      await showModerationSheet(
+        context,
+        targetUserId: authorId ?? '',
+        postId: post['id'],
+        targetName: authorName,
+        onActionDone: _loadData,
+      );
+    }
   }
 }

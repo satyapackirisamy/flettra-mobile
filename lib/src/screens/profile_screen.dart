@@ -687,10 +687,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Widget _buildJournalRideCard(dynamic ride) {
+    final isRejected = (ride['adminStatus']?.toString() ?? 'active') == 'rejected';
+    final rejectionReason = ride['adminRejectionReason']?.toString() ?? '';
     final name   = ride['name'] ?? ride['title'] ?? 'Trip';
     final origin = ride['origin'] ?? '';
     final dest   = ride['destination'] ?? '';
-    final status = (ride['status'] ?? 'pending').toString().toLowerCase();
+    final status = isRejected ? 'rejected' : (ride['status'] ?? 'pending').toString().toLowerCase();
     final date   = ride['departureDate'] ?? ride['createdAt'] ?? '';
     String dateStr = '';
     try {
@@ -706,14 +708,39 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       case 'completed': statusColor = const Color(0xFF10B981); break;
       case 'ongoing':
       case 'in_progress': statusColor = _orange; break;
+      case 'rejected': statusColor = const Color(0xFFE53935); break;
       default: statusColor = Colors.grey;
     }
 
-    return Container(
+    return Opacity(
+      opacity: isRejected ? 0.6 : 1.0,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isRejected)
+            Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFEDED),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Row(children: [
+                const Icon(Icons.block_rounded, size: 12, color: Color(0xFFE53935)),
+                const SizedBox(width: 6),
+                const Text('Removed by admin', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFE53935))),
+                if (rejectionReason.isNotEmpty) ...[
+                  const Text('  ·  ', style: TextStyle(color: Color(0xFFE57373))),
+                  Expanded(child: Text(rejectionReason, style: const TextStyle(fontSize: 11, color: Color(0xFFE57373)), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                ],
+              ]),
+            ),
+      Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: isRejected ? const Color(0xFFF9F9F9) : Colors.white,
+        borderRadius: isRejected
+            ? const BorderRadius.vertical(bottom: Radius.circular(20))
+            : BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Row(
@@ -756,6 +783,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             ),
           ),
           const SizedBox(width: 12),
+        ],
+      ),
+    ),
         ],
       ),
     );
@@ -922,6 +952,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email: help@flettra.com', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)), backgroundColor: _orange, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
               }),
               const Divider(height: 1),
+              // Delete Account
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.06), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.delete_forever_rounded, color: Colors.red, size: 20)),
+                title: Text('Delete Account', style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.red)),
+                subtitle: Text('Permanently remove your account & data', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.red.withOpacity(0.6))),
+                onTap: () {
+                  Navigator.pop(context); // close settings sheet
+                  _confirmDeleteAccount(context);
+                },
+              ),
               // Logout
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
@@ -941,6 +982,102 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               const SizedBox(height: 8),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Delete Account Confirmation ──────────────────────────────────────────────
+
+  void _confirmDeleteAccount(BuildContext context) {
+    final confirmController = TextEditingController();
+    bool deleting = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              const Icon(Icons.warning_rounded, color: Colors.red, size: 22),
+              const SizedBox(width: 8),
+              Text('Delete Account', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 17, color: Colors.red)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'This action cannot be undone. Your account, rides, posts, and all personal data will be permanently deleted after 60 days.',
+                style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF6B7280), height: 1.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Type DELETE to confirm:',
+                style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF1A1A1A)),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: confirmController,
+                onChanged: (_) => setDialogState(() {}),
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'DELETE',
+                  hintStyle: GoogleFonts.dmSans(color: Colors.grey[400]),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F7),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: deleting ? null : () => Navigator.pop(ctx),
+              child: Text('Cancel', style: GoogleFonts.dmSans(color: const Color(0xFF6B7280))),
+            ),
+            ElevatedButton(
+              onPressed: (confirmController.text.trim() == 'DELETE' && !deleting)
+                  ? () async {
+                      setDialogState(() => deleting = true);
+                      try {
+                        await _apiService.client.delete('/users/me');
+                        await _authService.logout();
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        if (mounted) {
+                          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+                            (route) => false,
+                          );
+                        }
+                      } catch (e) {
+                        setDialogState(() => deleting = false);
+                        if (ctx.mounted) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to delete account. Please try again.', style: GoogleFonts.dmSans()),
+                              backgroundColor: Colors.red,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      }
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: deleting
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : Text('Delete My Account', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 13)),
+            ),
+          ],
         ),
       ),
     );

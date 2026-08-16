@@ -14,6 +14,7 @@ import 'edit_ride_screen.dart';
 import 'create_ride_screen.dart' show TransportMode;
 import 'rider_profile_screen.dart';
 import 'group_live_map_screen.dart';
+import '../widgets/moderation_sheet.dart';
 
 class RideDetailsScreen extends StatefulWidget {
   final String rideId;
@@ -107,7 +108,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
         title: const Row(
           children: [
             Text('✨ ', style: TextStyle(fontSize: 24)),
-            Text('Regenerate Itinerary', style: TextStyle(fontWeight: FontWeight.w700)),
+            Flexible(child: Text('Regenerate Itinerary', style: TextStyle(fontWeight: FontWeight.w700))),
           ],
         ),
         content: Column(
@@ -326,6 +327,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
 
     final inRide = isDriver || isPassenger;
     final isOngoing = _ride!['status'] == 'ongoing';
+    final isRejected = (_ride!['adminStatus']?.toString() ?? 'active') == 'rejected';
+    final rejectionReason = _ride!['adminRejectionReason']?.toString() ?? '';
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
@@ -359,7 +362,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
               },
             )
           : null,
-      body: Column(
+      body: Opacity(
+        opacity: isRejected ? 0.75 : 1.0,
+        child: Column(
         children: [
           Expanded(
             child: CustomScrollView(
@@ -419,6 +424,53 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                     const SizedBox(width: 4),
                   ],
                 ),
+
+                // ── Rejection Banner ────────────────────────────────────────
+                if (isRejected)
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFEDED),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE53935).withOpacity(0.35)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.block_rounded, color: Color(0xFFE53935), size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Removed by Admin',
+                                  style: TextStyle(
+                                    color: Color(0xFFE53935),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                if (rejectionReason.isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    rejectionReason,
+                                    style: const TextStyle(
+                                      color: Color(0xFFB71C1C),
+                                      fontSize: 12,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
 
                 // ── Content ─────────────────────────────────────────────────
                 SliverToBoxAdapter(
@@ -562,37 +614,60 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
                               ),
-                              child: Row(
-                                children: [
-                                  WebCircleAvatar(radius: 26, url: driverAvatar),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(driverName, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08))),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.star_rounded, size: 13, color: Color(0xFFFBBF24)),
-                                            const SizedBox(width: 3),
-                                            Text('4.8 · ${passengers.length} trips', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                          ],
+                              child: GestureDetector(
+                                onTap: () => Navigator.push(context, MaterialPageRoute(
+                                    builder: (_) => RiderProfileScreen(userId: _ride!['driver']['id'], knownName: driverName))),
+                                child: Row(
+                                  children: [
+                                    WebCircleAvatar(radius: 26, url: driverAvatar),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(driverName, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08))),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.star_rounded, size: 13, color: Color(0xFFFBBF24)),
+                                              const SizedBox(width: 3),
+                                              Text('4.8 · ${passengers.length} trips', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(10)),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.verified_rounded, size: 13, color: Color(0xFF10B981)),
+                                          const SizedBox(width: 4),
+                                          Text('Verified', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
+                                        ],
+                                      ),
+                                    ),
+                                    if (!isDriver) ...[
+                                      const SizedBox(width: 8),
+                                      GestureDetector(
+                                        onTap: () => showModerationSheet(
+                                          context,
+                                          targetUserId: _ride!['driver']['id'],
+                                          targetName: driverName,
+                                          onActionDone: _fetchRideDetails,
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(10)),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.verified_rounded, size: 13, color: Color(0xFF10B981)),
-                                        const SizedBox(width: 4),
-                                        Text('Verified', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF5F5F7),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: const Icon(Icons.more_vert_rounded, size: 18, color: Color(0xFF6B7280)),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -742,22 +817,38 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                         final pMap = p as Map<String, dynamic>;
                                         final name = _displayName(pMap);
                                         final pid  = pMap['id']?.toString() ?? '';
-                                        return GestureDetector(
-                                          onTap: pid.isNotEmpty
-                                              ? () => Navigator.push(context, MaterialPageRoute(
-                                                  builder: (_) => RiderProfileScreen(userId: pid, knownName: name)))
-                                              : null,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(bottom: 8),
-                                            child: Row(
-                                              children: [
-                                                const Icon(Icons.person_rounded, size: 13, color: Color(0xFFFF6B2C)),
-                                                const SizedBox(width: 6),
-                                                Text(name, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF1A0A08))),
-                                                const Spacer(),
+                                        final isMe = pid == _userId;
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 8),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.person_rounded, size: 13, color: Color(0xFFFF6B2C)),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: GestureDetector(
+                                                  onTap: pid.isNotEmpty
+                                                      ? () => Navigator.push(context, MaterialPageRoute(
+                                                          builder: (_) => RiderProfileScreen(userId: pid, knownName: name)))
+                                                      : null,
+                                                  child: Text(name, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF1A0A08))),
+                                                ),
+                                              ),
+                                              if (!isMe && pid.isNotEmpty)
+                                                GestureDetector(
+                                                  onTap: () => showModerationSheet(
+                                                    context,
+                                                    targetUserId: pid,
+                                                    targetName: name,
+                                                    onActionDone: _fetchRideDetails,
+                                                  ),
+                                                  child: const Padding(
+                                                    padding: EdgeInsets.only(left: 8),
+                                                    child: Icon(Icons.more_vert_rounded, size: 16, color: Color(0xFF9CA3AF)),
+                                                  ),
+                                                )
+                                              else
                                                 const Icon(Icons.chevron_right_rounded, size: 14, color: Color(0xFFFF6B2C)),
-                                              ],
-                                            ),
+                                            ],
                                           ),
                                         );
                                       }),
@@ -1065,6 +1156,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
           ),
           _buildBottomBar(isDriver, isPassenger),
         ],
+        ),
       ),
     );
   }

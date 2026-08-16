@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
-import 'ride_list_screen.dart';
+import '../widgets/places_autocomplete_field.dart';
+import '../app.dart';
 import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -81,8 +82,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>
       });
 
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const RideListScreen()),
+        // Clear the entire auth stack (onboarding/login/register) and hand off
+        // to AuthCheck — the single source of truth for post-auth routing.
+        // A freshly-registered user (onboardingCompleted == false) is routed
+        // to the post-auth onboarding tour, then MainScreen.
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthCheck()),
+          (route) => false,
         );
       }
     } catch (e) {
@@ -211,13 +217,20 @@ class _RegistrationScreenState extends State<RegistrationScreen>
 
                         const SizedBox(height: 14),
 
-                        // Location
+                        // Location — Google Places autocomplete
                         _buildInputLabel('Location'),
                         const SizedBox(height: 6),
-                        _buildFormField(
+                        PlacesAutocompleteField(
                           controller: _locationController,
                           hint: 'Mumbai, India',
                           icon: Icons.location_on_outlined,
+                          textStyle: GoogleFonts.dmSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: textDark,
+                          ),
+                          decorationBuilder: (hint, icon) => _buildFieldDecoration(hint, icon),
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Location is required' : null,
                         ),
 
                         const SizedBox(height: 18),
@@ -495,6 +508,51 @@ class _RegistrationScreenState extends State<RegistrationScreen>
         fontWeight: FontWeight.w700,
         color: textDark,
         letterSpacing: 0.2,
+      ),
+    );
+  }
+
+  // ─── Shared InputDecoration (used by both plain fields and autocomplete) ─────
+  InputDecoration _buildFieldDecoration(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: GoogleFonts.dmSans(
+        fontSize: 14,
+        color: const Color(0xFFA1A1AA),
+        fontWeight: FontWeight.w400,
+      ),
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 14, right: 10),
+        child: Icon(icon, color: const Color(0xFFA1A1AA), size: 19),
+      ),
+      prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+      filled: true,
+      fillColor: inputFill,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: borderColor, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: primaryIndigo, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.0),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+      ),
+      errorStyle: GoogleFonts.dmSans(
+        fontSize: 11,
+        color: const Color(0xFFEF4444),
+        fontWeight: FontWeight.w600,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: borderColor),
       ),
     );
   }

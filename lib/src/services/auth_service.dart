@@ -82,4 +82,15 @@ class AuthService {
     final response = await _apiService.client.get('/users/profile');
     return response.data;
   }
+
+  /// Returns the current user's ID from secure storage (no network call).
+  /// Saves the user ID at login so it's available offline.
+  Future<String?> getCurrentUserId() async {
+    return _storage.read(key: 'user_id');
+  }
+
+  /// Call after login/register to persist the user ID locally.
+  Future<void> saveUserId(String id) async {
+    await _storage.write(key: 'user_id', value: id);
+  }
 }

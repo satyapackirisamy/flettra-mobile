@@ -1,4 +1,4 @@
-package com.example.flettra_mobile
+package com.flettra.app
 
 import io.flutter.embedding.android.FlutterActivity
 
