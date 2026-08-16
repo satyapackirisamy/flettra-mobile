@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:dio/dio.dart' show Options;
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
+import '../theme/app_spacing.dart';
+import '../theme/flettra_colors.dart';
 import '../services/auth_service.dart';
 import '../widgets/chat_widget.dart';
 import '../widgets/rating_dialog.dart';
@@ -209,12 +211,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
         if (mounted) {
            await showDialog(
              context: context,
-             builder: (context) => AlertDialog(
-               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-               title: const Text('Ride Complete! 🏁', style: TextStyle(fontWeight: FontWeight.w700)),
-               content: const Text('You and your passengers have earned 100 Compass Points! 🪙', style: TextStyle(fontWeight: FontWeight.bold)),
-               actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('GREAT', style: TextStyle(fontWeight: FontWeight.w700)))],
-             ),
+             builder: (_) => const _RideCompleteSheet(points: 100),
            );
         }
         // Show rating dialog for driver (if user is passenger) or passengers (if user is driver)
@@ -511,182 +508,187 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         ),
                       ),
 
-                      // ── Hero image ───────────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Hero(
-                          tag: 'ride-image-${widget.rideId}',
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(24),
-                            child: SafeNetworkImage(
-                              url: _getCoverImage(_ride!['coverImage'], _ride!['destination']),
-                              height: 240,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                      // ── Hero ─────────────────────────────────────────────
+                      // Full-bleed and 200pt, down from a 240pt inset card with
+                      // a 24pt radius. Bleeding it to the edges reads larger
+                      // while occupying less, and it stops the screen opening
+                      // with a band of white on three sides.
+                      Hero(
+                        tag: 'ride-image-${widget.rideId}',
+                        child: SizedBox(
+                          height: 200,
+                          width: double.infinity,
+                          child: SafeNetworkImage(
+                            url: _getCoverImage(
+                                _ride!['coverImage'], _ride!['destination']),
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
 
-                      // ── Floating info card ───────────────────────────────
+                      // ── Headline block ───────────────────────────────────
+                      // Was a shadowed card floating over the image, then a
+                      // second labelled card for the host, then a third for the
+                      // description. Three containers, three shadows, ~600pt to
+                      // carry five facts. Flat on the surface, hairline
+                      // separated, the host and the journey now sit above the
+                      // fold instead of below it.
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [BoxShadow(color: const Color(0xFFFF6B2C).withOpacity(0.10), blurRadius: 24, offset: const Offset(0, 8))],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Spots badge + price
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(color: const Color(0xFFFFF3EE), borderRadius: BorderRadius.circular(12)),
-                                    child: Text(
-                                      '${_ride!['seatsAvailable'] ?? 0} spots left',
-                                      style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
-                                    ),
-                                  ),
-                                  Text(
-                                    '~₹${_ride!["pricePerSeat"]} est.',
-                                    style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08)),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              // Destination title
-                              Text(
-                                _ride!['name'] ?? _ride!['destination'] ?? 'Trip',
-                                style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08), letterSpacing: -0.3),
-                              ),
-                              const SizedBox(height: 8),
-                              // Route + date row
-                              Row(
-                                children: [
-                                  const Icon(Icons.trip_origin_rounded, size: 12, color: Color(0xFFFF6B2C)),
-                                  const SizedBox(width: 4),
-                                  Text(_ride!['origin'] ?? '', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                                    child: Icon(Icons.arrow_forward_rounded, size: 12, color: Colors.grey[300]),
-                                  ),
-                                  const Icon(Icons.location_on_rounded, size: 12, color: Color(0xFFFF6B2C)),
-                                  const SizedBox(width: 4),
-                                  Expanded(child: Text(_ride!['destination'] ?? '', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  const Icon(Icons.calendar_today_rounded, size: 12, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text(_fmtDate(_ride!['departureDate']), style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                  const SizedBox(width: 16),
-                                  const Icon(Icons.directions_car_rounded, size: 12, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text((_ride!['transportMode'] ?? 'Car').toString().capitalize(), style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // ── Hosted By ────────────────────────────────────────
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.md,
+                            AppSpacing.sm, AppSpacing.md, AppSpacing.sm),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('HOSTED BY', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
-                            const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
-                              ),
-                              child: GestureDetector(
-                                onTap: () => Navigator.push(context, MaterialPageRoute(
-                                    builder: (_) => RiderProfileScreen(userId: _ride!['driver']['id'], knownName: driverName))),
-                                child: Row(
-                                  children: [
-                                    WebCircleAvatar(radius: 26, url: driverAvatar),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(driverName, style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08))),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.star_rounded, size: 13, color: Color(0xFFFBBF24)),
-                                              const SizedBox(width: 3),
-                                              Text('4.8 · ${passengers.length} trips', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(10)),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.verified_rounded, size: 13, color: Color(0xFF10B981)),
-                                          const SizedBox(width: 4),
-                                          Text('Verified', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
-                                        ],
-                                      ),
-                                    ),
-                                    if (!isDriver) ...[
-                                      const SizedBox(width: 8),
-                                      GestureDetector(
-                                        onTap: () => showModerationSheet(
-                                          context,
-                                          targetUserId: _ride!['driver']['id'],
-                                          targetName: driverName,
-                                          onActionDone: _fetchRideDetails,
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF5F5F7),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: const Icon(Icons.more_vert_rounded, size: 18, color: Color(0xFF6B7280)),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xs, vertical: 3),
+                                  decoration: BoxDecoration(
+                                      color: context.c.brandWash,
+                                      borderRadius: AppRadius.chipR),
+                                  child: Text(
+                                    '${_ride!['seatsAvailable'] ?? 0} seats left',
+                                    style: AppTypography.caption
+                                        .copyWith(color: context.c.brand),
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: AppSpacing.xs - 2),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xs, vertical: 3),
+                                  decoration: BoxDecoration(
+                                      color: _statusColor.withValues(alpha: 0.12),
+                                      borderRadius: AppRadius.chipR),
+                                  child: Text(_statusLabel,
+                                      style: AppTypography.caption
+                                          .copyWith(color: _statusColor)),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '₹${_ride!["pricePerSeat"]}',
+                                  style: AppTypography.title
+                                      .copyWith(color: context.c.ink),
+                                ),
+                                const SizedBox(width: 3),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: Text('/seat',
+                                      style: AppTypography.footnote
+                                          .copyWith(color: context.c.ink3)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              _ride!['name'] ?? _ride!['destination'] ?? 'Trip',
+                              style: AppTypography.display
+                                  .copyWith(color: context.c.ink),
+                            ),
+                            const SizedBox(height: AppSpacing.xxs),
+                            Text(
+                              '${_ride!['origin'] ?? ''}  →  ${_ride!['destination'] ?? ''}',
+                              style: AppTypography.body
+                                  .copyWith(color: context.c.ink2),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              '${_fmtDate(_ride!['departureDate'])}  ·  ${(_ride!['transportMode'] ?? 'Car').toString().capitalize()}',
+                              style: AppTypography.footnote
+                                  .copyWith(color: context.c.ink3),
                             ),
                           ],
                         ),
                       ),
 
+                      Divider(height: 1, thickness: 1, color: context.c.ruleSoft),
+
+                      // ── Host ─────────────────────────────────────────────
+                      // The "HOSTED BY" overline cost a row plus 12pt of gap to
+                      // label a row whose avatar already says what it is.
+                      InkWell(
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => RiderProfileScreen(
+                                    userId: _ride!['driver']['id'],
+                                    knownName: driverName))),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.xs),
+                          child: Row(
+                            children: [
+                              WebCircleAvatar(radius: 19, url: driverAvatar),
+                              const SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(driverName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: AppTypography.bodyStrong
+                                                  .copyWith(color: context.c.ink)),
+                                        ),
+                                        const SizedBox(width: AppSpacing.xxs),
+                                        Icon(Icons.verified_rounded,
+                                            size: 14, color: context.c.ok),
+                                      ],
+                                    ),
+                                    Text(
+                                      'Host  ·  ★ 4.8  ·  ${passengers.length} trips',
+                                      style: AppTypography.footnote
+                                          .copyWith(color: context.c.ink3),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (!isDriver)
+                                IconButton(
+                                  onPressed: () => showModerationSheet(
+                                    context,
+                                    targetUserId: _ride!['driver']['id'],
+                                    targetName: driverName,
+                                    onActionDone: _fetchRideDetails,
+                                  ),
+                                  tooltip: 'More',
+                                  iconSize: 18,
+                                  color: context.c.ink3,
+                                  constraints: const BoxConstraints(
+                                      minWidth: AppTouch.iosMin,
+                                      minHeight: AppTouch.iosMin),
+                                  icon: const Icon(Icons.more_horiz_rounded),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      Divider(height: 1, thickness: 1, color: context.c.ruleSoft),
+
                       // ── The Journey (description) ─────────────────────────
                       if (hasDescription) ...[
-                        const SizedBox(height: 20),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.fromLTRB(AppSpacing.md,
+                              AppSpacing.sm, AppSpacing.md, AppSpacing.xxs),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('THE JOURNEY', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
-                              const SizedBox(height: 8),
+                              Text('About this trip',
+                                  style: AppTypography.heading
+                                      .copyWith(color: context.c.ink)),
+                              const SizedBox(height: AppSpacing.xxs),
                               Text(
                                 description.toString(),
-                                style: AppTypography.dmSans(fontSize: 14, color: Colors.grey[600], height: 1.6, fontWeight: FontWeight.w500),
+                                style: AppTypography.body
+                                    .copyWith(color: context.c.ink2),
                               ),
                             ],
                           ),
@@ -702,13 +704,13 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                           children: [
                             Row(
                               children: [
-                                Text('JOINED TRAVELERS', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(color: const Color(0xFFFF6B2C), borderRadius: BorderRadius.circular(10)),
-                                  child: Text('${passengers.length}', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
-                                ),
+                                Text('Who\'s coming',
+                                    style: AppTypography.heading
+                                        .copyWith(color: context.c.ink)),
+                                const SizedBox(width: AppSpacing.xxs + 2),
+                                Text('${passengers.length}',
+                                    style: AppTypography.heading
+                                        .copyWith(color: context.c.ink3)),
                               ],
                             ),
                             const SizedBox(height: 10),
@@ -2137,3 +2139,81 @@ class _LiveMapFabState extends State<_LiveMapFab>
   }
 }
 
+/// Shown once, when a ride is marked complete.
+///
+/// Replaces an AlertDialog whose title was "Ride Complete! 🏁", whose body was
+/// bold 14pt, and whose only action shouted "GREAT". A moment worth marking
+/// deserves composition rather than punctuation: the number is the hero, the
+/// emoji are gone, and the button says what it does.
+class _RideCompleteSheet extends StatelessWidget {
+  const _RideCompleteSheet({required this.points});
+
+  final int points;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    return Dialog(
+      backgroundColor: c.surfaceRaised,
+      insetPadding: const EdgeInsets.all(AppSpacing.xl),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.sheet)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration:
+                  BoxDecoration(color: c.okWash, borderRadius: AppRadius.cardR),
+              child: Icon(Icons.check_rounded, color: c.ok, size: 24),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text('Ride complete',
+                style: AppTypography.title.copyWith(color: c.ink)),
+            const SizedBox(height: AppSpacing.xxs),
+            Text('Nice one. Everyone who travelled with you earned points too.',
+                style: AppTypography.callout.copyWith(color: c.ink2)),
+            const SizedBox(height: AppSpacing.lg),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.sm, horizontal: AppSpacing.md),
+              decoration: BoxDecoration(
+                  color: c.brandWash, borderRadius: AppRadius.cardR),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text('+$points',
+                      style: AppTypography.display
+                          .copyWith(color: c.brand, fontSize: 30)),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text('Compass Points',
+                      style: AppTypography.callout.copyWith(color: c.brand)),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: c.brand,
+                  textStyle: AppTypography.bodyStrong,
+                  minimumSize: const Size(0, AppTouch.min),
+                ),
+                child: const Text('Done'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

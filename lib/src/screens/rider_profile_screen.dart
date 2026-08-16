@@ -4,6 +4,9 @@ import 'package:dio/dio.dart';
 import '../services/api_service.dart';
 import '../utils/snackbar_helper.dart';
 import '../widgets/moderation_sheet.dart';
+import '../theme/app_spacing.dart';
+import '../theme/flettra_colors.dart';
+import 'chat_screen.dart';
 
 class RiderProfileScreen extends StatefulWidget {
   final String userId;
@@ -32,6 +35,17 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
   void initState() {
     super.initState();
     _load();
+  }
+
+  /// Opens the conversation with this rider. ChatScreen takes the buddy map, so
+  /// pass what we loaded and fall back to the id/name we were given.
+  void _openChat() {
+    final buddy = _user ??
+        <String, dynamic>{'id': widget.userId, 'name': widget.knownName ?? ''};
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ChatScreen(buddy: buddy)),
+    );
   }
 
   Future<void> _load() async {
@@ -483,35 +497,45 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
   }
 
   Widget _buildBottomBar() {
+    final c = context.c;
     return Container(
-      padding: EdgeInsets.fromLTRB(
-          20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
+      padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md,
+          MediaQuery.of(context).padding.bottom + AppSpacing.xs),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.06),
-              blurRadius: 16, offset: const Offset(0, -4))
-        ],
+        color: c.surface,
+        border: Border(top: BorderSide(color: c.rule, width: 0.5)),
       ),
+      // Being buddies is a state, not an action. The bar previously spent the
+      // one primary slot on a disabled button restating what the screen already
+      // shows — so the whole point of opening someone's profile, messaging
+      // them, had nowhere to go. Now the state is a quiet line and the action
+      // is the button.
       child: _isAlreadyBuddy
-          ? SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: null,
-                icon: const Icon(Icons.people_rounded, size: 18),
-                label: Text('Already Buddies',
-                    style: AppTypography.dmSans(
-                        fontWeight: FontWeight.w800, fontSize: 15)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[50],
-                  disabledBackgroundColor: Colors.green[50],
-                  disabledForegroundColor: Colors.green[700],
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
+          ? Row(
+              children: [
+                Icon(Icons.check_circle_rounded, size: 16, color: c.ok),
+                const SizedBox(width: AppSpacing.xxs + 2),
+                Expanded(
+                  child: Text('Buddies',
+                      style: AppTypography.footnote.copyWith(color: c.ok)),
                 ),
-              ),
+                const SizedBox(width: AppSpacing.xs),
+                FilledButton.icon(
+                  onPressed: _openChat,
+                  icon: const Icon(Icons.chat_bubble_outline_rounded, size: 17),
+                  label: const Text('Message'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: c.brand,
+                    foregroundColor: c.onBrand,
+                    minimumSize: const Size(0, AppTouch.min),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadius.cardR),
+                    textStyle: AppTypography.bodyStrong,
+                  ),
+                ),
+              ],
             )
           : SizedBox(
               width: double.infinity,
