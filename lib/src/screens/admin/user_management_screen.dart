@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 import '../../widgets/network_image_widget.dart';
 
@@ -122,7 +122,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         onChanged: (v) => onTap(v!),
         activeColor: const Color(0xFF4F46E5),
       ),
-      title: Text(label, style: GoogleFonts.dmSans(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+      title: Text(label, style: AppTypography.dmSans(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
     );
   }
 
@@ -190,7 +190,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         ),
         title: Text(
           user['name'] ?? 'No Name',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, fontSize: 16),
+          style: AppTypography.dmSans(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

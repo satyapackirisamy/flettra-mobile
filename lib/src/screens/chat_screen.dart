@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
@@ -275,14 +275,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Text(
                       _chatTitle,
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       _chatSubtitle,
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -331,12 +331,12 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(height: 16),
             Text(
               'No messages yet',
-              style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark),
+              style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark),
             ),
             const SizedBox(height: 6),
             Text(
               'Say hello to $_chatTitle!',
-              style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400]),
+              style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[400]),
             ),
           ],
         ),
@@ -383,7 +383,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           child: Text(
             label,
-            style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey[500]),
+            style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey[500]),
           ),
         ),
       ),
@@ -447,7 +447,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.only(left: 4, bottom: 4),
                     child: Text(
                       senderName,
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 11, fontWeight: FontWeight.w800, color: _orange,
                       ),
                     ),
@@ -474,7 +474,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   child: Text(
                     content,
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 14,
                       color: isMe ? Colors.white : const Color(0xFF1A1A1A),
                       height: 1.45,
@@ -490,7 +490,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       Text(
                         timeStr,
-                        style: GoogleFonts.dmSans(
+                        style: AppTypography.dmSans(
                           fontSize: 9, color: Colors.grey[400], fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -548,10 +548,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   child: TextField(
                     controller: _msgCtrl,
-                    style: GoogleFonts.dmSans(fontSize: 14, color: _dark),
+                    style: AppTypography.dmSans(fontSize: 14, color: _dark),
                     decoration: InputDecoration(
                       hintText: 'Message...',
-                      hintStyle: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 14),
+                      hintStyle: AppTypography.dmSans(color: Colors.grey[400], fontSize: 14),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),

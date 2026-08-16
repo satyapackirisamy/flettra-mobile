@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart' show Options;
 import 'package:image_picker/image_picker.dart';
@@ -7,7 +8,6 @@ import '../services/auth_service.dart';
 import '../widgets/chat_widget.dart';
 import '../widgets/rating_dialog.dart';
 import '../widgets/network_image_widget.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../utils/snackbar_helper.dart';
 import 'edit_ride_screen.dart';
@@ -387,7 +387,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   ),
                   title: Text(
                     'Trip Journal',
-                    style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 17, color: const Color(0xFF1A0A08)),
+                    style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 17, color: const Color(0xFF1A0A08)),
                   ),
                   centerTitle: true,
                   actions: [
@@ -488,7 +488,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                               enabled: canChat,
                               onTap: canChat
                                   ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(
-                                      appBar: AppBar(title: Text('Ride Chat', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)), backgroundColor: Colors.white, elevation: 0),
+                                      appBar: AppBar(title: Text('Ride Chat', style: AppTypography.dmSans(fontWeight: FontWeight.w800)), backgroundColor: Colors.white, elevation: 0),
                                       body: ChatWidget(rideId: widget.rideId, title: 'Chat'),
                                     )))
                                   : null,
@@ -505,7 +505,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(color: _statusColor.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
-                              child: Text(_statusLabel, style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _statusColor)),
+                              child: Text(_statusLabel, style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _statusColor)),
                             ),
                           ],
                         ),
@@ -550,12 +550,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                     decoration: BoxDecoration(color: const Color(0xFFFFF3EE), borderRadius: BorderRadius.circular(12)),
                                     child: Text(
                                       '${_ride!['seatsAvailable'] ?? 0} spots left',
-                                      style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
+                                      style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
                                     ),
                                   ),
                                   Text(
                                     '~₹${_ride!["pricePerSeat"]} est.',
-                                    style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08)),
+                                    style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08)),
                                   ),
                                 ],
                               ),
@@ -563,7 +563,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                               // Destination title
                               Text(
                                 _ride!['name'] ?? _ride!['destination'] ?? 'Trip',
-                                style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08), letterSpacing: -0.3),
+                                style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08), letterSpacing: -0.3),
                               ),
                               const SizedBox(height: 8),
                               // Route + date row
@@ -571,14 +571,14 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 children: [
                                   const Icon(Icons.trip_origin_rounded, size: 12, color: Color(0xFFFF6B2C)),
                                   const SizedBox(width: 4),
-                                  Text(_ride!['origin'] ?? '', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                                  Text(_ride!['origin'] ?? '', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 6),
                                     child: Icon(Icons.arrow_forward_rounded, size: 12, color: Colors.grey[300]),
                                   ),
                                   const Icon(Icons.location_on_rounded, size: 12, color: Color(0xFFFF6B2C)),
                                   const SizedBox(width: 4),
-                                  Expanded(child: Text(_ride!['destination'] ?? '', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
+                                  Expanded(child: Text(_ride!['destination'] ?? '', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
                                 ],
                               ),
                               const SizedBox(height: 6),
@@ -586,11 +586,11 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 children: [
                                   const Icon(Icons.calendar_today_rounded, size: 12, color: Colors.grey),
                                   const SizedBox(width: 4),
-                                  Text(_fmtDate(_ride!['departureDate']), style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                                  Text(_fmtDate(_ride!['departureDate']), style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
                                   const SizedBox(width: 16),
                                   const Icon(Icons.directions_car_rounded, size: 12, color: Colors.grey),
                                   const SizedBox(width: 4),
-                                  Text((_ride!['transportMode'] ?? 'Car').toString().capitalize(), style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                                  Text((_ride!['transportMode'] ?? 'Car').toString().capitalize(), style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
                                 ],
                               ),
                             ],
@@ -605,7 +605,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('HOSTED BY', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
+                            Text('HOSTED BY', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
                             const SizedBox(height: 12),
                             Container(
                               padding: const EdgeInsets.all(16),
@@ -625,12 +625,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(driverName, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08))),
+                                          Text(driverName, style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08))),
                                           Row(
                                             children: [
                                               const Icon(Icons.star_rounded, size: 13, color: Color(0xFFFBBF24)),
                                               const SizedBox(width: 3),
-                                              Text('4.8 · ${passengers.length} trips', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                                              Text('4.8 · ${passengers.length} trips', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
                                             ],
                                           ),
                                         ],
@@ -643,7 +643,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                         children: [
                                           const Icon(Icons.verified_rounded, size: 13, color: Color(0xFF10B981)),
                                           const SizedBox(width: 4),
-                                          Text('Verified', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
+                                          Text('Verified', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
                                         ],
                                       ),
                                     ),
@@ -682,11 +682,11 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('THE JOURNEY', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
+                              Text('THE JOURNEY', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
                               const SizedBox(height: 8),
                               Text(
                                 description.toString(),
-                                style: GoogleFonts.dmSans(fontSize: 14, color: Colors.grey[600], height: 1.6, fontWeight: FontWeight.w500),
+                                style: AppTypography.dmSans(fontSize: 14, color: Colors.grey[600], height: 1.6, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -702,12 +702,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                           children: [
                             Row(
                               children: [
-                                Text('JOINED TRAVELERS', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
+                                Text('JOINED TRAVELERS', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
                                 const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(color: const Color(0xFFFF6B2C), borderRadius: BorderRadius.circular(10)),
-                                  child: Text('${passengers.length}', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
+                                  child: Text('${passengers.length}', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
                                 ),
                               ],
                             ),
@@ -735,14 +735,14 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                     const SizedBox(height: 12),
                                     Text(
                                       isDriver ? 'Waiting for travelers' : 'No one yet!',
-                                      style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08)),
+                                      style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08)),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       isDriver
                                           ? 'Share this ride to attract fellow adventurers'
                                           : 'Be the first to join this adventure!',
-                                      style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400], fontWeight: FontWeight.w500),
+                                      style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[400], fontWeight: FontWeight.w500),
                                       textAlign: TextAlign.center,
                                     ),
                                   ],
@@ -779,7 +779,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                               child: Center(
                                                 child: Text(
                                                   name.isNotEmpty ? name[0].toUpperCase() : '?',
-                                                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white),
+                                                  style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white),
                                                 ),
                                               ),
                                             ),
@@ -791,7 +791,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                             child: Container(
                                               width: 44, height: 44,
                                               decoration: BoxDecoration(color: const Color(0xFFF1F5F9), shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2.5)),
-                                              child: Center(child: Text('+${passengers.length - 6}', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[600]))),
+                                              child: Center(child: Text('+${passengers.length - 6}', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[600]))),
                                             ),
                                           ),
                                         const Spacer(),
@@ -803,7 +803,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                             children: [
                                               const Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF10B981)),
                                               const SizedBox(width: 4),
-                                              Text('${passengers.length} joined', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
+                                              Text('${passengers.length} joined', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
                                             ],
                                           ),
                                         ),
@@ -830,7 +830,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                                       ? () => Navigator.push(context, MaterialPageRoute(
                                                           builder: (_) => RiderProfileScreen(userId: pid, knownName: name)))
                                                       : null,
-                                                  child: Text(name, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF1A0A08))),
+                                                  child: Text(name, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF1A0A08))),
                                                 ),
                                               ),
                                               if (!isMe && pid.isNotEmpty)
@@ -853,7 +853,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                         );
                                       }),
                                       if (passengers.length > 3)
-                                        Text('and ${passengers.length - 3} more...', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400], fontWeight: FontWeight.w500)),
+                                        Text('and ${passengers.length - 3} more...', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[400], fontWeight: FontWeight.w500)),
                                     ],
                                   ],
                                 ),
@@ -874,12 +874,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 children: [
                                   Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.person_add_rounded, size: 16, color: Color(0xFFFF6B2C))),
                                   const SizedBox(width: 10),
-                                  Text('Join Requests', style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w800)),
+                                  Text('Join Requests', style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w800)),
                                   const SizedBox(width: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                     decoration: BoxDecoration(color: const Color(0xFFFF6B2C), borderRadius: BorderRadius.circular(6)),
-                                    child: Text('${_requests.where((r) => r['status'] == 'pending').length}', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                                    child: Text('${_requests.where((r) => r['status'] == 'pending').length}', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
                                   ),
                                 ],
                               ),
@@ -900,13 +900,13 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                     child: Row(
                                       children: [
                                         Container(width: 36, height: 36, decoration: const BoxDecoration(color: Color(0xFFFFE4D6), shape: BoxShape.circle),
-                                          child: Center(child: Text(reqName.isNotEmpty ? reqName[0].toUpperCase() : '?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)))),
+                                          child: Center(child: Text(reqName.isNotEmpty ? reqName[0].toUpperCase() : '?', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)))),
                                         ),
                                         const SizedBox(width: 10),
                                         Expanded(child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(reqName, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                                            Text(reqName, style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
                                           ],
                                         )),
                                         GestureDetector(onTap: () => _handleRequest(req['id'], 'accepted'), child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 18))),
@@ -935,7 +935,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Itinerary', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08))),
+                                    Text('Itinerary', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08))),
                                     Container(height: 3, width: 60, margin: const EdgeInsets.only(top: 4), decoration: BoxDecoration(color: const Color(0xFFFF6B2C), borderRadius: BorderRadius.circular(2))),
                                   ],
                                 ),
@@ -956,7 +956,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                           const SizedBox(width: 4),
                                           Text(
                                             _isGenerating ? 'Generating...' : itinerary != null ? 'Regenerate' : 'Generate AI',
-                                            style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
+                                            style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
                                           ),
                                         ],
                                       ),
@@ -965,7 +965,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 if (!isDriver && itinerary != null)
                                   GestureDetector(
                                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => _ItineraryPage(ride: _ride!, rideId: widget.rideId, isDriver: false, onGenerate: _generateItinerary, onRegenerate: _showRegenerateDialog, isGenerating: _isGenerating))),
-                                    child: Text('View all', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                    child: Text('View all', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
                                   ),
                               ],
                             ),
@@ -984,8 +984,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text('No itinerary yet', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14)),
-                                          Text(isDriver ? 'Tap "Generate AI" to create one' : 'The organizer will add one soon', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
+                                          Text('No itinerary yet', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14)),
+                                          Text(isDriver ? 'Tap "Generate AI" to create one' : 'The organizer will add one soon', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[400])),
                                         ],
                                       ),
                                     ),
@@ -1015,15 +1015,15 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                       leading: Container(
                                         width: 36, height: 36,
                                         decoration: const BoxDecoration(color: Color(0xFFFF6B2C), shape: BoxShape.circle),
-                                        child: Center(child: Text('${day['day']}', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 13))),
+                                        child: Center(child: Text('${day['day']}', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 13))),
                                       ),
                                       title: Text(
                                         'Day ${day['day']}${day['title'] != null ? ' · ${day['title']}' : ''}',
-                                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: const Color(0xFF1A0A08)),
+                                        style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: const Color(0xFF1A0A08)),
                                       ),
                                       subtitle: Text(
                                         '${activities.length} ${activities.length == 1 ? 'activity' : 'activities'}',
-                                        style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w600),
+                                        style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w600),
                                       ),
                                       iconColor: const Color(0xFFFF6B2C),
                                       collapsedIconColor: Colors.grey[400],
@@ -1031,7 +1031,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                         if (activities.isEmpty)
                                           Padding(
                                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                                            child: Text('No activities listed', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400])),
+                                            child: Text('No activities listed', style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[400])),
                                           )
                                         else
                                           Padding(
@@ -1053,7 +1053,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                                           padding: const EdgeInsets.only(top: 2),
                                                           child: Text(
                                                             time,
-                                                            style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
+                                                            style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
                                                           ),
                                                         ),
                                                       ),
@@ -1077,7 +1077,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                                           padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
                                                           child: Text(
                                                             desc,
-                                                            style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[700], height: 1.4, fontWeight: FontWeight.w500),
+                                                            style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[700], height: 1.4, fontWeight: FontWeight.w500),
                                                           ),
                                                         ),
                                                       ),
@@ -1109,7 +1109,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                       children: [
                                         const Icon(Icons.calendar_month_rounded, size: 14, color: Color(0xFFFF6B2C)),
                                         const SizedBox(width: 6),
-                                        Text('View full itinerary', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                        Text('View full itinerary', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
                                       ],
                                     ),
                                   ),
@@ -1126,7 +1126,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('ESTIMATED COST', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
+                            Text('ESTIMATED COST', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
                             const SizedBox(height: 10),
                             Container(
                               padding: const EdgeInsets.all(16),
@@ -1177,7 +1177,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
           children: [
             Icon(icon, size: 14, color: enabled ? Colors.white : Colors.grey[400]),
             const SizedBox(width: 6),
-            Text(label, style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: enabled ? Colors.white : Colors.grey[400])),
+            Text(label, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: enabled ? Colors.white : Colors.grey[400])),
           ],
         ),
       ),
@@ -1188,8 +1188,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-        Text(value, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: valueColor ?? const Color(0xFF1A0A08))),
+        Text(label, style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+        Text(value, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: valueColor ?? const Color(0xFF1A0A08))),
       ],
     );
   }
@@ -1243,7 +1243,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
         child: ElevatedButton.icon(
           onPressed: enabled ? onTap : null,
           icon: Icon(icon, size: 20),
-          label: Text(label, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
+          label: Text(label, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFFF6B2C),
             disabledBackgroundColor: Colors.grey[300],
@@ -1280,12 +1280,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
               child: const Icon(Icons.check_rounded, size: 40, color: Color(0xFFFF6B2C)),
             ),
             const SizedBox(height: 24),
-            Text('Join Request Sent!', style: GoogleFonts.dmSans(fontSize: 22, fontWeight: FontWeight.w800)),
+            Text('Join Request Sent!', style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w800)),
             const SizedBox(height: 12),
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
-                style: GoogleFonts.dmSans(fontSize: 14, color: Colors.grey[600], height: 1.5),
+                style: AppTypography.dmSans(fontSize: 14, color: Colors.grey[600], height: 1.5),
                 children: [
                   TextSpan(text: 'Your request to join the $dest trip has been sent to '),
                   TextSpan(text: driverName, style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87)),
@@ -1305,7 +1305,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: Text('Got it, thanks!', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
+                child: Text('Got it, thanks!', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
               ),
             ),
           ],
@@ -1410,14 +1410,14 @@ class _ItineraryPageState extends State<_ItineraryPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Itinerary', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
+        title: Text('Itinerary', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           if (widget.isDriver && itinerary != null)
             TextButton(
               onPressed: _isEditing ? _saveManualEdits : () => setState(() => _isEditing = true),
-              child: Text(_isEditing ? 'Save' : 'Edit', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C))),
+              child: Text(_isEditing ? 'Save' : 'Edit', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C))),
             ),
         ],
       ),
@@ -1436,19 +1436,19 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                       children: [
                         Icon(Icons.map_outlined, size: 64, color: Colors.grey[300]),
                         const SizedBox(height: 16),
-                        Text('No Itinerary Yet', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
+                        Text('No Itinerary Yet', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 8),
                         Text(
                           widget.isDriver ? 'Generate a travel plan using AI' : 'The organizer hasn\'t created an itinerary yet.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 14),
+                          style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 14),
                         ),
                         if (widget.isDriver) ...[
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
                             onPressed: () => widget.onGenerate(),
                             icon: const Icon(Icons.auto_awesome_rounded, size: 18),
-                            label: Text('Generate Itinerary', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
+                            label: Text('Generate Itinerary', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFF6B2C), foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -1483,7 +1483,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
               children: [
                 Icon(_isSuccess ? Icons.check_circle_rounded : Icons.error_rounded, size: 18, color: _isSuccess ? const Color(0xFF059669) : const Color(0xFFDC2626)),
                 const SizedBox(width: 10),
-                Expanded(child: Text(_statusMessage!, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _isSuccess ? const Color(0xFF059669) : const Color(0xFFDC2626)))),
+                Expanded(child: Text(_statusMessage!, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _isSuccess ? const Color(0xFF059669) : const Color(0xFFDC2626)))),
               ],
             ),
           ),
@@ -1495,24 +1495,24 @@ class _ItineraryPageState extends State<_ItineraryPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Full Itinerary', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
+                  Text('Full Itinerary', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey[300]!)),
-                    child: Text('AI GENERATED', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.grey[600], letterSpacing: 0.5)),
+                    child: Text('AI GENERATED', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.grey[600], letterSpacing: 0.5)),
                   ),
                 ],
               ),
               // Summary — only show in edit mode
               if (_isEditing) ...[
                 const SizedBox(height: 16),
-                Text('Summary', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.grey[500])),
+                Text('Summary', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.grey[500])),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _summaryController,
                   maxLines: null,
                   minLines: 2,
-                  style: GoogleFonts.dmSans(fontSize: 14, height: 1.5),
+                  style: AppTypography.dmSans(fontSize: 14, height: 1.5),
                   decoration: InputDecoration(
                     hintText: 'Edit summary...',
                     filled: true,
@@ -1536,7 +1536,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                       children: [
                         Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFFFF6B2C), shape: BoxShape.circle)),
                         const SizedBox(width: 12),
-                        Text('DAY ${day['day']}', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C), fontSize: 13, letterSpacing: 0.5)),
+                        Text('DAY ${day['day']}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C), fontSize: 13, letterSpacing: 0.5)),
                         const Spacer(),
                         if (widget.isDriver && _isEditing)
                           GestureDetector(
@@ -1549,7 +1549,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                 children: [
                                   const Icon(Icons.add_photo_alternate_rounded, size: 14, color: Color(0xFFFF6B2C)),
                                   const SizedBox(width: 4),
-                                  Text(dayImage != null ? 'Change' : 'Add Photo', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                  Text(dayImage != null ? 'Change' : 'Add Photo', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
                                 ],
                               ),
                             ),
@@ -1588,7 +1588,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                             width: 70,
                                             child: TextFormField(
                                               initialValue: act['time'] ?? '',
-                                              style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C)),
+                                              style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C)),
                                               decoration: const InputDecoration(hintText: 'Time', isDense: true, border: InputBorder.none, contentPadding: EdgeInsets.zero),
                                               onChanged: (v) => (activities[actIndex] as Map)['time'] = v,
                                             ),
@@ -1597,7 +1597,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                           Expanded(
                                             child: TextFormField(
                                               initialValue: act['description'] ?? '',
-                                              style: GoogleFonts.dmSans(fontSize: 14, height: 1.4),
+                                              style: AppTypography.dmSans(fontSize: 14, height: 1.4),
                                               maxLines: null,
                                               decoration: const InputDecoration(hintText: 'Activity description', isDense: true, border: InputBorder.none, contentPadding: EdgeInsets.zero),
                                               onChanged: (v) => (activities[actIndex] as Map)['description'] = v,
@@ -1618,9 +1618,9 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(act['time'] ?? '', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                    Text(act['time'] ?? '', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
                                     const SizedBox(width: 12),
-                                    Expanded(child: Text(act['description'] ?? '', style: GoogleFonts.dmSans(fontSize: 14, height: 1.4, color: Colors.grey[800]))),
+                                    Expanded(child: Text(act['description'] ?? '', style: AppTypography.dmSans(fontSize: 14, height: 1.4, color: Colors.grey[800]))),
                                   ],
                                 ),
                               );
@@ -1635,7 +1635,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                     children: [
                                       const Icon(Icons.add_circle_outline_rounded, size: 16, color: Color(0xFFFF6B2C)),
                                       const SizedBox(width: 8),
-                                      Text('Add activity', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                      Text('Add activity', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
                                     ],
                                   ),
                                 ),
@@ -1652,7 +1652,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                 OutlinedButton.icon(
                   onPressed: widget.onRegenerate,
                   icon: const Icon(Icons.refresh_rounded, size: 18),
-                  label: Text('Regenerate with AI', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                  label: Text('Regenerate with AI', style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFFF6B2C),
                     side: const BorderSide(color: Color(0xFFFF6B2C)),
@@ -1757,7 +1757,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
               children: [
                 Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)))),
                 const SizedBox(height: 20),
-                Text('Add Expense', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
+                Text('Add Expense', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 20),
 
                 // Description
@@ -1776,7 +1776,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                 const SizedBox(height: 20),
 
                 // Paid by
-                Text('Paid by', style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700])),
+                Text('Paid by', style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700])),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -1784,7 +1784,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                   children: allParticipants.map((p) {
                     final selected = paidById == p['id'];
                     return ChoiceChip(
-                      label: Text(p['name']!, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: selected ? Colors.white : const Color(0xFF475569))),
+                      label: Text(p['name']!, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: selected ? Colors.white : const Color(0xFF475569))),
                       selected: selected,
                       onSelected: (_) => setSheetState(() => paidById = p['id']!),
                       selectedColor: const Color(0xFFFF6B2C),
@@ -1797,7 +1797,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                 const SizedBox(height: 20),
 
                 // Split among
-                Text('Split among', style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700])),
+                Text('Split among', style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700])),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -1806,7 +1806,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                     final id = p['id']!;
                     final isSelected = splitIds.contains(id);
                     return FilterChip(
-                      label: Text(p['name']!, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: isSelected ? Colors.white : const Color(0xFF475569))),
+                      label: Text(p['name']!, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: isSelected ? Colors.white : const Color(0xFF475569))),
                       selected: isSelected,
                       onSelected: (val) {
                         setSheetState(() {
@@ -1824,7 +1824,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                 if (splitIds.length < allParticipants.length)
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
-                    child: Text('Splitting among ${splitIds.length} of ${allParticipants.length} riders', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                    child: Text('Splitting among ${splitIds.length} of ${allParticipants.length} riders', style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600)),
                   ),
                 const SizedBox(height: 24),
 
@@ -1851,7 +1851,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B2C), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 0),
-                    child: Text('Add Expense', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                    child: Text('Add Expense', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
                   ),
                 ),
               ],
@@ -1891,7 +1891,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Trip Expenses', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
+        title: Text('Trip Expenses', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
         backgroundColor: Colors.white, elevation: 0,
       ),
       floatingActionButton: widget.canEdit ? FloatingActionButton(
@@ -1917,9 +1917,9 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Total Trip Expense', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700)),
+                        Text('Total Trip Expense', style: AppTypography.dmSans(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
-                        Text('₹${(total is num ? total : double.tryParse('$total') ?? 0).toStringAsFixed(0)}', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w800)),
+                        Text('₹${(total is num ? total : double.tryParse('$total') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 16),
                         Container(height: 1, color: Colors.white24),
                         const SizedBox(height: 16),
@@ -1929,9 +1929,9 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('YOUR SHARE', style: GoogleFonts.dmSans(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                                  Text('YOUR SHARE', style: AppTypography.dmSans(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                                   const SizedBox(height: 4),
-                                  Text('₹${(perPerson is num ? perPerson : double.tryParse('$perPerson') ?? 0).toStringAsFixed(0)}', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                                  Text('₹${(perPerson is num ? perPerson : double.tryParse('$perPerson') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                                 ],
                               ),
                             ),
@@ -1939,9 +1939,9 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('EXPENSES', style: GoogleFonts.dmSans(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                                  Text('EXPENSES', style: AppTypography.dmSans(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                                   const SizedBox(height: 4),
-                                  Text('${_expenses.length}', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                                  Text('${_expenses.length}', style: AppTypography.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
                                 ],
                               ),
                             ),
@@ -1955,7 +1955,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
 
                   // Recent expenses
                   if (_expenses.isNotEmpty) ...[
-                    Text('Recent Expenses', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800)),
+                    Text('Recent Expenses', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 16),
                     ..._expenses.map((exp) {
                       final desc = exp['description'] ?? 'Expense';
@@ -1981,13 +1981,13 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(desc, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                                  Text(desc, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
                                   const SizedBox(height: 2),
-                                  Text('Paid by $payerName', style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w600)),
+                                  Text('Paid by $payerName', style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w600)),
                                 ],
                               ),
                             ),
-                            Text('₹${amount.toStringAsFixed(0)}', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
+                            Text('₹${amount.toStringAsFixed(0)}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
                           ],
                         ),
                       );
@@ -1999,9 +1999,9 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                         children: [
                           Icon(Icons.receipt_long_rounded, size: 48, color: Colors.grey[300]),
                           const SizedBox(height: 12),
-                          Text('No expenses yet', style: GoogleFonts.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
+                          Text('No expenses yet', style: AppTypography.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
                           if (widget.canEdit)
-                            Text('Tap + to add an expense', style: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 12)),
+                            Text('Tap + to add an expense', style: AppTypography.dmSans(color: Colors.grey[400], fontSize: 12)),
                         ],
                       ),
                     ),
@@ -2020,7 +2020,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('BALANCES', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 0.5)),
+                          Text('BALANCES', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 0.5)),
                           const SizedBox(height: 16),
                           ...balancesList.map((b) {
                             final balance = (b['balance'] as num?)?.toDouble() ?? 0;
@@ -2032,13 +2032,13 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                                   CircleAvatar(
                                     radius: 16,
                                     backgroundColor: const Color(0xFFFFE4D6),
-                                    child: Text((b['userName'] ?? 'U')[0].toUpperCase(), style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 11, color: const Color(0xFFFF6B2C))),
+                                    child: Text((b['userName'] ?? 'U')[0].toUpperCase(), style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 11, color: const Color(0xFFFF6B2C))),
                                   ),
                                   const SizedBox(width: 12),
-                                  Expanded(child: Text(b['userName'] ?? 'User', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 14))),
+                                  Expanded(child: Text(b['userName'] ?? 'User', style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14))),
                                   Text(
                                     '${isPositive ? '+' : ''}₹${balance.toStringAsFixed(0)}',
-                                    style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: isPositive ? const Color(0xFF059669) : const Color(0xFFDC2626)),
+                                    style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: isPositive ? const Color(0xFF059669) : const Color(0xFFDC2626)),
                                   ),
                                 ],
                               ),
@@ -2122,7 +2122,7 @@ class _LiveMapFabState extends State<_LiveMapFab>
               const SizedBox(width: 6),
               Text(
                 'LIVE MAP',
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   color: Colors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,

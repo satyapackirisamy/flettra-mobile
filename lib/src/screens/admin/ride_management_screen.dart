@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 
 class AdminRideManagementScreen extends StatefulWidget {
@@ -89,7 +89,7 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'No active rides found',
-                            style: GoogleFonts.dmSans(fontSize: 18, color: Colors.grey[600]),
+                            style: AppTypography.dmSans(fontSize: 18, color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -121,7 +121,7 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
                     Expanded(
                       child: Text(
                         '${ride['origin']} → ${ride['destination']}',
-                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 18),
+                        style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 18),
                       ),
                     ),
                     _buildStatusBadge(ride['status']),
@@ -198,7 +198,7 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
       children: [
         Text(
           label.toUpperCase(),
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 10,
             fontWeight: FontWeight.bold,
             color: const Color(0xFF94A3B8),
@@ -208,7 +208,7 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
         const SizedBox(height: 2),
         Text(
           value,
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1E293B),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 
 class AdminVendorManagementScreen extends StatefulWidget {
@@ -107,7 +107,7 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
                           const SizedBox(height: 16),
                           Text(
                             'No vendors found',
-                            style: GoogleFonts.dmSans(fontSize: 18, color: Colors.grey[600]),
+                            style: AppTypography.dmSans(fontSize: 18, color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -146,7 +146,7 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
         },
         selectedColor: const Color(0xFF10B981).withOpacity(0.2),
         checkmarkColor: const Color(0xFF10B981),
-        labelStyle: GoogleFonts.dmSans(
+        labelStyle: AppTypography.dmSans(
           color: isSelected ? const Color(0xFF065F46) : const Color(0xFF64748B),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
         ),
@@ -166,7 +166,7 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
             ),
             title: Text(
               vendor['name'] ?? 'Unknown Vendor',
-              style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, fontSize: 16),
+              style: AppTypography.dmSans(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,7 +205,7 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
               children: [
                 Text(
                   '₹${vendor['price'] ?? 0} / night',
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFF4F46E5)),
+                  style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFF4F46E5)),
                 ),
                 Switch.adaptive(
                   value: vendor['isActive'] ?? true,

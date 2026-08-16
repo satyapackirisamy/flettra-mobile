@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import '../widgets/network_image_widget.dart';
@@ -89,7 +89,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Edit Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 18)),
+        title: Text('Edit Post', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 18)),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
@@ -111,7 +111,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                     ),
-                    child: Text('Save', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14)),
+                    child: Text('Save', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14)),
                   ),
           ),
         ],
@@ -130,10 +130,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     minLines: 5,
                     autofocus: true,
                     onChanged: (_) => setState(() {}),
-                    style: GoogleFonts.dmSans(fontSize: 17, height: 1.6),
+                    style: AppTypography.dmSans(fontSize: 17, height: 1.6),
                     decoration: InputDecoration(
                       hintText: "What's on your mind?",
-                      hintStyle: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 17),
+                      hintStyle: AppTypography.dmSans(color: Colors.grey[400], fontSize: 17),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -141,7 +141,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                   // Existing images
                   if (_existingImageUrls.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text('Current photos', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                    Text('Current photos', style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     SizedBox(
                       height: 140,
@@ -188,7 +188,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                   // Newly picked images
                   if (_newImages.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text('New photos', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                    Text('New photos', style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     SizedBox(
                       height: 140,
@@ -258,7 +258,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: const Color(0xFFFF6B2C).withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
                       child: Text('+${_newImages.length} new',
-                        style: GoogleFonts.dmSans(color: const Color(0xFFFF6B2C), fontSize: 12, fontWeight: FontWeight.w700),
+                        style: AppTypography.dmSans(color: const Color(0xFFFF6B2C), fontSize: 12, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -280,7 +280,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
           children: [
             Icon(icon, color: const Color(0xFFFF6B2C), size: 22),
             const SizedBox(width: 6),
-            Text(label, style: GoogleFonts.dmSans(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(label, style: AppTypography.dmSans(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

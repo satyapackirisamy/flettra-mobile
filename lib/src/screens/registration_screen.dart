@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import '../services/auth_service.dart';
 import '../widgets/places_autocomplete_field.dart';
 import '../app.dart';
@@ -105,7 +105,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
       SnackBar(
         content: Text(
           message,
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
               fontSize: 13, fontWeight: FontWeight.w600),
         ),
         backgroundColor: textDark,
@@ -154,7 +154,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                         // Form Header
                         Text(
                           'Create Account',
-                          style: GoogleFonts.dmSans(
+                          style: AppTypography.dmSans(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
                             color: textDark,
@@ -164,7 +164,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                         const SizedBox(height: 4),
                         Text(
                           'Join the adventure — it\'s free to start.',
-                          style: GoogleFonts.dmSans(
+                          style: AppTypography.dmSans(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: textGray,
@@ -224,7 +224,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                           controller: _locationController,
                           hint: 'Mumbai, India',
                           icon: Icons.location_on_outlined,
-                          textStyle: GoogleFonts.dmSans(
+                          textStyle: AppTypography.dmSans(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: textDark,
@@ -255,7 +255,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                                   const EdgeInsets.symmetric(horizontal: 12),
                               child: Text(
                                 'OR',
-                                style: GoogleFonts.dmSans(
+                                style: AppTypography.dmSans(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: const Color(0xFFA1A1AA),
@@ -280,7 +280,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                             child: Text.rich(
                               TextSpan(
                                 text: 'Already have an account? ',
-                                style: GoogleFonts.dmSans(
+                                style: AppTypography.dmSans(
                                   fontSize: 13,
                                   color: textGray,
                                   fontWeight: FontWeight.w500,
@@ -288,7 +288,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                                 children: [
                                   TextSpan(
                                     text: 'Sign in',
-                                    style: GoogleFonts.dmSans(
+                                    style: AppTypography.dmSans(
                                       fontSize: 13,
                                       color: primaryIndigo,
                                       fontWeight: FontWeight.w800,
@@ -343,7 +343,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 child: Center(
                   child: Text(
                     'F',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -358,7 +358,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 children: [
                   Text(
                     'FLETTRA',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: textDark,
@@ -368,7 +368,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   ),
                   Text(
                     'Social Travel',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: textGray,
@@ -404,7 +404,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
           // Hero headline
           Text(
             'Start your\njourney.',
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
               fontSize: 32,
               fontWeight: FontWeight.w700,
               color: textDark,
@@ -417,7 +417,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
             children: [
               Text(
                 'Connect with riders worldwide  ',
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: textGray,
@@ -432,7 +432,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 ),
                 child: Text(
                   '✦ Free',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: accentOrange,
@@ -469,24 +469,24 @@ class _RegistrationScreenState extends State<RegistrationScreen>
           child: Text.rich(
             TextSpan(
               text: 'I agree to the ',
-              style: GoogleFonts.dmSans(
+              style: AppTypography.dmSans(
                   fontSize: 12, color: textGray, fontWeight: FontWeight.w500),
               children: [
                 TextSpan(
                   text: 'Terms of Service',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: primaryIndigo),
                 ),
                 TextSpan(
                   text: ' and ',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                       fontSize: 12, color: textGray),
                 ),
                 TextSpan(
                   text: 'Privacy Policy',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: primaryIndigo),
@@ -503,7 +503,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   Widget _buildInputLabel(String label) {
     return Text(
       label,
-      style: GoogleFonts.dmSans(
+      style: AppTypography.dmSans(
         fontSize: 12,
         fontWeight: FontWeight.w700,
         color: textDark,
@@ -516,7 +516,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   InputDecoration _buildFieldDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.dmSans(
+      hintStyle: AppTypography.dmSans(
         fontSize: 14,
         color: const Color(0xFFA1A1AA),
         fontWeight: FontWeight.w400,
@@ -545,7 +545,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
       ),
-      errorStyle: GoogleFonts.dmSans(
+      errorStyle: AppTypography.dmSans(
         fontSize: 11,
         color: const Color(0xFFEF4444),
         fontWeight: FontWeight.w600,
@@ -572,14 +572,14 @@ class _RegistrationScreenState extends State<RegistrationScreen>
       controller: controller,
       obscureText: isObscure,
       keyboardType: keyboardType,
-      style: GoogleFonts.dmSans(
+      style: AppTypography.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: textDark,
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.dmSans(
+        hintStyle: AppTypography.dmSans(
           fontSize: 14,
           color: const Color(0xFFA1A1AA),
           fontWeight: FontWeight.w400,
@@ -622,7 +622,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
         ),
-        errorStyle: GoogleFonts.dmSans(
+        errorStyle: AppTypography.dmSans(
           fontSize: 11,
           color: const Color(0xFFEF4444),
           fontWeight: FontWeight.w600,
@@ -685,7 +685,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   children: [
                     Text(
                       'Join Flettra',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 
@@ -71,7 +71,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to post. Please try again.', style: GoogleFonts.dmSans()),
+            content: Text('Failed to post. Please try again.', style: AppTypography.dmSans()),
             backgroundColor: Colors.red[400],
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -103,7 +103,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('New Post',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 17, color: const Color(0xFF1A1A1A)),
+          style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 17, color: const Color(0xFF1A1A1A)),
         ),
         centerTitle: true,
         actions: [
@@ -125,7 +125,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text('Post',
-                          style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14),
+                          style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14),
                         ),
                       ),
                     ),
@@ -175,7 +175,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       children: [
                         if (name.isNotEmpty)
                         Text(name,
-                          style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: const Color(0xFF1A1A1A)),
+                          style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: const Color(0xFF1A1A1A)),
                         ),
                         const SizedBox(height: 4),
                         TextField(
@@ -185,10 +185,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           autofocus: true,
                           maxLength: maxChars,
                           onChanged: (_) => setState(() {}),
-                          style: GoogleFonts.dmSans(fontSize: 16, height: 1.6, color: const Color(0xFF1A1A1A)),
+                          style: AppTypography.dmSans(fontSize: 16, height: 1.6, color: const Color(0xFF1A1A1A)),
                           decoration: InputDecoration(
                             hintText: "Share your travel story, tip, or moment…",
-                            hintStyle: GoogleFonts.dmSans(color: const Color(0xFFBBBBBB), fontSize: 16, height: 1.6),
+                            hintStyle: AppTypography.dmSans(color: const Color(0xFFBBBBBB), fontSize: 16, height: 1.6),
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
@@ -210,7 +210,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text('${maxChars - charCount}',
-                              style: GoogleFonts.dmSans(
+                              style: AppTypography.dmSans(
                                 fontSize: 13,
                                 color: charCount > 480 ? Colors.red[400] : Colors.grey[400],
                                 fontWeight: FontWeight.w600,
@@ -297,7 +297,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               child: Container(
                 color: Colors.black.withOpacity(0.5),
                 child: Center(child: Text('+${count - 3}',
-                  style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
+                  style: AppTypography.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
                 )),
               ),
             )),
@@ -347,13 +347,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, color: _primary, size: 20),
           const SizedBox(width: 5),
-          Text(label, style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 13, fontWeight: FontWeight.w600)),
+          Text(label, style: AppTypography.dmSans(color: Colors.grey[600], fontSize: 13, fontWeight: FontWeight.w600)),
           if (badge != null) ...[
             const SizedBox(width: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(color: _primary.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-              child: Text(badge, style: GoogleFonts.dmSans(color: _primary, fontSize: 11, fontWeight: FontWeight.w700)),
+              child: Text(badge, style: AppTypography.dmSans(color: _primary, fontSize: 11, fontWeight: FontWeight.w700)),
             ),
           ],
         ]),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../services/api_service.dart';
@@ -141,9 +141,9 @@ class _ChatWidgetState extends State<ChatWidget> {
               child: const Icon(Icons.chat_bubble_outline_rounded, size: 40, color: _orange),
             ),
             const SizedBox(height: 14),
-            Text('No messages yet', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[400])),
+            Text('No messages yet', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[400])),
             const SizedBox(height: 4),
-            Text('Be the first to say hello!', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[300])),
+            Text('Be the first to say hello!', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[300])),
           ],
         ),
       );
@@ -195,7 +195,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                     child: Center(
                       child: Text(
                         senderName.isNotEmpty ? senderName[0].toUpperCase() : 'U',
-                        style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
+                        style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
                       ),
                     ),
                   )
@@ -211,7 +211,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 4),
                     child: Text(senderName,
-                        style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _orange)),
+                        style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _orange)),
                   ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -231,14 +231,14 @@ class _ChatWidgetState extends State<ChatWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(content,
-                          style: GoogleFonts.dmSans(
+                          style: AppTypography.dmSans(
                             fontSize: 14,
                             color: isMe ? Colors.white : _dark,
                             height: 1.4,
                           )),
                       const SizedBox(height: 3),
                       Text(timeStr,
-                          style: GoogleFonts.dmSans(
+                          style: AppTypography.dmSans(
                             fontSize: 9,
                             color: isMe ? Colors.white60 : Colors.grey[400],
                           )),
@@ -270,10 +270,10 @@ class _ChatWidgetState extends State<ChatWidget> {
               decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(24)),
               child: TextField(
                 controller: _msgCtrl,
-                style: GoogleFonts.dmSans(fontSize: 14, color: _dark),
+                style: AppTypography.dmSans(fontSize: 14, color: _dark),
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
-                  hintStyle: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 14),
+                  hintStyle: AppTypography.dmSans(color: Colors.grey[400], fontSize: 14),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 ),

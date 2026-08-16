@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
 import '../utils/snackbar_helper.dart';
@@ -237,12 +237,12 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name,
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                         fontSize: 22, fontWeight: FontWeight.w700,
                         color: _dark, letterSpacing: -0.3)),
                 if (handle.isNotEmpty)
                   Text(handle,
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                           fontSize: 13, color: _orange,
                           fontWeight: FontWeight.w600)),
               ],
@@ -265,7 +265,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
       ),
       child: Center(
         child: Text(initial,
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
                 fontSize: size * 0.38, fontWeight: FontWeight.w700,
                 color: Colors.white)),
       ),
@@ -322,12 +322,12 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
       child: Column(
         children: [
           Text(value,
-              style: GoogleFonts.dmSans(
+              style: AppTypography.dmSans(
                   fontSize: 20, fontWeight: FontWeight.w700,
                   color: valueColor ?? _dark)),
           const SizedBox(height: 2),
           Text(label,
-              style: GoogleFonts.dmSans(
+              style: AppTypography.dmSans(
                   fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w600)),
         ],
       ),
@@ -342,7 +342,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('ABOUT',
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
                 fontSize: 11, fontWeight: FontWeight.w800,
                 color: Colors.grey[400], letterSpacing: 1.2)),
         const SizedBox(height: 8),
@@ -361,7 +361,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
             bio.isNotEmpty
                 ? bio
                 : 'Adventure seeker & travel enthusiast. Always ready for the next ride.',
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
                 fontSize: 14, color: Colors.grey[600], height: 1.6,
                 fontWeight: FontWeight.w500),
           ),
@@ -377,7 +377,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
         Row(
           children: [
             Text('RIDES',
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                     fontSize: 11, fontWeight: FontWeight.w800,
                     color: Colors.grey[400], letterSpacing: 1.2)),
             const SizedBox(width: 8),
@@ -386,7 +386,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
               decoration: BoxDecoration(
                   color: _orange, borderRadius: BorderRadius.circular(10)),
               child: Text('${_rides.length}',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                       fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
             ),
           ],
@@ -434,7 +434,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                         origin.isNotEmpty && dest.isNotEmpty
                             ? '$origin → $dest'
                             : dest.isNotEmpty ? dest : origin,
-                        style: GoogleFonts.dmSans(
+                        style: AppTypography.dmSans(
                             fontWeight: FontWeight.w800, fontSize: 13,
                             color: _dark),
                         overflow: TextOverflow.ellipsis,
@@ -442,7 +442,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                       if (date.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(date,
-                            style: GoogleFonts.dmSans(
+                            style: AppTypography.dmSans(
                                 fontSize: 11, color: Colors.grey[400],
                                 fontWeight: FontWeight.w500)),
                       ],
@@ -454,7 +454,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(price != null && price != 0 ? '~₹$price' : 'Free',
-                        style: GoogleFonts.dmSans(
+                        style: AppTypography.dmSans(
                             fontWeight: FontWeight.w800, fontSize: 13,
                             color: _orange)),
                     const SizedBox(height: 3),
@@ -467,7 +467,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                       ),
                       child: Text(
                         status[0].toUpperCase() + status.substring(1),
-                        style: GoogleFonts.dmSans(
+                        style: AppTypography.dmSans(
                             fontSize: 10, fontWeight: FontWeight.w700,
                             color: statusColor),
                       ),
@@ -500,7 +500,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                 onPressed: null,
                 icon: const Icon(Icons.people_rounded, size: 18),
                 label: Text('Already Buddies',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                         fontWeight: FontWeight.w800, fontSize: 15)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[50],
@@ -522,7 +522,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                     size: 18),
                 label: Text(
                     _buddyRequestSent ? 'Request Sent' : 'Add as Buddy',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                         fontWeight: FontWeight.w800, fontSize: 15)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _buddyRequestSent ? Colors.grey[300] : _orange,

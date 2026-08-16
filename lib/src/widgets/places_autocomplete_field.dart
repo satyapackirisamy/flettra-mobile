@@ -1,6 +1,6 @@
 import 'dart:async';
+import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../services/places_service.dart';
 
 /// A TextFormField with Google Places city autocomplete dropdown.
@@ -190,7 +190,7 @@ class _PlacesAutocompleteFieldState extends State<PlacesAutocompleteField> {
                                     children: [
                                       Text(
                                         p.mainText,
-                                        style: GoogleFonts.dmSans(
+                                        style: AppTypography.dmSans(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
                                           color: const Color(0xFF1A0A08),
@@ -200,7 +200,7 @@ class _PlacesAutocompleteFieldState extends State<PlacesAutocompleteField> {
                                       ),
                                       Text(
                                         p.description,
-                                        style: GoogleFonts.dmSans(
+                                        style: AppTypography.dmSans(
                                           fontSize: 11,
                                           color: Colors.grey[500],
                                           fontWeight: FontWeight.w400,

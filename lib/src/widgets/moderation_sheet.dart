@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import '../services/moderation_service.dart';
 import '../utils/snackbar_helper.dart';
 
@@ -119,7 +119,7 @@ class _ModerationSheetState extends State<_ModerationSheet> {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Cancel', style: GoogleFonts.dmSans(fontSize: 15, color: const Color(0xFF6B7280))),
+                child: Text('Cancel', style: AppTypography.dmSans(fontSize: 15, color: const Color(0xFF6B7280))),
               ),
             ],
           ],
@@ -134,13 +134,13 @@ class _ModerationSheetState extends State<_ModerationSheet> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Block ${widget.targetName}?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 17)),
+        title: Text('Block ${widget.targetName}?', style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 17)),
         content: Text(
           '${widget.targetName} won\'t be able to see your profile, rides, or contact you. You can unblock them later from settings.',
-          style: GoogleFonts.dmSans(fontSize: 14, color: const Color(0xFF6B7280)),
+          style: AppTypography.dmSans(fontSize: 14, color: const Color(0xFF6B7280)),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel', style: GoogleFonts.dmSans())),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel', style: AppTypography.dmSans())),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -152,7 +152,7 @@ class _ModerationSheetState extends State<_ModerationSheet> {
                 if (context.mounted) showError(context, 'Failed to block. Please try again.');
               }
             },
-            child: Text('Block', style: GoogleFonts.dmSans(color: const Color(0xFFEF4444), fontWeight: FontWeight.w700)),
+            child: Text('Block', style: AppTypography.dmSans(color: const Color(0xFFEF4444), fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -236,9 +236,9 @@ class _ReportDialogState extends State<_ReportDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Report this post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 17)),
+            Text('Report this post', style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 17)),
             const SizedBox(height: 4),
-            Text('Why are you reporting this?', style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF6B7280))),
+            Text('Why are you reporting this?', style: AppTypography.dmSans(fontSize: 13, color: const Color(0xFF6B7280))),
             const SizedBox(height: 14),
             ..._reasons.map((r) => GestureDetector(
               onTap: () => setState(() => _selectedReason = r.$1),
@@ -255,7 +255,7 @@ class _ReportDialogState extends State<_ReportDialog> {
                 ),
                 child: Row(
                   children: [
-                    Text(r.$2, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w500)),
+                    Text(r.$2, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w500)),
                     const Spacer(),
                     if (_selectedReason == r.$1)
                       const Icon(Icons.check_circle_rounded, size: 16, color: Color(0xFFFF6B2C)),
@@ -268,10 +268,10 @@ class _ReportDialogState extends State<_ReportDialog> {
               TextField(
                 controller: _detailsController,
                 maxLines: 2,
-                style: GoogleFonts.dmSans(fontSize: 13),
+                style: AppTypography.dmSans(fontSize: 13),
                 decoration: InputDecoration(
                   hintText: 'Additional details (optional)…',
-                  hintStyle: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFFA1A1AA)),
+                  hintStyle: AppTypography.dmSans(fontSize: 13, color: const Color(0xFFA1A1AA)),
                   filled: true,
                   fillColor: const Color(0xFFF5F5F7),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -285,7 +285,7 @@ class _ReportDialogState extends State<_ReportDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel', style: GoogleFonts.dmSans(color: const Color(0xFF6B7280))),
+                  child: Text('Cancel', style: AppTypography.dmSans(color: const Color(0xFF6B7280))),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
@@ -298,7 +298,7 @@ class _ReportDialogState extends State<_ReportDialog> {
                   ),
                   child: _loading
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text('Submit report', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 13)),
+                    : Text('Submit report', style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13)),
                 ),
               ],
             ),
@@ -339,9 +339,9 @@ class _SheetTile extends StatelessWidget {
         ),
         child: Icon(icon, color: color, size: 20),
       ),
-      title: Text(label, style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: color)),
+      title: Text(label, style: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: color)),
       subtitle: subtitle != null
-        ? Text(subtitle!, style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF9CA3AF)))
+        ? Text(subtitle!, style: AppTypography.dmSans(fontSize: 12, color: const Color(0xFF9CA3AF)))
         : null,
     );
   }

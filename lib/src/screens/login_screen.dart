@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:dio/dio.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -197,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600)),
+        content: Text(message, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w600)),
         backgroundColor: textDark,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -257,7 +257,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   children: [
                                     Text(
                                       'Sign In',
-                                      style: GoogleFonts.dmSans(
+                                      style: AppTypography.dmSans(
                                         fontSize: 22,
                                         fontWeight: FontWeight.w800,
                                         color: textDark,
@@ -269,7 +269,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       _isPasswordLogin
                                           ? 'Welcome back, adventurer.'
                                           : 'We\'ll send a code to your email.',
-                                      style: GoogleFonts.dmSans(
+                                      style: AppTypography.dmSans(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         color: textGray,
@@ -318,7 +318,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   ),
                                   child: Text(
                                     'Forgot password?',
-                                    style: GoogleFonts.dmSans(
+                                    style: AppTypography.dmSans(
                                       fontSize: 12,
                                       color: accentOrange,
                                       fontWeight: FontWeight.w700,
@@ -343,7 +343,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   padding: const EdgeInsets.symmetric(horizontal: 12),
                                   child: Text(
                                     'OR',
-                                    style: GoogleFonts.dmSans(
+                                    style: AppTypography.dmSans(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
                                       color: const Color(0xFFA1A1AA),
@@ -371,7 +371,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 child: Text.rich(
                                   TextSpan(
                                     text: 'New to Flettra? ',
-                                    style: GoogleFonts.dmSans(
+                                    style: AppTypography.dmSans(
                                       fontSize: 13,
                                       color: textGray,
                                       fontWeight: FontWeight.w500,
@@ -379,7 +379,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     children: [
                                       TextSpan(
                                         text: 'Create account',
-                                        style: GoogleFonts.dmSans(
+                                        style: AppTypography.dmSans(
                                           fontSize: 13,
                                           color: primaryIndigo,
                                           fontWeight: FontWeight.w800,
@@ -450,7 +450,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     ),
                     Text(
                       'F',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -466,7 +466,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 children: [
                   Text(
                     'FLETTRA',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: textDark,
@@ -476,7 +476,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   ),
                   Text(
                     'Social Travel',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: textGray,
@@ -508,7 +508,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           // Hero headline
           Text(
             'Welcome\nback.',
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
               fontSize: 34,
               fontWeight: FontWeight.w700,
               color: textDark,
@@ -521,7 +521,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             children: [
               Text(
                 'Your next adventure awaits  ',
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: textGray,
@@ -535,7 +535,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ),
                 child: Text(
                   '✦ Ride on',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: primaryIndigo,
@@ -562,7 +562,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         ),
         child: Text(
           _isPasswordLogin ? 'Use OTP' : 'Use Password',
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 11,
             fontWeight: FontWeight.w800,
             color: primaryIndigo,
@@ -577,7 +577,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   Widget _buildInputLabel(String label) {
     return Text(
       label,
-      style: GoogleFonts.dmSans(
+      style: AppTypography.dmSans(
         fontSize: 12,
         fontWeight: FontWeight.w700,
         color: textDark,
@@ -600,14 +600,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       controller: controller,
       obscureText: isObscure,
       keyboardType: keyboardType,
-      style: GoogleFonts.dmSans(
+      style: AppTypography.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: textDark,
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.dmSans(
+        hintStyle: AppTypography.dmSans(
           fontSize: 14,
           color: const Color(0xFFA1A1AA),
           fontWeight: FontWeight.w400,
@@ -657,7 +657,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         icon: const Icon(Icons.fingerprint_rounded, size: 22),
         label: Text(
           'Sign in with Face ID / Fingerprint',
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
@@ -719,7 +719,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   children: [
                     Text(
                       _isPasswordLogin ? 'Sign In' : 'Send Code',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,

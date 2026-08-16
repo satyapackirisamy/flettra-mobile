@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 import '../../widgets/network_image_widget.dart';
 import 'destination_form_screen.dart';
@@ -104,7 +104,7 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                           const SizedBox(height: 16),
                           Text(
                             'No destinations created yet',
-                            style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 16),
+                            style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 16),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
@@ -174,7 +174,7 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                     Expanded(
                       child: Text(
                         dest['name'] ?? 'Untitled',
-                        style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800),
+                        style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800),
                       ),
                     ),
                     _buildActiveBadge(dest['isActive'] ?? true),
@@ -187,14 +187,14 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                     const SizedBox(width: 4),
                     Text(
                       dest['location'] ?? 'Global',
-                      style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 13),
+                      style: AppTypography.dmSans(color: Colors.grey[600], fontSize: 13),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   dest['description'] ?? 'No description provided.',
-                  style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 13, height: 1.5),
+                  style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 13, height: 1.5),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -87,6 +87,40 @@ abstract final class AppTypography {
     letterSpacing: 0.2,
   );
 
+  /// Ad-hoc DM Sans style.
+  ///
+  /// Migration shim for the ~560 `AppTypography.dmSans(...)` call sites. It takes
+  /// the same named arguments, so the swap is mechanical, but resolves the
+  /// bundled family instead of asking `google_fonts` to find a font it cannot
+  /// (Flutter's directory asset inclusion skips the space in "DM Sans-*.ttf",
+  /// so with runtime fetching off every one of those calls threw).
+  ///
+  /// Prefer the named styles above. Reach for this only while migrating a
+  /// screen — a call site that passes its own `fontSize` is a call site that
+  /// has opted out of the scale.
+  static TextStyle dmSans({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+    double? letterSpacing,
+    double? height,
+    FontStyle? fontStyle,
+    TextDecoration? decoration,
+    List<Shadow>? shadows,
+  }) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+      height: height,
+      fontStyle: fontStyle,
+      decoration: decoration,
+      shadows: shadows,
+    );
+  }
+
   // ── Material mapping ──────────────────────────────────────────────────────
 
   /// Maps the scale onto Material's [TextTheme] so framework widgets that read

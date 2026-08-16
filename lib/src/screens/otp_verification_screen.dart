@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import 'package:pinput/pinput.dart';
 import '../services/auth_service.dart';
 import 'ride_list_screen.dart';
@@ -67,7 +67,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 60,
-      textStyle: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
+      textStyle: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(12),
@@ -90,12 +90,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             const SizedBox(height: 20),
             Text(
               'Verify Identity',
-              style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
+              style: AppTypography.dmSans(fontSize: 32, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
             ),
              const SizedBox(height: 8),
             Text(
               'Enter the 6-digit code sent to ${widget.identifier}',
-              style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
+              style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
             ),
             const SizedBox(height: 48),
 

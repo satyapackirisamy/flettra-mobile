@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../theme/app_typography.dart';
 import 'dart:math' show cos, sqrt, asin, sin, pi;
 import 'dart:ui' as ui;
 
@@ -6,7 +7,6 @@ import 'package:dio/dio.dart' show CancelToken, DioException;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -518,7 +518,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                       const SizedBox(width: 8),
                       Text(
                         'LIVE  ·  ${_members.length} / ${widget.participants.length} sharing',
-                        style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08)),
+                        style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08)),
                       ),
                     ]),
                   ),
@@ -560,11 +560,11 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(
                         'Next fuel: ${_nextOnRoute!.distanceKm != null ? _formatDist(_nextOnRoute!.distanceKm!) : "ahead"}',
-                        style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white),
+                        style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white),
                       ),
                       Text(
                         _nextOnRoute!.name,
-                        style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white.withOpacity(0.85)),
+                        style: AppTypography.dmSans(fontSize: 11, color: Colors.white.withOpacity(0.85)),
                         maxLines: 1, overflow: TextOverflow.ellipsis,
                       ),
                     ]),
@@ -575,7 +575,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
-                      child: Text('Go', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
+                      child: Text('Go', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white)),
                     ),
                   ),
                 ]),
@@ -598,7 +598,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                   const SizedBox(width: 8),
                   Expanded(child: Text(
                     'Location access denied — others can\'t see you',
-                    style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFF92400E)),
+                    style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFF92400E)),
                   )),
                 ]),
               ),
@@ -673,7 +673,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                   const SizedBox(width: 5),
                   Text(
                     cat.label,
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: isActive ? Colors.white : const Color(0xFF555555),
@@ -686,7 +686,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                       decoration: BoxDecoration(color: Colors.white.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
                       child: Text(
                         '${_pois.length}',
-                        style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white),
+                        style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white),
                       ),
                     ),
                   ],
@@ -712,7 +712,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
               child: CircularProgressIndicator(strokeWidth: 2, color: Color(cat.colorValue))),
           const SizedBox(height: 10),
           Text('Searching nearby ${cat.label.toLowerCase()}…',
-              style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500])),
+              style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500])),
         ])),
       );
     }
@@ -725,7 +725,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
           child: Row(children: [
             Icon(Icons.refresh_rounded, color: Color(cat.colorValue), size: 18),
             const SizedBox(width: 8),
-            Text(_poisError!, style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[600])),
+            Text(_poisError!, style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[600])),
           ]),
         ),
       );
@@ -736,7 +736,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Center(child: Text(
           'No ${cat.label.toLowerCase()} found nearby',
-          style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400]),
+          style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[400]),
         )),
       );
     }
@@ -777,28 +777,28 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(child: Text(poi.name,
-                  style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF1A1A1A)),
+                  style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF1A1A1A)),
                   maxLines: 1, overflow: TextOverflow.ellipsis)),
               if (isNext)
                 Container(
                   margin: const EdgeInsets.only(left: 6),
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(color: catColor, borderRadius: BorderRadius.circular(6)),
-                  child: Text('NEXT', style: GoogleFonts.dmSans(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 0.5)),
+                  child: Text('NEXT', style: AppTypography.dmSans(fontSize: 8, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 0.5)),
                 ),
             ]),
             const SizedBox(height: 2),
             Text(poi.subtitle,
-                style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500]),
+                style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[500]),
                 maxLines: 1, overflow: TextOverflow.ellipsis),
           ])),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             if (poi.distanceKm != null)
               Text(_formatDist(poi.distanceKm!),
-                  style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: catColor)),
+                  style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: catColor)),
             if (poi.routeProgress != null)
-              Text('on route', style: GoogleFonts.dmSans(fontSize: 9, color: Colors.grey[400])),
+              Text('on route', style: AppTypography.dmSans(fontSize: 9, color: Colors.grey[400])),
           ]),
         ]),
       ),
@@ -818,7 +818,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
             const Icon(Icons.people_rounded, size: 14, color: Color(0xFF6366F1)),
             const SizedBox(width: 6),
             Text('GROUP MEMBERS',
-                style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 1.2)),
+                style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 1.2)),
           ]),
         ),
         const SizedBox(height: 8),
@@ -888,16 +888,16 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     ]),
                     const SizedBox(height: 6),
                     Text(isMe ? 'You' : name.split(' ')[0],
-                        style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08))),
+                        style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08))),
                     const SizedBox(height: 2),
                     if (dist != null)
                       Text(_formatDist(dist),
-                          style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF6366F1)))
+                          style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF6366F1)))
                     else if (isMe && hasLoc)
-                      Text('Here', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF10B981)))
+                      Text('Here', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF10B981)))
                     else
                       Text(hasLoc ? '–' : 'offline',
-                          style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.grey[400])),
+                          style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.grey[400])),
                   ]),
                 ),
               );

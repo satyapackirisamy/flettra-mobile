@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../login_screen.dart';
@@ -77,7 +77,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   children: [
                     Text(
                       'Platform Overview',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF0F172A),
@@ -86,7 +86,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'Real-time metrics for Flettra',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 16,
                         color: const Color(0xFF64748B),
                         fontWeight: FontWeight.w500,
@@ -133,7 +133,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(height: 40),
                     Text(
                       'Management Modules',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF0F172A),
@@ -215,7 +215,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             children: [
               Text(
                 value,
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF0F172A),
@@ -223,7 +223,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
               Text(
                 label,
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF64748B),
@@ -257,7 +257,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         title: Text(
           title,
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1E293B),
@@ -265,7 +265,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: const Color(0xFF64748B),

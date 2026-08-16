@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import 'dart:ui';
 import '../screens/create_post_screen.dart';
 import '../screens/create_ride_screen.dart';
@@ -40,7 +40,7 @@ class CommonFab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Text("Create New", style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
+            Text("Create New", style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
             const SizedBox(height: 24),
             _buildOptionTile(
               context, 
@@ -189,9 +189,9 @@ class CommonFab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16, color: const Color(0xFF1E293B))),
+                  Text(title, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16, color: const Color(0xFF1E293B))),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text(subtitle, style: AppTypography.dmSans(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),

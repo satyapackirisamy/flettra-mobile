@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import 'dart:async';
 import 'login_screen.dart';
 import 'main_screen.dart';
@@ -155,7 +155,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: _completing ? null : _completeOnboarding,
-                child: Text('Skip', style: GoogleFonts.dmSans(color: Colors.grey, fontWeight: FontWeight.w700)),
+                child: Text('Skip', style: AppTypography.dmSans(color: Colors.grey, fontWeight: FontWeight.w700)),
               ),
             ),
             // Content
@@ -184,13 +184,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           s['title'] as String,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -1),
+                          style: AppTypography.dmSans(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -1),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           s['description'] as String,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(fontSize: 15, color: Colors.grey[600], fontWeight: FontWeight.w600, height: 1.5),
+                          style: AppTypography.dmSans(fontSize: 15, color: Colors.grey[600], fontWeight: FontWeight.w600, height: 1.5),
                         ),
                       ],
                     ),
@@ -224,7 +224,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   child: Text(
                     _completing ? 'Getting ready...' : isLast ? 'Get Started' : 'Next',
-                    style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -293,7 +293,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           const Spacer(),
                           Text(
                             slide['smallText'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppTypography.dmSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w600,
                               color: Colors.white.withOpacity(0.9),
@@ -303,7 +303,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           const SizedBox(height: 8),
                           Text(
                             slide['bigText'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppTypography.dmSans(
                               fontSize: 56,
                               fontWeight: FontWeight.w800,
                               height: 1.05,
@@ -367,7 +367,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         children: [
                           Text(
                             "Get Started",
-                            style: GoogleFonts.outfit(
+                            style: AppTypography.dmSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.5,
@@ -387,7 +387,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: () {},
                     child: Text(
                       "Privacy Policy",
-                      style: GoogleFonts.outfit(
+                      style: AppTypography.dmSans(
                         fontSize: 14,
                         color: Colors.white.withOpacity(0.7),
                         fontWeight: FontWeight.w500,

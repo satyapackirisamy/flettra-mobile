@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import '../services/api_service.dart';
 import '../widgets/network_image_widget.dart';
 
@@ -65,7 +65,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
         ),
         title: Text(
           'Analytics',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: _dark, fontSize: 18),
+          style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: _dark, fontSize: 18),
         ),
         centerTitle: true,
         bottom: PreferredSize(
@@ -75,8 +75,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
             child: TabBar(
               controller: _tabController,
-              labelStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 13),
-              unselectedLabelStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 13),
+              labelStyle: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 13),
+              unselectedLabelStyle: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 13),
               labelColor: Colors.white,
               unselectedLabelColor: Colors.grey[500],
               indicator: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(11)),
@@ -101,7 +101,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   Widget _buildStats() {
     if (_stats == null) {
       return Center(
-        child: Text('No data available', style: GoogleFonts.dmSans(color: Colors.grey[400])),
+        child: Text('No data available', style: AppTypography.dmSans(color: Colors.grey[400])),
       );
     }
 
@@ -123,7 +123,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           // Section label
           Text(
             'PERSONAL DASHBOARD',
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
               fontSize: 11, fontWeight: FontWeight.w800,
               color: _orange, letterSpacing: 1.5,
             ),
@@ -131,7 +131,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           const SizedBox(height: 4),
           Text(
             'My Stats',
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
               fontSize: 26, fontWeight: FontWeight.w700, color: _dark,
             ),
           ),
@@ -185,10 +185,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('COMPASS POINTS', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange, letterSpacing: 1.0)),
+                      Text('COMPASS POINTS', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange, letterSpacing: 1.0)),
                       const SizedBox(height: 6),
-                      Text('$compassPts', style: GoogleFonts.dmSans(fontSize: 36, fontWeight: FontWeight.w700, color: _dark, height: 1.0)),
-                      Text('Keep riding to earn more!', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500)),
+                      Text('$compassPts', style: AppTypography.dmSans(fontSize: 36, fontWeight: FontWeight.w700, color: _dark, height: 1.0)),
+                      Text('Keep riding to earn more!', style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500)),
                     ],
                   ),
                 ),
@@ -220,11 +220,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('30-Day Activity', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15, color: _dark)),
+                    Text('30-Day Activity', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15, color: _dark)),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(8)),
-                      child: Text('Rides', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange)),
+                      child: Text('Rides', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange)),
                     ),
                   ],
                 ),
@@ -237,7 +237,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           const SizedBox(height: 24),
 
           // Secondary stats grid
-          Text('Breakdown', style: GoogleFonts.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
+          Text('Breakdown', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
           const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 2,
@@ -257,7 +257,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           const SizedBox(height: 24),
 
           // Travel achievements
-          Text('Travel Achievements', style: GoogleFonts.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
+          Text('Travel Achievements', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
           const SizedBox(height: 12),
           SizedBox(
             height: 110,
@@ -276,7 +276,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           // Top Routes
           if ((_stats!['topRoutes'] as List?)?.isNotEmpty == true) ...[
             const SizedBox(height: 24),
-            Text('Top Routes', style: GoogleFonts.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
+            Text('Top Routes', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
             const SizedBox(height: 12),
             ...(_stats!['topRoutes'] as List).asMap().entries.map((entry) {
               final i = entry.key;
@@ -298,12 +298,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
-                        child: Text('#${i + 1}', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: i == 0 ? Colors.white : _orange, fontSize: 12)),
+                        child: Text('#${i + 1}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: i == 0 ? Colors.white : _orange, fontSize: 12)),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(child: Text(route['route'], style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: _dark))),
-                    Text('${route['trips']} trips', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: _orange, fontSize: 12)),
+                    Expanded(child: Text(route['route'], style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: _dark))),
+                    Text('${route['trips']} trips', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: _orange, fontSize: 12)),
                   ],
                 ),
               );
@@ -327,11 +327,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: textColor.withOpacity(0.7))),
+          Text(label, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: textColor.withOpacity(0.7))),
           const SizedBox(height: 6),
-          Text(value, style: GoogleFonts.dmSans(fontSize: 28, fontWeight: FontWeight.w700, color: textColor, height: 1.0)),
+          Text(value, style: AppTypography.dmSans(fontSize: 28, fontWeight: FontWeight.w700, color: textColor, height: 1.0)),
           const SizedBox(height: 2),
-          Text(sub, style: GoogleFonts.dmSans(fontSize: 10, color: textColor.withOpacity(0.6), fontWeight: FontWeight.w500)),
+          Text(sub, style: AppTypography.dmSans(fontSize: 10, color: textColor.withOpacity(0.6), fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -350,8 +350,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
         children: [
           Icon(icon, color: color, size: 22),
           const SizedBox(height: 6),
-          Text(value, style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: color, height: 1.0)),
-          Text(label, style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: color.withOpacity(0.7))),
+          Text(value, style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: color, height: 1.0)),
+          Text(label, style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: color.withOpacity(0.7))),
         ],
       ),
     );
@@ -373,7 +373,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           const SizedBox(height: 6),
           Text(
             title,
-            style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: earned ? _dark : Colors.grey[400]),
+            style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: earned ? _dark : Colors.grey[400]),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -387,7 +387,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
 
   Widget _buildLeaderboard() {
     if (_leaderboard.isEmpty) {
-      return Center(child: Text('No data available', style: GoogleFonts.dmSans(color: Colors.grey[400])));
+      return Center(child: Text('No data available', style: AppTypography.dmSans(color: Colors.grey[400])));
     }
 
     final top3 = _leaderboard.take(3).toList();
@@ -409,7 +409,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Leaderboard', style: GoogleFonts.dmSans(fontSize: 24, fontWeight: FontWeight.w700, color: _dark)),
+              Text('Leaderboard', style: AppTypography.dmSans(fontSize: 24, fontWeight: FontWeight.w700, color: _dark)),
               Row(
                 children: ['WEEKLY', 'GLOBAL'].map((s) {
                   final active = _leaderboardScope == s;
@@ -423,7 +423,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: active ? _orange : Colors.grey[200]!),
                       ),
-                      child: Text(s, style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: active ? Colors.white : Colors.grey[500])),
+                      child: Text(s, style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: active ? Colors.white : Colors.grey[500])),
                     ),
                   );
                 }).toList(),
@@ -465,7 +465,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
 
           // Rank 4+ list
           if (rest.isNotEmpty) ...[
-            Text('All Riders', style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark)),
+            Text('All Riders', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark)),
             const SizedBox(height: 10),
             ...rest.asMap().entries.map((entry) {
               final user = entry.value;
@@ -557,7 +557,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                             border: Border.all(color: Colors.white, width: 2),
                           ),
                           child: Center(
-                            child: Text('$rank', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                            child: Text('$rank', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
                           ),
                         ),
                       ),
@@ -568,14 +568,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                     width: 72,
                     child: Text(
                       name.split(' ')[0],
-                      style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: _dark),
+                      style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: _dark),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     '$pts pts',
-                    style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: _orange),
+                    style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: _orange),
                   ),
                 ],
               );
@@ -645,8 +645,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey[400], letterSpacing: 0.8)),
-                Text(value, style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: _dark, height: 1.1)),
+                Text(label, style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey[400], letterSpacing: 0.8)),
+                Text(value, style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: _dark, height: 1.1)),
               ],
             ),
           ),
@@ -671,18 +671,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           Container(
             width: 34, height: 34,
             decoration: BoxDecoration(color: _orange.withOpacity(0.10), shape: BoxShape.circle),
-            child: Center(child: Text('$rank', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: _orange, fontSize: 13))),
+            child: Center(child: Text('$rank', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: _orange, fontSize: 13))),
           ),
           const SizedBox(width: 12),
           WebCircleAvatar(radius: 18, url: ApiService.getAvatarUrl(user['profilePicture'], name: name)),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: _dark)),
+            child: Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: _dark)),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: _orange.withOpacity(0.10), borderRadius: BorderRadius.circular(10)),
-            child: Text('$pts pts', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: _orange, fontSize: 12)),
+            child: Text('$pts pts', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: _orange, fontSize: 12)),
           ),
         ],
       ),

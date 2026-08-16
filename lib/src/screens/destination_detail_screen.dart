@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import '../services/api_service.dart';
 import '../widgets/network_image_widget.dart';
 import 'create_ride_screen.dart';
@@ -91,7 +91,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                           Expanded(
                             child: Text(
                               _destination!['name'],
-                              style: GoogleFonts.dmSans(
+                              style: AppTypography.dmSans(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: -1,
@@ -121,7 +121,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                           const SizedBox(width: 4),
                           Text(
                             _destination!['location'] ?? 'India',
-                            style: GoogleFonts.dmSans(
+                            style: AppTypography.dmSans(
                               fontSize: 16,
                               color: Colors.grey[600],
                               fontWeight: FontWeight.w500,
@@ -132,7 +132,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                       const SizedBox(height: 32),
                       Text(
                         'About Destination',
-                        style: GoogleFonts.dmSans(
+                        style: AppTypography.dmSans(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                         ),
@@ -140,7 +140,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                       const SizedBox(height: 12),
                       Text(
                         _destination!['description'] ?? 'No description available for this destination.',
-                        style: GoogleFonts.dmSans(
+                        style: AppTypography.dmSans(
                           fontSize: 15,
                           height: 1.6,
                           color: Colors.grey[700],
@@ -183,7 +183,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                   children: [
                     Text(
                       'START JOURNEY TO ${_destination!['name'].toString().toUpperCase()}',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,

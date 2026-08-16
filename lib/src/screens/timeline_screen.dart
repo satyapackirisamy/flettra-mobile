@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'edit_post_screen.dart';
 import '../widgets/network_image_widget.dart';
@@ -96,7 +96,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
         children: [
           Text(
             'Feed',
-            style: GoogleFonts.dmSans(fontSize: 24, fontWeight: FontWeight.w800, color: _dark, letterSpacing: -0.5),
+            style: AppTypography.dmSans(fontSize: 24, fontWeight: FontWeight.w800, color: _dark, letterSpacing: -0.5),
           ),
           const Spacer(),
           // Scope toggle
@@ -117,7 +117,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                       color: active ? _orange : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(s, style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: active ? Colors.white : Colors.grey[400])),
+                    child: Text(s, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: active ? Colors.white : Colors.grey[400])),
                   ),
                 );
               }).toList(),
@@ -195,12 +195,12 @@ class _TimelineScreenState extends State<TimelineScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(6)),
-                      child: Text('FEATURED JOURNEY', style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.2)),
+                      child: Text('FEATURED JOURNEY', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.2)),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       _postTitle(post),
-                      style: GoogleFonts.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.5, height: 1.15),
+                      style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.5, height: 1.15),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -217,7 +217,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
               children: [
                 Text(
                   '"$content"',
-                  style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[600], height: 1.6, fontStyle: FontStyle.italic),
+                  style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[600], height: 1.6, fontStyle: FontStyle.italic),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -228,8 +228,8 @@ class _TimelineScreenState extends State<TimelineScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 13, color: _dark)),
-                          Text(_timeAgo(post['createdAt']), style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400])),
+                          Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 13, color: _dark)),
+                          Text(_timeAgo(post['createdAt']), style: AppTypography.dmSans(fontSize: 10, color: Colors.grey[400])),
                         ],
                       ),
                     ),
@@ -275,8 +275,8 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: _dark)),
-                      Text(_timeAgo(post['createdAt']), style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400])),
+                      Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: _dark)),
+                      Text(_timeAgo(post['createdAt']), style: AppTypography.dmSans(fontSize: 10, color: Colors.grey[400])),
                     ],
                   ),
                 ),
@@ -297,7 +297,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(12)),
-                    child: Text(_categoryTag(post), style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: _dark, letterSpacing: 0.8)),
+                    child: Text(_categoryTag(post), style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: _dark, letterSpacing: 0.8)),
                   ),
                 ),
               ],
@@ -308,7 +308,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Text(
               content,
-              style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[700], height: 1.55),
+              style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[700], height: 1.55),
             ),
           ),
           // Engagement
@@ -323,11 +323,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),
-                Text('$likes', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[500])),
+                Text('$likes', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[500])),
                 const SizedBox(width: 12),
                 const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: Colors.grey),
                 const SizedBox(width: 4),
-                Text('$comments', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[500])),
+                Text('$comments', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[500])),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.near_me_outlined, size: 20, color: _orange),
@@ -356,11 +356,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('"', style: GoogleFonts.dmSans(fontSize: 72, fontWeight: FontWeight.w700, color: Colors.white.withOpacity(0.4), height: 0.6)),
+          Text('"', style: AppTypography.dmSans(fontSize: 72, fontWeight: FontWeight.w700, color: Colors.white.withOpacity(0.4), height: 0.6)),
           const SizedBox(height: 8),
           Text(
             content,
-            style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white, height: 1.35, letterSpacing: -0.3),
+            style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white, height: 1.35, letterSpacing: -0.3),
           ),
           const SizedBox(height: 20),
           Row(
@@ -368,15 +368,15 @@ class _TimelineScreenState extends State<TimelineScreen> {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
-                child: Center(child: Text(name[0], style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16))),
+                child: Center(child: Text(name[0], style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16))),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
-                    Text('THOUGHT LEADER', style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white70, letterSpacing: 1.0)),
+                    Text(name, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                    Text('THOUGHT LEADER', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white70, letterSpacing: 1.0)),
                   ],
                 ),
               ),
@@ -418,36 +418,36 @@ class _TimelineScreenState extends State<TimelineScreen> {
             children: [
               WebCircleAvatar(url: avatarUrl, radius: 16),
               const SizedBox(width: 8),
-              Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: _dark)),
+              Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: _dark)),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(color: _orange.withOpacity(0.10), borderRadius: BorderRadius.circular(8)),
-                child: Text('PRIVATE JOURNAL', style: GoogleFonts.dmSans(fontSize: 8, fontWeight: FontWeight.w700, color: _orange, letterSpacing: 0.8)),
+                child: Text('PRIVATE JOURNAL', style: AppTypography.dmSans(fontSize: 8, fontWeight: FontWeight.w700, color: _orange, letterSpacing: 0.8)),
               ),
             ],
           ),
           const SizedBox(height: 14),
           Text(
             _postTitle(post),
-            style: GoogleFonts.dmSans(fontSize: 17, fontWeight: FontWeight.w700, color: _dark, height: 1.2),
+            style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w700, color: _dark, height: 1.2),
           ),
           const SizedBox(height: 8),
           Text(
             content,
-            style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[600], height: 1.6),
+            style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[600], height: 1.6),
           ),
           const SizedBox(height: 14),
           Row(
             children: [
               GestureDetector(
                 onTap: () async { await ApiService().likePost(post['id']); _loadData(); },
-                child: Text('READ FULL STORY →', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _orange, letterSpacing: 0.3)),
+                child: Text('READ FULL STORY →', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _orange, letterSpacing: 0.3)),
               ),
               const Spacer(),
               const Icon(Icons.favorite_border_rounded, size: 16, color: Color(0xFFE53935)),
               const SizedBox(width: 4),
-              Text('$likes', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w700)),
+              Text('$likes', style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w700)),
               const SizedBox(width: 12),
               const Icon(Icons.ios_share_rounded, size: 16, color: Colors.grey),
             ],
@@ -534,9 +534,9 @@ class _TimelineScreenState extends State<TimelineScreen> {
               child: const Icon(Icons.photo_library_outlined, size: 48, color: _orange),
             ),
             const SizedBox(height: 20),
-            Text('Your feed is empty', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: _dark)),
+            Text('Your feed is empty', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: _dark)),
             const SizedBox(height: 8),
-            Text('Share your traveler moments to inspire others', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400]), textAlign: TextAlign.center),
+            Text('Share your traveler moments to inspire others', style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[400]), textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -567,7 +567,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 const SizedBox(height: 12),
                 ListTile(
                   leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.edit_rounded, size: 20)),
-                  title: Text('Edit Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                  title: Text('Edit Post', style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
                   onTap: () async {
                     Navigator.pop(context);
                     final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => EditPostScreen(post: post)));
@@ -576,18 +576,18 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 ),
                 ListTile(
                   leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.08), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20)),
-                  title: Text('Delete Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.red)),
+                  title: Text('Delete Post', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.red)),
                   onTap: () async {
                     Navigator.pop(context);
                     final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (_) => AlertDialog(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        title: Text('Delete Post?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
-                        content: Text('This action cannot be undone.', style: GoogleFonts.dmSans()),
+                        title: Text('Delete Post?', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
+                        content: Text('This action cannot be undone.', style: AppTypography.dmSans()),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700))),
-                          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: GoogleFonts.dmSans(color: Colors.red, fontWeight: FontWeight.w800))),
+                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: AppTypography.dmSans(fontWeight: FontWeight.w700))),
+                          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: AppTypography.dmSans(color: Colors.red, fontWeight: FontWeight.w800))),
                         ],
                       ),
                     );

@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
-import 'ride_list_screen.dart';
-import 'timeline_screen.dart';
-import 'all_rides_screen.dart';
+
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
+import '../theme/flettra_colors.dart';
+import '../widgets/common_fab.dart';
+import 'buddies_screen.dart';
 import 'groups_screen.dart';
 import 'profile_screen.dart';
-import '../widgets/common_fab.dart';
+import 'ride_list_screen.dart';
+import 'timeline_screen.dart';
 
+/// Tab order is Rides → Feed → Circles → Chats → You.
+///
+/// This replaces Home → Feed → Rides → Groups → Profile. "Home" and "Rides"
+/// were two entries into the same content, which cost a slot and made neither
+/// obvious; the full ride list is now reached from "See all" on the Rides tab.
+/// "Groups" and "Profile" are renamed to the words the product actually uses.
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -17,10 +25,20 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  final GlobalKey<RideListScreenState> _rideListKey = GlobalKey<RideListScreenState>();
-  final GlobalKey<TimelineScreenState> _timelineKey = GlobalKey<TimelineScreenState>();
+  final GlobalKey<RideListScreenState> _rideListKey =
+      GlobalKey<RideListScreenState>();
+  final GlobalKey<TimelineScreenState> _timelineKey =
+      GlobalKey<TimelineScreenState>();
 
   late final List<Widget> _pages;
+
+  static const _tabs = <_Tab>[
+    _Tab(Icons.directions_car_outlined, Icons.directions_car_rounded, 'Rides'),
+    _Tab(Icons.article_outlined, Icons.article_rounded, 'Feed'),
+    _Tab(Icons.groups_outlined, Icons.groups_rounded, 'Circles'),
+    _Tab(Icons.forum_outlined, Icons.forum_rounded, 'Chats'),
+    _Tab(Icons.person_outline_rounded, Icons.person_rounded, 'You'),
+  ];
 
   @override
   void initState() {
@@ -28,8 +46,12 @@ class _MainScreenState extends State<MainScreen> {
     _pages = [
       RideListScreen(key: _rideListKey),
       TimelineScreen(key: _timelineKey),
-      const AllRidesScreen(),
       const GroupsScreen(),
+      // Placeholder: the backend has no conversations endpoint yet — chat can
+      // only be fetched per ride/buddy/group — so this lands on the buddy list,
+      // which is where a conversation is started today. Swap for a real
+      // conversation list once GET /chat/conversations exists.
+      const BuddiesScreen(),
       const ProfileScreen(),
     ];
   }
@@ -40,96 +62,69 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool showFab = _currentIndex != 4;
+    final c = context.c;
+    final showFab = _currentIndex != 4;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      extendBody: true,
-      body: Stack(
-        children: [
-          // 1. The Main Content
-          Positioned.fill(
-            child: IndexedStack(
-              index: _currentIndex,
-              children: _pages,
-            ),
-          ),
-
-          // 2. The Global CREATION Action
-          if (showFab) Positioned(
-            right: 16,
-            bottom: 100,
-            child: CommonFab(
+      backgroundColor: c.surface,
+      body: IndexedStack(index: _currentIndex, children: _pages),
+      floatingActionButton: showFab
+          ? CommonFab(
               onPostCreated: () {
-                setState(() => _currentIndex = 1); // switch to Feed tab
+                setState(() => _currentIndex = 1);
                 _timelineKey.currentState?.refresh();
               },
               onRideCreated: () => _rideListKey.currentState?.refresh(),
-            ),
-          ),
+            )
+          : null,
+      bottomNavigationBar: _buildNavBar(c),
+    );
+  }
 
-          // 3. The Premium Bottom Navigation Shell
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(top: BorderSide(color: const Color(0xFFEEEEEE), width: 1.0)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildNavBtn(0, Icons.home_rounded, 'Home'),
-                      _buildNavBtn(1, Icons.rss_feed_rounded, 'Feed'),
-                      _buildNavBtn(2, Icons.directions_car_rounded, 'Rides'),
-                      _buildNavBtn(3, Icons.groups_rounded, 'Groups'),
-                      _buildNavBtn(4, Icons.person_rounded, 'Profile'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+  /// A hairline above the bar, not a blurred shadow, and the height comes from
+  /// the safe area rather than a hardcoded 72.
+  Widget _buildNavBar(FlettraColors c) {
+    return Container(
+      decoration: BoxDecoration(
+        color: c.surface,
+        border: Border(top: BorderSide(color: c.rule, width: 0.5)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            children: [
+              for (var i = 0; i < _tabs.length; i++)
+                Expanded(child: _buildNavBtn(i, _tabs[i], c)),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildNavBtn(int index, IconData icon, String label) {
-    bool isSelected = _currentIndex == index;
-    const activeColor = Color(0xFFFF6B2C);
+  Widget _buildNavBtn(int index, _Tab tab, FlettraColors c) {
+    final selected = _currentIndex == index;
+    final color = selected ? c.brand : c.ink3;
 
-    return Expanded(
-      child: GestureDetector(
+    return Semantics(
+      selected: selected,
+      button: true,
+      label: tab.label,
+      child: InkResponse(
         onTap: () => setState(() => _currentIndex = index),
-        behavior: HitTestBehavior.opaque,
+        radius: 36,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedScale(
-              duration: const Duration(milliseconds: 200),
-              scale: isSelected ? 1.05 : 1.0,
-              child: Icon(
-                icon,
-                color: isSelected ? activeColor : const Color(0xFFBBBBBB),
-                size: 24,
-              ),
-            ),
-            const SizedBox(height: 6),
+            Icon(selected ? tab.activeIcon : tab.icon, color: color, size: 23),
+            const SizedBox(height: AppSpacing.xxs - 1),
             Text(
-              label,
-              style: GoogleFonts.dmSans(
-                color: isSelected ? activeColor : const Color(0xFFBBBBBB),
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                letterSpacing: 0.0,
+              tab.label,
+              style: AppTypography.caption.copyWith(
+                color: color,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
           ],
@@ -139,9 +134,15 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
+class _Tab {
+  const _Tab(this.icon, this.activeIcon, this.label);
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+}
+
 extension MainScreenExtension on BuildContext {
   void switchToTab(int index) {
-    final state = findAncestorStateOfType<_MainScreenState>();
-    state?.setTab(index);
+    findAncestorStateOfType<_MainScreenState>()?.setTab(index);
   }
 }

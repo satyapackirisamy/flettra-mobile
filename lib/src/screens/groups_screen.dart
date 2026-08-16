@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import '../services/api_service.dart';
+import '../theme/app_spacing.dart';
+import '../theme/flettra_colors.dart';
 import '../utils/snackbar_helper.dart';
 import '../widgets/network_image_widget.dart';
 import 'group_details_screen.dart';
@@ -106,7 +108,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                 children: [
                   Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _bgSoft, borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.group_add_rounded, color: _primary, size: 22)),
                   const SizedBox(width: 14),
-                  Text('New Group', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
+                  Text('New Group', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                 ],
               ),
               const SizedBox(height: 20),
@@ -121,7 +123,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                   children: [
                     const Icon(Icons.lock_outline_rounded, size: 18, color: Colors.grey),
                     const SizedBox(width: 12),
-                    Expanded(child: Text('Private Group', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700))),
+                    Expanded(child: Text('Private Group', style: AppTypography.dmSans(fontWeight: FontWeight.w700))),
                     Switch(value: isPrivate, onChanged: (v) => setSheetState(() => isPrivate = v), activeColor: _primary),
                   ],
                 ),
@@ -148,7 +150,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
-                  child: Text('Create Group', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                  child: Text('Create Group', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
                 ),
               ),
             ],
@@ -162,10 +164,10 @@ class _GroupsScreenState extends State<GroupsScreen> {
     return TextField(
       controller: ctrl,
       maxLines: maxLines,
-      style: GoogleFonts.dmSans(fontSize: 14),
+      style: AppTypography.dmSans(fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.dmSans(color: Colors.grey[400]),
+        hintStyle: AppTypography.dmSans(color: Colors.grey[400]),
         prefixIcon: Icon(icon, color: Colors.grey[400], size: 18),
         filled: true, fillColor: const Color(0xFFF8F9FA),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
@@ -190,7 +192,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                     _buildHeader(),
                     _buildSearchAndCreate(),
                     if (_filteredMyGroups.isNotEmpty) ...[
-                      _sectionLabel('My Groups', '${_filteredMyGroups.length}'),
+                      _sectionLabel('Your circles', '${_filteredMyGroups.length}'),
                       _buildFeaturedGroup(),
                       if (_filteredMyGroups.length > 1) _buildMyGroupsList(),
                     ] else if (_search.isEmpty)
@@ -207,42 +209,53 @@ class _GroupsScreenState extends State<GroupsScreen> {
     );
   }
 
+  /// One word for one thing. This screen previously called the same object a
+  /// "Club" in the title and button, a "Group" in the section header, and the
+  /// tab bar said "Circles" — three names for one concept on one screen.
+  /// The product calls them Circles, so they are Circles everywhere.
   Widget _buildHeader() {
+    final c = context.c;
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md, AppSpacing.xs, AppSpacing.xs, 0),
         child: Row(
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Clubs', style: GoogleFonts.dmSans(fontSize: 30, fontWeight: FontWeight.w700, letterSpacing: -1, color: const Color(0xFF1A1A1A))),
-                  Text('Find your riding tribe', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w500)),
-                ],
-              ),
+              child: Text('Circles',
+                  style: AppTypography.display.copyWith(color: c.ink)),
             ),
-            GestureDetector(
-              onTap: () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+            IconButton(
+              onPressed: () async {
+                await Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const NotificationsScreen()));
                 _fetchUnreadCount();
               },
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(14)),
-                child: Stack(
-                  children: [
-                    const Icon(Icons.notifications_none_rounded, size: 22, color: Color(0xFF1A1A1A)),
-                    if (_unreadNotifications > 0)
-                      Positioned(
-                        right: 0, top: 0,
-                        child: Container(
-                          width: 8, height: 8,
-                          decoration: const BoxDecoration(color: _primary, shape: BoxShape.circle),
+              tooltip: 'Notifications',
+              iconSize: 22,
+              color: c.ink,
+              constraints: const BoxConstraints(
+                  minWidth: AppTouch.iosMin, minHeight: AppTouch.iosMin),
+              icon: Stack(
+                alignment: Alignment.topRight,
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.notifications_none_rounded),
+                  if (_unreadNotifications > 0)
+                    Positioned(
+                      right: -1,
+                      top: -1,
+                      child: Container(
+                        width: 9,
+                        height: 9,
+                        decoration: BoxDecoration(
+                          color: c.brand,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.surface, width: 2),
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -252,63 +265,51 @@ class _GroupsScreenState extends State<GroupsScreen> {
   }
 
   Widget _buildSearchAndCreate() {
+    final c = context.c;
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-        child: Column(
-          children: [
-            TextField(
-              onChanged: (v) => setState(() => _search = v),
-              style: GoogleFonts.dmSans(fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'Search clubs...',
-                hintStyle: GoogleFonts.dmSans(color: Colors.grey[400]),
-                prefixIcon: Icon(Icons.search_rounded, color: Colors.grey[400], size: 20),
-                filled: true, fillColor: const Color(0xFFF8F9FA),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-            ),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: _createGroup,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [_primary, _accent]),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: _primary.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 20),
-                    const SizedBox(width: 10),
-                    Text('Start a New Club', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.white)),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md, AppSpacing.xs, AppSpacing.md, 0),
+        child: TextField(
+          onChanged: (v) => setState(() => _search = v),
+          style: AppTypography.body.copyWith(color: c.ink),
+          decoration: InputDecoration(
+            isDense: true,
+            hintText: 'Search circles',
+            hintStyle: AppTypography.body.copyWith(color: c.ink3),
+            prefixIcon: Icon(Icons.search_rounded, color: c.ink3, size: 18),
+            prefixIconConstraints:
+                const BoxConstraints(minWidth: 38, minHeight: 38),
+            filled: true,
+            fillColor: c.surfaceSunken,
+            border: OutlineInputBorder(
+                borderRadius: AppRadius.chipR, borderSide: BorderSide.none),
+            enabledBorder: OutlineInputBorder(
+                borderRadius: AppRadius.chipR, borderSide: BorderSide.none),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: AppSpacing.xs + 2),
+          ),
         ),
       ),
     );
   }
 
+  /// The "Start a New Club" bar is gone. Creating a circle is the same kind of
+  /// action as creating a ride or a post, and the FAB already offers all three
+  /// — a full-width gradient button competing with it was the loudest thing on
+  /// a screen whose job is to list what you are already in.
   Widget _sectionLabel(String title, String count) {
+    final c = context.c;
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 28, 24, 14),
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xs - 1),
         child: Row(
           children: [
-            Text(title, style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: const Color(0xFF1A1A1A))),
+            Text(title, style: AppTypography.title.copyWith(color: c.ink)),
             if (count.isNotEmpty) ...[
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(color: _bgSoft, borderRadius: BorderRadius.circular(8)),
-                child: Text(count, style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: _primary)),
-              ),
+              const SizedBox(width: AppSpacing.xs - 2),
+              Text(count, style: AppTypography.title.copyWith(color: c.ink3)),
             ],
           ],
         ),
@@ -356,13 +357,13 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                   children: [
                                     const Icon(Icons.lock_rounded, size: 10, color: Colors.white),
                                     const SizedBox(width: 4),
-                                    Text('PRIVATE', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
+                                    Text('PRIVATE', style: AppTypography.dmSans(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
                                   ],
                                 ),
                               ),
                           ],
                         ),
-                        Text(g['name'] ?? 'Group', style: GoogleFonts.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(g['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white), maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -374,7 +375,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                 children: [
                                   const Icon(Icons.people_rounded, size: 14, color: Colors.white),
                                   const SizedBox(width: 6),
-                                  Text('${_memberCount(g)} members', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
+                                  Text('${_memberCount(g)} members', style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
                                 ],
                               ),
                             ),
@@ -382,7 +383,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                              child: Text('Open', style: GoogleFonts.dmSans(color: _primary, fontWeight: FontWeight.w800, fontSize: 12)),
+                              child: Text('Open', style: AppTypography.dmSans(color: _primary, fontWeight: FontWeight.w800, fontSize: 12)),
                             ),
                           ],
                         ),
@@ -402,70 +403,83 @@ class _GroupsScreenState extends State<GroupsScreen> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, i) {
+          final c = context.c;
           final g = _filteredMyGroups[i + 1];
           final memberCount = _memberCount(g);
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-            child: GestureDetector(
-              onTap: () => _openGroup(g),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFF0E8E6)),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 12, offset: const Offset(0, 4))],
-                ),
-                child: Row(
-                  children: [
-                    // Group color avatar
-                    Container(
-                      width: 54, height: 54,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [_primary.withOpacity(0.8), _accent.withOpacity(0.6)],
-                          begin: Alignment.topLeft, end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Center(
-                        child: Text(
-                          (g['name'] as String? ?? 'G').substring(0, 1).toUpperCase(),
-                          style: GoogleFonts.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white),
-                        ),
-                      ),
+          final description = (g['description'] ?? '').toString();
+          final isPrivate = g['isPrivate'] == true;
+
+          // A separated list row rather than a floating card. Six of these fit
+          // where three did, and the row still carries more information.
+          return InkWell(
+            onTap: () => _openGroup(g),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md, vertical: AppSpacing.xs + 2),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: c.ruleSoft)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: c.brandWash,
+                      borderRadius: AppRadius.cardR,
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(g['name'] ?? 'Group', style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: const Color(0xFF1A1A1A))),
-                          if ((g['description'] ?? '').toString().isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 3),
-                              child: Text(g['description'], maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 12)),
+                    alignment: Alignment.center,
+                    child: Text(
+                      (g['name'] as String? ?? 'C')
+                          .characters
+                          .first
+                          .toUpperCase(),
+                      style: AppTypography.heading.copyWith(color: c.brand),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(g['name'] ?? 'Circle',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                AppTypography.bodyStrong.copyWith(color: c.ink)),
+                        if (description.isNotEmpty)
+                          Text(description,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.callout
+                                  .copyWith(color: c.ink2)),
+                        const SizedBox(height: 1),
+                        Row(
+                          children: [
+                            Text(
+                              '$memberCount ${memberCount == 1 ? "member" : "members"}',
+                              style: AppTypography.footnote
+                                  .copyWith(color: c.ink3),
                             ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(Icons.people_outline_rounded, size: 13, color: Color(0xFFFF6B2C)),
-                              const SizedBox(width: 4),
-                              Text('$memberCount members', style: GoogleFonts.dmSans(color: const Color(0xFFFF6B2C), fontSize: 11, fontWeight: FontWeight.w700)),
-                              if (g['isPrivate'] == true) ...[
-                                const SizedBox(width: 8),
-                                const Icon(Icons.lock_outline_rounded, size: 11, color: Colors.grey),
-                                const SizedBox(width: 2),
-                                Text('Private', style: GoogleFonts.dmSans(color: Colors.grey, fontSize: 11)),
-                              ],
+                            if (isPrivate) ...[
+                              Text('  ·  ',
+                                  style: AppTypography.footnote
+                                      .copyWith(color: c.ink3)),
+                              Icon(Icons.lock_outline_rounded,
+                                  size: 11, color: c.ink3),
+                              const SizedBox(width: 2),
+                              Text('Private',
+                                  style: AppTypography.footnote
+                                      .copyWith(color: c.ink3)),
                             ],
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
-                  ],
-                ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: c.ink3, size: 20),
+                ],
               ),
             ),
           );
@@ -476,25 +490,28 @@ class _GroupsScreenState extends State<GroupsScreen> {
   }
 
   Widget _buildEmptyMyGroups() {
+    final c = context.c;
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-        child: Container(
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(color: _bgSoft, borderRadius: BorderRadius.circular(24)),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                child: const Icon(Icons.groups_rounded, size: 40, color: _primary),
-              ),
-              const SizedBox(height: 16),
-              Text('No clubs yet', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16, color: const Color(0xFF1A1A1A))),
-              const SizedBox(height: 6),
-              Text('Create one or join a suggested club below', style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 13), textAlign: TextAlign.center),
-            ],
-          ),
+        padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.xxl, horizontal: AppSpacing.md),
+        child: Column(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                  color: c.brandWash, borderRadius: AppRadius.cardR),
+              child: Icon(Icons.groups_rounded, size: 26, color: c.brand),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text("You're not in a circle yet",
+                style: AppTypography.heading.copyWith(color: c.ink)),
+            const SizedBox(height: AppSpacing.xxs),
+            Text('Join one below, or start your own from the + button.',
+                textAlign: TextAlign.center,
+                style: AppTypography.callout.copyWith(color: c.ink2)),
+          ],
         ),
       ),
     );
@@ -543,25 +560,25 @@ class _GroupsScreenState extends State<GroupsScreen> {
                       child: Center(
                         child: Text(
                           (g['name'] as String? ?? 'G').substring(0, 1).toUpperCase(),
-                          style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
+                          style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(g['name'] ?? 'Group', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: const Color(0xFF1A1A1A)), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    Text(g['name'] ?? 'Group', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: const Color(0xFF1A1A1A)), maxLines: 2, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 4),
-                    Text(g['description'] ?? '', style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    Text(g['description'] ?? '', style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
                     const Spacer(),
                     Row(
                       children: [
                         const Icon(Icons.people_outline_rounded, size: 12, color: Colors.grey),
                         const SizedBox(width: 3),
-                        Text('$members', style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 11, fontWeight: FontWeight.w600)),
+                        Text('$members', style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 11, fontWeight: FontWeight.w600)),
                         const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(color: _bgSoft, borderRadius: BorderRadius.circular(8)),
-                          child: Text('Join', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 11, color: _primary)),
+                          child: Text('Join', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 11, color: _primary)),
                         ),
                       ],
                     ),

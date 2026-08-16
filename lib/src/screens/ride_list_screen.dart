@@ -2,16 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
+import '../theme/flettra_colors.dart';
 import '../services/notification_service.dart';
 import '../widgets/network_image_widget.dart';
 import 'ride_details_screen.dart';
 import 'notifications_screen.dart';
 import 'all_rides_screen.dart';
-import 'main_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Pulse loader
@@ -72,7 +73,7 @@ class _PulseLoaderState extends State<_PulseLoader> with SingleTickerProviderSta
               builder: (_, child) => Opacity(opacity: _anim.value, child: child),
               child: Text(
                 'Finding rides...',
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: const Color(0xFFFF6B2C),
@@ -83,16 +84,6 @@ class _PulseLoaderState extends State<_PulseLoader> with SingleTickerProviderSta
         ),
       ),
     );
-  }
-}
-
-// Keep _SkeletonCard stub to avoid removal of the class reference
-class _SkeletonCard extends StatelessWidget {
-  const _SkeletonCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
   }
 }
 
@@ -347,32 +338,48 @@ class RideListScreenState extends State<RideListScreen> {
 
   // ─── Top bar ────────────────────────────────────────────────────────────────
 
+  /// A large title, the way both platforms head a root screen — rather than a
+  /// centred wordmark. The wordmark belongs on the launch screen; repeating it
+  /// above every scroll costs a row of height and tells the person nothing they
+  /// did not already know.
   Widget _buildTopBar() {
+    final c = context.c;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.xs, AppSpacing.xs, AppSpacing.xxs),
       child: Row(
         children: [
-          _iconBtn(Icons.menu_rounded, _showQuickMenu),
-          const Spacer(),
-          RichText(
-            text: TextSpan(children: [
-              TextSpan(text: 'Fle', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: _textDark)),
-              TextSpan(text: 'ttra', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: _orange)),
-            ]),
+          Expanded(
+            child: Text('Rides',
+                style: AppTypography.display.copyWith(color: c.ink)),
           ),
-          const Spacer(),
+          _iconBtn(Icons.menu_rounded, _showQuickMenu, tooltip: 'Menu'),
           Stack(
+            alignment: Alignment.topRight,
             children: [
-              _iconBtn(Icons.notifications_none_rounded, () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
-                _fetchUnreadCount();
-              }, color: Colors.grey[600]),
+              _iconBtn(
+                Icons.notifications_none_rounded,
+                () async {
+                  await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen()));
+                  _fetchUnreadCount();
+                },
+                tooltip: 'Notifications',
+              ),
               if (_unreadCount > 0)
                 Positioned(
-                  right: 0, top: 0,
+                  right: 8,
+                  top: 8,
                   child: Container(
-                    width: 8, height: 8,
-                    decoration: const BoxDecoration(color: _orange, shape: BoxShape.circle),
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: c.brand,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: c.surface, width: 2),
+                    ),
                   ),
                 ),
             ],
@@ -382,110 +389,125 @@ class RideListScreenState extends State<RideListScreen> {
     );
   }
 
-  Widget _iconBtn(IconData icon, VoidCallback onTap, {Color? color}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(9),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8)],
-        ),
-        child: Icon(icon, color: color ?? _textDark, size: 20),
+  /// 44 pt of hit area. The previous version was 9 pt of padding around a 20 pt
+  /// icon — a 38 pt target, under both platform minimums, which is why some of
+  /// these read as "the button doesn't work".
+  Widget _iconBtn(IconData icon, VoidCallback onTap, {String? tooltip}) {
+    return IconButton(
+      onPressed: onTap,
+      tooltip: tooltip,
+      iconSize: 22,
+      color: context.c.ink,
+      constraints: const BoxConstraints(
+        minWidth: AppTouch.iosMin,
+        minHeight: AppTouch.iosMin,
       ),
-    );
-  }
-
-  // ─── Hero text ──────────────────────────────────────────────────────────────
-
-  Widget _buildHeroText() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: RichText(
-        text: TextSpan(
-          style: GoogleFonts.dmSans(fontSize: 26, fontWeight: FontWeight.w700, color: _textDark, height: 1.2),
-          children: const [
-            TextSpan(text: 'Your next '),
-            TextSpan(text: 'journey', style: TextStyle(color: _orange, fontStyle: FontStyle.italic)),
-            TextSpan(text: ' starts here.'),
-          ],
-        ),
-      ),
+      icon: Icon(icon),
     );
   }
 
   // ─── Search bar ─────────────────────────────────────────────────────────────
 
   Widget _buildSearchBar() {
+    final c = context.c;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.xs, AppSpacing.md, 0),
+      child: GestureDetector(
+        onTap: () => showSearch(
+            context: context, delegate: RideSearchDelegate(_rides)),
+        child: Container(
+          height: 38,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          decoration: BoxDecoration(
+            color: c.surfaceSunken,
+            borderRadius: AppRadius.chipR,
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.search_rounded, color: c.ink3, size: 18),
+              const SizedBox(width: AppSpacing.xs),
+              Text('Where are you headed?',
+                  style: AppTypography.body.copyWith(color: c.ink3)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Filter chips ────────────────────────────────────────────────────────────
+
+  /// Replaces the filter icon that shipped wired to nothing — its source
+  /// carried the comment "Filter sheet — coming soon". Chips show the active
+  /// state and the result count inline, so you can see what a filter did
+  /// without opening anything.
+  Widget _buildFilterPills() {
+    final c = context.c;
+    final counts = <String, int>{
+      'All': _rides.length,
+      'My Rides': _countFor('My Rides'),
+      'Ongoing': _countFor('Ongoing'),
+    };
+
+    return SizedBox(
+      height: 30 + AppSpacing.sm + AppSpacing.xxs,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.xxs),
+        physics: const BouncingScrollPhysics(),
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => showSearch(context: context, delegate: RideSearchDelegate(_rides)),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F7),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search_rounded, color: Colors.grey[500], size: 19),
-                    const SizedBox(width: 10),
-                    Text('Where are we heading?',
-                        style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 13, fontWeight: FontWeight.w500)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              // Filter sheet — coming soon
-            },
-            child: Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F7),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(Icons.tune_rounded, color: Colors.grey[600], size: 20),
-            ),
-          ),
+          for (final entry in counts.entries) ...[
+            _filterChip(entry.key, entry.value, c),
+            const SizedBox(width: AppSpacing.xs),
+          ],
         ],
       ),
     );
   }
 
-  // ─── Filter pills (removed — replaced by filter icon in search bar) ──────────
+  int _countFor(String filter) {
+    final previous = _filter;
+    _filter = filter;
+    final n = _filteredRides.length;
+    _filter = previous;
+    return n;
+  }
 
-  Widget _buildFilterPills() => const SizedBox.shrink();
-
-  // ─── Section label ───────────────────────────────────────────────────────────
-
-  Widget _buildSectionLabel() {
-    final count = _filteredRides.length;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
-      child: Row(
-        children: [
-          Text(
-            _filter == 'All' ? 'Rides for you' : _filter,
-            style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: _textDark, letterSpacing: -0.2),
-          ),
-          const SizedBox(width: 8),
-          Expanded(child: Container(height: 1, color: Colors.black.withOpacity(0.05))),
-          const SizedBox(width: 8),
-          if (!_isLoading)
-            Text('$count rides',
-              style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey[400])),
-        ],
+  Widget _filterChip(String label, int count, FlettraColors c) {
+    final selected = _filter == label;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _filter = label);
+      },
+      child: Container(
+        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+        decoration: BoxDecoration(
+          color: selected ? c.brand : c.surface,
+          borderRadius: AppRadius.pillR,
+          border: Border.all(color: selected ? c.brand : c.rule),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label,
+                style: AppTypography.callout.copyWith(
+                  color: selected ? c.onBrand : c.ink2,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                )),
+            if (count > 0) ...[
+              const SizedBox(width: AppSpacing.xxs + 1),
+              Text('$count',
+                  style: AppTypography.callout.copyWith(
+                    color: (selected ? c.onBrand : c.ink3)
+                        .withValues(alpha: selected ? 0.7 : 1),
+                  )),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -503,10 +525,10 @@ class RideListScreenState extends State<RideListScreen> {
             child: const Icon(Icons.directions_car_rounded, color: _orange, size: 32),
           ),
           const SizedBox(height: 14),
-          Text('No rides found', style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: _textDark)),
+          Text('No rides found', style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: _textDark)),
           const SizedBox(height: 5),
           Text('Try a different filter or check back later',
-            style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
+            style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[400])),
         ],
       ),
     );
@@ -526,9 +548,10 @@ class RideListScreenState extends State<RideListScreen> {
     final mode       = (r['transportMode'] ?? 'car').toString().toLowerCase();
     final catLabel   = _categoryLabel(mode, name);
     final dateStr    = _shortDate(r['departureDate']);
-    final rating     = (r['rating'] ?? 4.8).toStringAsFixed(1);
     final driver     = _extractDriver(r);
     final driverName = _driverFirstName(driver);
+
+    final c = context.c;
 
     return Opacity(
       opacity: isRejected ? 0.55 : 1.0,
@@ -537,155 +560,157 @@ class RideListScreenState extends State<RideListScreen> {
         children: [
           if (isRejected)
             Container(
-              margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFEDED),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                border: Border.all(color: const Color(0xFFFFCDD2)),
-              ),
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs,
+                  AppSpacing.md, AppSpacing.xxs),
+              color: c.badWash,
               child: Row(children: [
-                const Icon(Icons.block_rounded, size: 13, color: Color(0xFFE53935)),
-                const SizedBox(width: 6),
-                const Text('Removed by admin', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFE53935))),
+                Icon(Icons.block_rounded, size: 13, color: c.bad),
+                const SizedBox(width: AppSpacing.xxs + 2),
+                Text('Removed by admin',
+                    style: AppTypography.caption.copyWith(color: c.bad)),
                 if (rejectionReason.isNotEmpty) ...[
-                  const Text('  ·  ', style: TextStyle(color: Color(0xFFE57373))),
-                  Expanded(child: Text(rejectionReason, style: const TextStyle(fontSize: 11, color: Color(0xFFE57373)), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  Text('  ·  ', style: TextStyle(color: c.bad)),
+                  Expanded(
+                    child: Text(rejectionReason,
+                        style: AppTypography.caption
+                            .copyWith(color: c.bad, fontWeight: FontWeight.w500),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                  ),
                 ],
               ]),
             ),
+
+          // A list row, not a floating card. 110 pt of height with a 110 pt
+          // image and a 20 pt margin fit two and a half rides on a phone, while
+          // the text inside ran at 9-12 pt. This is ~76 pt, and the type inside
+          // it went up rather than down.
           _PressableCard(
-      onTap: () => Navigator.push(context,
-          MaterialPageRoute(builder: (_) => RideDetailsScreen(rideId: r['id'].toString()))),
-      child: Container(
-        margin: EdgeInsets.fromLTRB(20, isRejected ? 0 : 10, 20, 0),
-        height: 110,
-        decoration: BoxDecoration(
-          color: isRejected ? const Color(0xFFF9F9F9) : Colors.white,
-          borderRadius: isRejected
-              ? const BorderRadius.vertical(bottom: Radius.circular(20))
-              : BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 4)),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Left: square image
-            ClipRRect(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
-              child: Stack(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) =>
+                        RideDetailsScreen(rideId: r['id'].toString()))),
+            child: Container(
+              color: isRejected ? c.surfaceSunken : c.surface,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+              child: Row(
                 children: [
-                  SafeNetworkImage(url: cover, width: 110, height: 110, fit: BoxFit.cover),
-                  // Category pill overlay
-                  Positioned(
-                    bottom: 8, left: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                      decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(10)),
-                      child: Text(catLabel, style: GoogleFonts.dmSans(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white, letterSpacing: 0.1)),
+                  ClipRRect(
+                    borderRadius: AppRadius.cardR,
+                    child: Stack(
+                      children: [
+                        SafeNetworkImage(
+                            url: cover, width: 52, height: 52, fit: BoxFit.cover),
+                        if (catLabel.isNotEmpty)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              color: c.brand,
+                              padding: const EdgeInsets.symmetric(vertical: 1),
+                              child: Text(
+                                catLabel,
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.clip,
+                                style: AppTypography.caption.copyWith(
+                                    color: c.onBrand, fontSize: 8, height: 1.3),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm - 1),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(name,
+                            style: AppTypography.bodyStrong.copyWith(color: c.ink),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 1),
+                        Text(
+                          origin.isNotEmpty && dest.isNotEmpty
+                              ? '$origin → $dest'
+                              : origin.isNotEmpty
+                                  ? origin
+                                  : dest,
+                          style: AppTypography.callout.copyWith(color: c.ink2),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            if (dateStr.isNotEmpty)
+                              Text(dateStr,
+                                  style: AppTypography.footnote
+                                      .copyWith(color: c.ink3)),
+                            if (dateStr.isNotEmpty && driverName.isNotEmpty)
+                              Text('  ·  ',
+                                  style: AppTypography.footnote
+                                      .copyWith(color: c.ink3)),
+                            if (driverName.isNotEmpty)
+                              Flexible(
+                                child: Text(driverName,
+                                    style: AppTypography.footnote
+                                        .copyWith(color: c.ink3),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        price != null && price != 0
+                            ? '₹${_money(price)}'
+                            : 'TBD',
+                        style: AppTypography.bodyStrong.copyWith(
+                            color: price != null && price != 0
+                                ? c.ink
+                                : c.ink3),
+                      ),
+                      Text('per seat',
+                          style:
+                              AppTypography.footnote.copyWith(color: c.ink3)),
+                    ],
                   ),
                 ],
               ),
             ),
-            // Right: text content
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
-                    Text(name,
-                      style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: _textDark, height: 1.1),
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 3),
-                    // Route
-                    Text(
-                      origin.isNotEmpty && dest.isNotEmpty ? '$origin → $dest' : origin.isNotEmpty ? origin : dest,
-                      style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w400),
-                      overflow: TextOverflow.ellipsis),
-                    if (dateStr.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(dateStr, style: GoogleFonts.dmSans(fontSize: 9, color: Colors.grey[400], fontWeight: FontWeight.w600)),
-                    ],
-                    const Spacer(),
-                    // Budget + driver + chevron
-                    Row(
-                      children: [
-                        Text(price != null && price != 0 ? '~₹$price' : 'Budget TBD', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: price != null && price != 0 ? _orange : Colors.grey)),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            driverName.isNotEmpty ? '· $driverName' : '',
-                            style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400], fontWeight: FontWeight.w600),
-                            overflow: TextOverflow.ellipsis),
-                        ),
-                        const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Color(0xFFCCCCCC)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
           ),
+          Divider(height: 1, thickness: 1, color: c.ruleSoft, indent: AppSpacing.md + 52 + AppSpacing.sm),
         ],
       ),
     );
   }
 
-  // ─── Featured destination card ────────────────────────────────────────────────
-
-  Widget _buildFeaturedCard() {
-    final dest  = _destinations.first;
-    final name  = dest['name']?.toString() ?? 'Featured Journey';
-    final desc  = dest['description']?.toString() ?? 'Premium travel experience for the modern explorer.';
-    final image = ApiService.getFullImageUrl(dest['imageUrl'] ?? dest['coverImage'] ?? '');
-
-    return _PressableCard(
-      onTap: () {},
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 18, offset: const Offset(0, 6))],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Featured', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: _orange, letterSpacing: 0.0)),
-                  const SizedBox(height: 4),
-                  Text(name, style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: _textDark, letterSpacing: -0.3, height: 1.15)),
-                  const SizedBox(height: 6),
-                  Text(desc, style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], height: 1.5), maxLines: 2, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 10),
-                  Row(children: [
-                    Text('Explore now', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: _textDark)),
-                    const SizedBox(width: 5),
-                    const Icon(Icons.arrow_forward_rounded, size: 14, color: _orange),
-                  ]),
-                  const SizedBox(height: 12),
-                ],
-              ),
-            ),
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(22)),
-              child: SafeNetworkImage(url: image, height: 130, width: double.infinity, fit: BoxFit.cover),
-            ),
-          ],
-        ),
-      ),
-    );
+  /// Trims the trailing ".00" the API sends on whole-rupee amounts, and groups
+  /// thousands. "~₹30000.00" is four characters of noise on a 52 pt row.
+  static String _money(dynamic raw) {
+    final value = double.tryParse(raw.toString()) ?? 0;
+    final whole = value.truncate();
+    final digits = whole.toString();
+    final buffer = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
+      buffer.write(digits[i]);
+    }
+    return buffer.toString();
   }
 
   // ─── Nearby Rides section ────────────────────────────────────────────────────
@@ -702,7 +727,7 @@ class RideListScreenState extends State<RideListScreen> {
           'Nearby Rides',
           count: rides.length,
           onSeeAll: rides.isNotEmpty
-              ? () => context.switchToTab(2)
+              ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllRidesScreen()))
               : null,
         ),
         if (_isLoading)
@@ -715,7 +740,7 @@ class RideListScreenState extends State<RideListScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 4),
               child: GestureDetector(
-                onTap: () => context.switchToTab(2),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllRidesScreen())),
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 13),
@@ -728,7 +753,7 @@ class RideListScreenState extends State<RideListScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Show all ${rides.length} rides',
-                          style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _orange)),
+                          style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _orange)),
                       const SizedBox(width: 6),
                       const Icon(Icons.arrow_forward_rounded, size: 14, color: _orange),
                     ],
@@ -811,7 +836,7 @@ class RideListScreenState extends State<RideListScreen> {
                       child: Row(children: [
                         const Icon(Icons.event_seat_rounded, size: 10, color: Colors.white),
                         const SizedBox(width: 3),
-                        Text('$seats', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                        Text('$seats', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
                       ]),
                     ),
                   ),
@@ -838,19 +863,19 @@ class RideListScreenState extends State<RideListScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(name,
-                    style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _textDark, height: 1.2),
+                    style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _textDark, height: 1.2),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
                   if (origin.isNotEmpty && dest.isNotEmpty)
                     Text('$origin → $dest',
-                      style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[500], fontWeight: FontWeight.w500),
+                      style: AppTypography.dmSans(fontSize: 10, color: Colors.grey[500], fontWeight: FontWeight.w500),
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                   if (dateStr.isNotEmpty) ...[
                     const SizedBox(height: 2),
-                    Text(dateStr, style: GoogleFonts.dmSans(fontSize: 9, color: Colors.grey[400], fontWeight: FontWeight.w600)),
+                    Text(dateStr, style: AppTypography.dmSans(fontSize: 9, color: Colors.grey[400], fontWeight: FontWeight.w600)),
                   ],
                   const SizedBox(height: 6),
-                  Text(price != null && price != 0 ? '~₹$price' : 'Budget TBD', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: price != null && price != 0 ? _orange : Colors.grey)),
+                  Text(price != null && price != 0 ? '~₹$price' : 'Budget TBD', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: price != null && price != 0 ? _orange : Colors.grey)),
                 ],
               ),
             ),
@@ -937,14 +962,14 @@ class RideListScreenState extends State<RideListScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(place['name']!,
-                    style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white, height: 1.2),
+                    style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white, height: 1.2),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
                   Row(children: [
                     const Icon(Icons.location_on_rounded, size: 9, color: Colors.white70),
                     const SizedBox(width: 2),
                     Expanded(child: Text(place['tag']!,
-                      style: GoogleFonts.dmSans(fontSize: 9, color: Colors.white70, fontWeight: FontWeight.w500),
+                      style: AppTypography.dmSans(fontSize: 9, color: Colors.white70, fontWeight: FontWeight.w500),
                       maxLines: 1, overflow: TextOverflow.ellipsis)),
                   ]),
                 ],
@@ -959,29 +984,27 @@ class RideListScreenState extends State<RideListScreen> {
   // ─── Section header helper ────────────────────────────────────────────────────
 
   Widget _buildSectionHeader(String title, {int? count, VoidCallback? onSeeAll}) {
+    final c = context.c;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.md, AppSpacing.xxs, AppSpacing.xs - 1),
       child: Row(
         children: [
-          Text(title,
-            style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: _textDark, letterSpacing: -0.3)),
+          Text(title, style: AppTypography.title.copyWith(color: c.ink)),
           if (count != null) ...[
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(color: _orange.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-              child: Text('$count', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange)),
-            ),
+            const SizedBox(width: AppSpacing.xs - 2),
+            Text('$count', style: AppTypography.title.copyWith(color: c.ink3)),
           ],
           const Spacer(),
           if (onSeeAll != null)
-            GestureDetector(
-              onTap: onSeeAll,
-              child: Row(children: [
-                Text('See all', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: _orange)),
-                const SizedBox(width: 3),
-                const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: _orange),
-              ]),
+            TextButton(
+              onPressed: onSeeAll,
+              style: TextButton.styleFrom(
+                foregroundColor: c.brand,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                textStyle: AppTypography.callout,
+              ),
+              child: const Text('See all'),
             ),
         ],
       ),
@@ -1016,14 +1039,14 @@ class RideListScreenState extends State<RideListScreen> {
                     ),
                     child: Center(child: Text(
                       _userName.isNotEmpty ? _userName[0].toUpperCase() : 'T',
-                      style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18),
+                      style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18),
                     )),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(_userName, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _textDark), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text('Flettra Explorer', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
+                      Text(_userName, style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _textDark), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text('Flettra Explorer', style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[400])),
                     ]),
                   ),
                 ]),
@@ -1055,7 +1078,7 @@ class RideListScreenState extends State<RideListScreen> {
         decoration: BoxDecoration(color: _orange.withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
         child: Icon(icon, color: _orange, size: 18),
       ),
-      title: Text(label, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: _textDark)),
+      title: Text(label, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: _textDark)),
       trailing: Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Colors.grey[300]),
       onTap: onTap,
     );
@@ -1073,7 +1096,7 @@ class RideListScreenState extends State<RideListScreen> {
         ),
         child: Text(
           compact ? 'Join →' : 'Request to Join',
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: compact ? 10 : 11,
             fontWeight: FontWeight.w800,
             color: Colors.white,
@@ -1137,7 +1160,7 @@ class RideSearchDelegate extends SearchDelegate {
   ThemeData appBarTheme(BuildContext context) => Theme.of(context).copyWith(
     appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 0, iconTheme: IconThemeData(color: Colors.black87)),
     inputDecorationTheme: InputDecorationTheme(
-      hintStyle: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 15),
+      hintStyle: AppTypography.dmSans(color: Colors.grey[400], fontSize: 15),
       border: InputBorder.none,
     ),
   );
@@ -1167,12 +1190,12 @@ class RideSearchDelegate extends SearchDelegate {
     if (query.isEmpty) return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
       Icon(Icons.search_rounded, size: 48, color: Colors.grey[300]),
       const SizedBox(height: 12),
-      Text('Search rides', style: GoogleFonts.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
+      Text('Search rides', style: AppTypography.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
     ]));
     if (results.isEmpty) return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
       Icon(Icons.search_off_rounded, size: 48, color: Colors.grey[300]),
       const SizedBox(height: 12),
-      Text('No rides for "$query"', style: GoogleFonts.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
+      Text('No rides for "$query"', style: AppTypography.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
     ]));
     return ListView.builder(
       itemCount: results.length,
@@ -1194,13 +1217,13 @@ class RideSearchDelegate extends SearchDelegate {
               const SizedBox(width: 14),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('${r['origin']} → ${r['destination']}',
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14)),
+                  style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14)),
                 const SizedBox(height: 3),
                 Text('${r['departureDate'] ?? ''} • ${r['seatsAvailable'] ?? 0} seats',
-                  style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w600)),
+                  style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w600)),
               ])),
               Text('₹${r['pricePerSeat'] ?? '0'}',
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C), fontSize: 15)),
+                style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C), fontSize: 15)),
             ]),
           ),
         );

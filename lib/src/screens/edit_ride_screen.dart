@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../theme/app_typography.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../constants/locations.dart';
 import '../services/api_service.dart';
 import '../services/cloudinary_service.dart';
@@ -212,18 +212,18 @@ class _EditRideScreenState extends State<EditRideScreen> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Delete Ride?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: _dark)),
+        title: Text('Delete Ride?', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: _dark)),
         content: Text('This is permanent and cannot be undone. All passenger bookings will be cancelled.',
-            style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[600])),
+            style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[600])),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.grey)),
+            child: Text('Cancel', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.grey)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('Delete', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: Colors.red)),
+            child: Text('Delete', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: Colors.red)),
           ),
         ],
       ),
@@ -266,7 +266,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
           ),
         ),
         title: Text('Edit Ride',
-            style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: _dark, letterSpacing: -0.5)),
+            style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: _dark, letterSpacing: -0.5)),
         actions: [
           // Delete button
           GestureDetector(
@@ -296,7 +296,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     ? const SizedBox(width: 16, height: 16,
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                     : Text('Save',
-                        style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
               ),
             ),
           ),
@@ -362,7 +362,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(color: _orange.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),
                   child: Text('$_calculatedDuration day${_calculatedDuration != 1 ? 's' : ''} total',
-                      style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange)),
+                      style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange)),
                 ),
               ),
               const SizedBox(height: 24),
@@ -396,9 +396,9 @@ class _EditRideScreenState extends State<EditRideScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('Visibility', style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400], fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                      Text('Visibility', style: AppTypography.dmSans(fontSize: 10, color: Colors.grey[400], fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                       Text(_isPrivateCircle ? 'Buddies & Groups Only' : 'Open to Anyone',
-                          style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark)),
+                          style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark)),
                     ]),
                   ),
                   Switch(value: _isPrivateCircle, onChanged: (v) => setState(() => _isPrivateCircle = v), activeColor: _orange),
@@ -464,7 +464,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                         : Row(mainAxisSize: MainAxisSize.min, children: [
                             const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
                             const SizedBox(width: 10),
-                            Text('Apply Changes', style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                            Text('Apply Changes', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                           ]),
                   ),
                 ),
@@ -512,10 +512,10 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text('Tap to upload cover photo',
-                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[600], fontSize: 14)),
+                        style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[600], fontSize: 14)),
                     const SizedBox(height: 4),
                     Text('Gallery or camera',
-                        style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
+                        style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[400])),
                   ],
                 ),
 
@@ -528,7 +528,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     children: [
                       const CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                       const SizedBox(height: 12),
-                      Text('Uploading…', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700)),
+                      Text('Uploading…', style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
@@ -546,7 +546,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       const Icon(Icons.photo_camera_rounded, color: Colors.white, size: 14),
                       const SizedBox(width: 5),
-                      Text('Change Photo', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text('Change Photo', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
                     ]),
                   ),
                 ),
@@ -575,11 +575,11 @@ class _EditRideScreenState extends State<EditRideScreen> {
             Row(children: [
               Icon(isArrival ? Icons.flight_land_rounded : Icons.flight_takeoff_rounded, size: 13, color: color),
               const SizedBox(width: 5),
-              Text(label, style: GoogleFonts.dmSans(fontSize: 9, color: color, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+              Text(label, style: AppTypography.dmSans(fontSize: 9, color: color, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
             ]),
             const SizedBox(height: 6),
-            Text(DateFormat('MMM dd').format(dt), style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: _dark)),
-            Text(DateFormat('HH:mm').format(dt), style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+            Text(DateFormat('MMM dd').format(dt), style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: _dark)),
+            Text(DateFormat('HH:mm').format(dt), style: AppTypography.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -596,7 +596,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
         child: Icon(icon, size: 15, color: _orange),
       ),
       const SizedBox(width: 10),
-      Text(title, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: _dark, letterSpacing: -0.3)),
+      Text(title, style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: _dark, letterSpacing: -0.3)),
     ]);
   }
 
