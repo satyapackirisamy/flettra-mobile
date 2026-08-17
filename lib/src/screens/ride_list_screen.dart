@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
 import '../theme/app_spacing.dart';
+import '../theme/grouped.dart';
 import '../theme/app_typography.dart';
 import '../theme/flettra_colors.dart';
 import '../services/notification_service.dart';
@@ -149,7 +150,7 @@ class RideListScreenState extends State<RideListScreen> {
 
   static const Color _orange   = Color(0xFFFF6B2C);
   static const Color _textDark = Color(0xFF1F2937);
-  static const Color _bg       = Colors.white;
+  // Canvas comes from the theme now (surfaceSunken), not a white literal.
 
   // ─── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -304,7 +305,7 @@ class RideListScreenState extends State<RideListScreen> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: _bg,
+      color: context.c.surfaceSunken,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -593,7 +594,7 @@ class RideListScreenState extends State<RideListScreen> {
                     builder: (_) =>
                         RideDetailsScreen(rideId: r['id'].toString()))),
             child: Container(
-              color: isRejected ? c.surfaceSunken : c.surface,
+              color: isRejected ? c.surfaceSunken : c.surfaceRaised,
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.md, vertical: AppSpacing.xs),
               child: Row(
@@ -693,7 +694,6 @@ class RideListScreenState extends State<RideListScreen> {
               ),
             ),
           ),
-          Divider(height: 1, thickness: 1, color: c.ruleSoft, indent: AppSpacing.md + 52 + AppSpacing.sm),
         ],
       ),
     );
@@ -735,7 +735,22 @@ class RideListScreenState extends State<RideListScreen> {
         else if (rides.isEmpty)
           _buildEmpty()
         else ...[
-          ...shown.map((r) => _buildRideCard(r)),
+          GroupedCard(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < shown.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: context.c.ruleSoft,
+                        indent: AppSpacing.md + 52 + AppSpacing.sm),
+                  _buildRideCard(shown[i]),
+                ],
+              ],
+            ),
+          ),
           if (rides.length > maxShown)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 4),
@@ -817,7 +832,7 @@ class RideListScreenState extends State<RideListScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 14, offset: const Offset(0, 4))],
+          border: Border.all(color: context.c.ruleSoft),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1034,7 +1049,6 @@ class RideListScreenState extends State<RideListScreen> {
                   Container(
                     width: 44, height: 44,
                     decoration: const BoxDecoration(
-                      gradient: LinearGradient(colors: [Color(0xFFE8551A), Color(0xFFFF8C5A)]),
                       shape: BoxShape.circle,
                     ),
                     child: Center(child: Text(
@@ -1091,7 +1105,6 @@ class RideListScreenState extends State<RideListScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 14, vertical: compact ? 6 : 9),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFFE8551A), Color(0xFFFF8C5A)]),
           borderRadius: BorderRadius.circular(30),
         ),
         child: Text(

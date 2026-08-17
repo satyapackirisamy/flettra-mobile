@@ -94,9 +94,6 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(32),
               border: Border.all(color: isPremium ? const Color(0xFF4F46E5).withOpacity(0.3) : const Color(0xFFF1F5F9), width: isPremium ? 2 : 1),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 30, offset: const Offset(0, 10)),
-              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

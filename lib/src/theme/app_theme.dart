@@ -48,8 +48,16 @@ abstract final class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
-      scaffoldBackgroundColor: c.surface,
-      canvasColor: c.surface,
+      // The canvas is the recessed tone, not white. Content sits *on* it in
+      // raised groups.
+      //
+      // This is the single biggest reason the app read as a web page: 315
+      // surfaces were pure white on a pure white page, so nothing had a plane.
+      // Depth was faked with 57 drop shadows instead. Every native app layers
+      // instead — iOS grouped tables, Material 3 surface roles — and that
+      // layering is most of what "feels like an app" actually means.
+      scaffoldBackgroundColor: c.surfaceSunken,
+      canvasColor: c.surfaceSunken,
       fontFamily: AppTypography.fontFamily,
       textTheme: text,
       extensions: <ThemeExtension<dynamic>>[c],

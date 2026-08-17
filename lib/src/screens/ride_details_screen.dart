@@ -756,7 +756,6 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
                                 ),
                                 child: Column(
                                   children: [
@@ -1004,7 +1003,6 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(18),
-                                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
                                   ),
                                   child: Theme(
                                     data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -1913,7 +1911,6 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFFE8551A), Color(0xFFFF8C5A)]),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Column(

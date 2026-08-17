@@ -208,7 +208,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
                 decoration: BoxDecoration(
                   gradient: isActive
-                      ? const LinearGradient(colors: [_orange, _orangeEnd])
+                      ? null
                       : null,
                   color: isActive ? null : const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(24),
@@ -309,7 +309,6 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 6))],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,7 +362,6 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [_orange, _orangeEnd]),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text('MY RIDE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 0.8)),
@@ -464,7 +462,6 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [_orange, _orangeEnd]),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -481,7 +478,6 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                         Container(
                           width: 22, height: 22,
                           decoration: const BoxDecoration(
-                            gradient: LinearGradient(colors: [_orange, _orangeEnd]),
                             shape: BoxShape.circle,
                           ),
                           child: Center(

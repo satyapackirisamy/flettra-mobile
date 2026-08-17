@@ -96,7 +96,7 @@ class FlettraColors extends ThemeExtension<FlettraColors> {
     ink2: Color(0xFF6B625B),
     ink3: Color(0xFF9C918A),
     surface: Color(0xFFFFFFFF),
-    surfaceSunken: Color(0xFFF6F3F0),
+    surfaceSunken: Color(0xFFF2EEE9),
     surfaceRaised: Color(0xFFFFFFFF),
     rule: Color(0xFFE6DFD8),
     ruleSoft: Color(0xFFF0EAE4),

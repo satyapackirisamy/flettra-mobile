@@ -291,7 +291,6 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
     Widget fallback = Container(
       width: size, height: size,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [Color(0xFFFF6B2C), Color(0xFFFF8C5A)]),
       ),
       child: Center(
         child: Text(initial,
@@ -329,10 +328,6 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04),
-              blurRadius: 12, offset: const Offset(0, 4))
-        ],
       ),
       child: Row(
         children: [
@@ -382,10 +377,6 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.03),
-                  blurRadius: 8, offset: const Offset(0, 2))
-            ],
           ),
           child: Text(
             bio.isNotEmpty
@@ -440,10 +431,6 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.03),
-                    blurRadius: 8, offset: const Offset(0, 2))
-              ],
             ),
             child: Row(
               children: [

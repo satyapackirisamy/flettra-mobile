@@ -589,9 +589,6 @@ class _ChatScreenState extends State<ChatScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey[100]!, width: 1)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, -4)),
-        ],
       ),
       child: SafeArea(
         top: false,
@@ -642,7 +639,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Container(
                   width: 44, height: 44,
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(colors: [_orange, _orangeEnd]),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),

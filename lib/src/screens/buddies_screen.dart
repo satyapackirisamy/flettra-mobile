@@ -182,7 +182,6 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
               ),
               child: TextField(
                 controller: _searchController,
@@ -527,7 +526,6 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -286,7 +286,6 @@ class _EditRideScreenState extends State<EditRideScreen> {
             margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [_orange, _orangeEnd]),
               borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
             child: GestureDetector(
@@ -453,7 +452,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                   decoration: BoxDecoration(
                     gradient: _isLoading
                         ? null
-                        : const LinearGradient(colors: [_orange, _orangeEnd], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        : null,
                     color: _isLoading ? Colors.grey[200] : null,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: _isLoading ? null : [BoxShadow(color: _orange.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))],

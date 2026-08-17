@@ -12,7 +12,13 @@ void main() {
           reason: 'FlettraColors must be registered as a ThemeExtension, or '
               'context.c silently falls back to the light palette.');
       expect(theme.colorScheme.primary, colors!.brand);
-      expect(theme.scaffoldBackgroundColor, colors.surface);
+
+      // The canvas is the recessed tone and raised content sits on it. If these
+      // ever collapse to the same value the app goes flat again — which is what
+      // made it read as a web page rather than an app.
+      expect(theme.scaffoldBackgroundColor, colors.surfaceSunken);
+      expect(colors.surfaceSunken, isNot(colors.surfaceRaised),
+          reason: 'Canvas and raised surfaces must be distinguishable.');
     }
   });
 

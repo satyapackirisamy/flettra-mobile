@@ -189,7 +189,6 @@ class _ChatWidgetState extends State<ChatWidget> {
                     width: 30, height: 30,
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [_orange, _orangeEnd]),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -217,7 +216,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     gradient: isMe
-                        ? const LinearGradient(colors: [_orange, _orangeEnd], begin: Alignment.topLeft, end: Alignment.bottomRight)
+                        ? null
                         : null,
                     color: isMe ? null : const Color(0xFFF2F2F2),
                     borderRadius: BorderRadius.only(
@@ -260,7 +259,6 @@ class _ChatWidgetState extends State<ChatWidget> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey[100]!)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, -4))],
       ),
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       child: Row(
@@ -287,7 +285,6 @@ class _ChatWidgetState extends State<ChatWidget> {
             child: Container(
               width: 44, height: 44,
               decoration: const BoxDecoration(
-                gradient: LinearGradient(colors: [_orange, _orangeEnd]),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),

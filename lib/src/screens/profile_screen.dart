@@ -339,7 +339,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(18),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
                         ),
                         child: Row(
                           children: [
@@ -447,7 +446,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,7 +574,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -741,7 +738,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         borderRadius: isRejected
             ? const BorderRadius.vertical(bottom: Radius.circular(20))
             : BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Row(
         children: [
@@ -805,7 +801,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       width: size,
       height: size,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [Color(0xFFFF6B2C), Color(0xFFFF8C5A)]),
       ),
       child: Center(
         child: initial.isNotEmpty

@@ -650,7 +650,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                   decoration: BoxDecoration(
                     gradient: _isLoading
                         ? null
-                        : const LinearGradient(colors: [Color(0xFFE8551A), Color(0xFFFF6B2C), Color(0xFFFF8C5A)]),
+                        : null,
                     color: _isLoading ? const Color(0xFFE2E8F0) : null,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: _isLoading ? null : [
