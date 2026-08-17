@@ -798,8 +798,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     Widget fallback = Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
-      ),
+      decoration: BoxDecoration(
+                      color: context.c.brand,
+                    ),
       child: Center(
         child: initial.isNotEmpty
             ? Text(

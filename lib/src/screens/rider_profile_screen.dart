@@ -287,8 +287,9 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
 
     Widget fallback = Container(
       width: size, height: size,
-      decoration: const BoxDecoration(
-      ),
+      decoration: BoxDecoration(
+                      color: context.c.brand,
+                    ),
       child: Center(
         child: Text(initial,
             style: AppTypography.dmSans(

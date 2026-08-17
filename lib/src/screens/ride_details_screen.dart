@@ -484,10 +484,55 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                               label: 'Chat',
                               enabled: canChat,
                               onTap: canChat
-                                  ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(
-                                      appBar: AppBar(title: Text('Ride Chat', style: AppTypography.dmSans(fontWeight: FontWeight.w800)), backgroundColor: context.c.surface, elevation: 0),
-                                      body: ChatWidget(rideId: widget.rideId, title: 'Chat'),
-                                    )))
+                                  ? () {
+                                      // Name the ride rather than the feature —
+                                      // "Ride Chat" tells you nothing you did
+                                      // not already know from tapping Chat.
+                                      final rideName = (_ride!['name'] ??
+                                              _ride!['destination'] ??
+                                              'Ride')
+                                          .toString();
+                                      final route = [
+                                        _ride!['origin'],
+                                        _ride!['destination']
+                                      ].whereType<String>().where((e) => e.isNotEmpty).join(' → ');
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => Scaffold(
+                                            appBar: AppBar(
+                                              titleSpacing: 0,
+                                              title: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Text(rideName,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: AppTypography.heading
+                                                          .copyWith(
+                                                              color: context.c.ink)),
+                                                  if (route.isNotEmpty)
+                                                    Text(route,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: AppTypography
+                                                            .footnote
+                                                            .copyWith(
+                                                                color: context
+                                                                    .c.ink3)),
+                                                ],
+                                              ),
+                                            ),
+                                            body: ChatWidget(
+                                                rideId: widget.rideId,
+                                                title: rideName),
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   : null,
                             ),
                             const SizedBox(width: 10),

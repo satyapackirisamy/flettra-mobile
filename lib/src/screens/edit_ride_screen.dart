@@ -283,8 +283,9 @@ class _EditRideScreenState extends State<EditRideScreen> {
           Container(
             margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+            decoration: BoxDecoration(
+              color: context.c.brand,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
             ),
             child: GestureDetector(
               onTap: _isLoading ? null : _updateRide,

@@ -1046,12 +1046,13 @@ class RideListScreenState extends State<RideListScreen> {
                 child: Row(children: [
                   Container(
                     width: 44, height: 44,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
+                      color: context.c.brand,
                       shape: BoxShape.circle,
                     ),
                     child: Center(child: Text(
                       _userName.isNotEmpty ? _userName[0].toUpperCase() : 'T',
-                      style: AppTypography.dmSans(color: context.c.surfaceRaised, fontWeight: FontWeight.w700, fontSize: 18),
+                      style: AppTypography.dmSans(color: context.c.onBrand, fontWeight: FontWeight.w700, fontSize: 18),
                     )),
                   ),
                   const SizedBox(width: 14),
@@ -1103,6 +1104,7 @@ class RideListScreenState extends State<RideListScreen> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 14, vertical: compact ? 6 : 9),
         decoration: BoxDecoration(
+                      color: context.c.brand,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Text(

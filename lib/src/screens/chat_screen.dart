@@ -636,10 +636,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 onTap: _sendMessage,
                 child: Container(
                   width: 44, height: 44,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
+                      color: context.c.brand,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
+                  child: Icon(Icons.arrow_forward_ios_rounded, color: context.c.onBrand, size: 18),
                 ),
               ),
             ],

@@ -187,12 +187,13 @@ class _ChatWidgetState extends State<ChatWidget> {
                     width: 30, height: 30,
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
+                      color: context.c.brandWash,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: Text(
                         senderName.isNotEmpty ? senderName[0].toUpperCase() : 'U',
-                        style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.surfaceRaised),
+                        style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand),
                       ),
                     ),
                   )
@@ -213,10 +214,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    gradient: isMe
-                        ? null
-                        : null,
-                    color: isMe ? null : const Color(0xFFF2F2F2),
+                    color: isMe ? context.c.brand : context.c.surfaceRaised,
                     borderRadius: BorderRadius.only(
                       topLeft:     const Radius.circular(18),
                       topRight:    const Radius.circular(18),
@@ -284,10 +282,11 @@ class _ChatWidgetState extends State<ChatWidget> {
             onTap: _sendMessage,
             child: Container(
               width: 44, height: 44,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
+                      color: context.c.brand,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
+              child: Icon(Icons.arrow_forward_ios_rounded, color: context.c.onBrand, size: 18),
             ),
           ),
         ],

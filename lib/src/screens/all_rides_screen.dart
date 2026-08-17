@@ -359,6 +359,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
+                      color: context.c.brand,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text('MY RIDE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, letterSpacing: 0.8)),
@@ -459,6 +460,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                         decoration: BoxDecoration(
+                      color: context.c.brand,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -474,7 +476,8 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       children: [
                         Container(
                           width: 22, height: 22,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
+                      color: context.c.brand,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
