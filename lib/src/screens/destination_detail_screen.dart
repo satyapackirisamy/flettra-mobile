@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import '../services/api_service.dart';
 import '../widgets/network_image_widget.dart';
@@ -64,7 +65,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
               SliverAppBar(
                 expandedHeight: 400,
                 pinned: true,
-                backgroundColor: Colors.white,
+                backgroundColor: context.c.surface,
                 leading: CircleAvatar(
                   backgroundColor: Colors.black26,
                   child: IconButton(
@@ -117,13 +118,13 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          const Icon(Icons.location_on_rounded, color: Colors.grey, size: 20),
+                          Icon(Icons.location_on_rounded, color: context.c.ink3, size: 20),
                           const SizedBox(width: 4),
                           Text(
                             _destination!['location'] ?? 'India',
                             style: AppTypography.dmSans(
                               fontSize: 16,
-                              color: Colors.grey[600],
+                              color: context.c.ink2,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -143,7 +144,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                         style: AppTypography.dmSans(
                           fontSize: 15,
                           height: 1.6,
-                          color: Colors.grey[700],
+                          color: context.c.ink2,
                         ),
                       ),
                       const SizedBox(height: 120), // Bottom padding for FAB
@@ -173,8 +174,8 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF6B2C),
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.c.brand,
+                  foregroundColor: context.c.onBrand,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   elevation: 8,
                 ),

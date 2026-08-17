@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/flettra_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 
@@ -73,7 +74,7 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
         title: const Text('Manage Vendors'),
         bottom: PreferredSize(
@@ -103,11 +104,11 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.storefront_outlined, size: 64, color: Colors.grey[400]),
+                          Icon(Icons.storefront_outlined, size: 64, color: context.c.ink3),
                           const SizedBox(height: 16),
                           Text(
                             'No vendors found',
-                            style: AppTypography.dmSans(fontSize: 18, color: Colors.grey[600]),
+                            style: AppTypography.dmSans(fontSize: 18, color: context.c.ink2),
                           ),
                         ],
                       ),
@@ -125,7 +126,7 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
         onPressed: () {
           // Add Vendor Logic
         },
-        backgroundColor: const Color(0xFF10B981),
+        backgroundColor: context.c.ok,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -144,8 +145,8 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
             _loadVendors();
           });
         },
-        selectedColor: const Color(0xFF10B981).withOpacity(0.2),
-        checkmarkColor: const Color(0xFF10B981),
+        selectedColor: context.c.ok.withOpacity(0.2),
+        checkmarkColor: context.c.ok,
         labelStyle: AppTypography.dmSans(
           color: isSelected ? const Color(0xFF065F46) : const Color(0xFF64748B),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -161,8 +162,8 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
           ListTile(
             contentPadding: const EdgeInsets.all(16),
             leading: CircleAvatar(
-              backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
-              child: const Icon(Icons.business_rounded, color: Color(0xFF10B981)),
+              backgroundColor: context.c.ok.withOpacity(0.1),
+              child: Icon(Icons.business_rounded, color: context.c.ok),
             ),
             title: Text(
               vendor['name'] ?? 'Unknown Vendor',
@@ -177,7 +178,7 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: context.c.surfaceSunken,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -205,14 +206,14 @@ class _AdminVendorManagementScreenState extends State<AdminVendorManagementScree
               children: [
                 Text(
                   '₹${vendor['price'] ?? 0} / night',
-                  style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFF4F46E5)),
+                  style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: context.c.brand),
                 ),
                 Switch.adaptive(
                   value: vendor['isActive'] ?? true,
                   onChanged: (val) {
                     // Update Active Status
                   },
-                  activeColor: const Color(0xFF10B981),
+                  activeColor: context.c.ok,
                 ),
               ],
             ),

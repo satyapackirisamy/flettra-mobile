@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../theme/flettra_colors.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -101,13 +102,13 @@ class NotificationService {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: context.c.ink,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 12, offset: const Offset(0, 4))],
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.directions_car_rounded, color: Color(0xFFFF6B2C), size: 24),
+                  Icon(Icons.directions_car_rounded, color: context.c.brand, size: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -116,11 +117,11 @@ class NotificationService {
                       children: [
                         Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14)),
                         const SizedBox(height: 2),
-                        Text(body, style: TextStyle(color: Colors.grey[400], fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                        Text(body, style: TextStyle(color: context.c.ink3, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+                  Icon(Icons.chevron_right, color: context.c.ink3, size: 20),
                 ],
               ),
             ),

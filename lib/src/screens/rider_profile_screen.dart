@@ -32,9 +32,6 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
   bool get _isSelf =>
       _currentUserId != null && _currentUserId == widget.userId;
 
-  static const Color _orange = Color(0xFFFF6B2C);
-  static const Color _dark   = Color(0xFF1A0A08);
-  static const Color _bg     = Colors.white;
 
   @override
   void initState() {
@@ -126,9 +123,9 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: context.c.surface,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: _orange))
+          ? Center(child: CircularProgressIndicator(color: context.c.brand))
           : CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
@@ -177,9 +174,9 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
               Container(
                 height: 180,
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFFFF6B2C), Color(0xFFFF8C5A)],
+                    colors: [context.c.brand, context.c.brand],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -205,8 +202,8 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                                   color: Colors.black.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                                    color: Colors.white, size: 18),
+                                child: Icon(Icons.arrow_back_ios_new_rounded,
+                                    color: context.c.surfaceRaised, size: 18),
                               ),
                             ),
                             // Three-dot options (only for other users)
@@ -225,8 +222,8 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                                   color: Colors.black.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: const Icon(Icons.more_vert_rounded,
-                                    color: Colors.white, size: 18),
+                                child: Icon(Icons.more_vert_rounded,
+                                    color: context.c.surfaceRaised, size: 18),
                               ),
                             ),
                           ],
@@ -269,11 +266,11 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                 Text(name,
                     style: AppTypography.dmSans(
                         fontSize: 22, fontWeight: FontWeight.w700,
-                        color: _dark, letterSpacing: -0.3)),
+                        color: context.c.ink, letterSpacing: -0.3)),
                 if (handle.isNotEmpty)
                   Text(handle,
                       style: AppTypography.dmSans(
-                          fontSize: 13, color: _orange,
+                          fontSize: 13, color: context.c.brand,
                           fontWeight: FontWeight.w600)),
               ],
             ),
@@ -296,7 +293,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
         child: Text(initial,
             style: AppTypography.dmSans(
                 fontSize: size * 0.38, fontWeight: FontWeight.w700,
-                color: Colors.white)),
+                color: context.c.surfaceRaised)),
       ),
     );
 
@@ -336,7 +333,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
           _statItem('4.8', 'Rating'),
           _divider(),
           _statItem(isPro ? 'Pro' : 'Free', 'Plan',
-              valueColor: isPro ? _orange : Colors.grey[500]),
+              valueColor: isPro ? context.c.brand : context.c.ink2),
         ],
       ),
     );
@@ -349,11 +346,11 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
           Text(value,
               style: AppTypography.dmSans(
                   fontSize: 20, fontWeight: FontWeight.w700,
-                  color: valueColor ?? _dark)),
+                  color: valueColor ?? context.c.ink)),
           const SizedBox(height: 2),
           Text(label,
               style: AppTypography.dmSans(
-                  fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w600)),
+                  fontSize: 11, color: context.c.ink3, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -369,7 +366,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
         Text('ABOUT',
             style: AppTypography.dmSans(
                 fontSize: 11, fontWeight: FontWeight.w800,
-                color: Colors.grey[400], letterSpacing: 1.2)),
+                color: context.c.ink3, letterSpacing: 1.2)),
         const SizedBox(height: 8),
         Container(
           width: double.infinity,
@@ -383,7 +380,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                 ? bio
                 : 'Adventure seeker & travel enthusiast. Always ready for the next ride.',
             style: AppTypography.dmSans(
-                fontSize: 14, color: Colors.grey[600], height: 1.6,
+                fontSize: 14, color: context.c.ink2, height: 1.6,
                 fontWeight: FontWeight.w500),
           ),
         ),
@@ -400,15 +397,15 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
             Text('RIDES',
                 style: AppTypography.dmSans(
                     fontSize: 11, fontWeight: FontWeight.w800,
-                    color: Colors.grey[400], letterSpacing: 1.2)),
+                    color: context.c.ink3, letterSpacing: 1.2)),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                  color: _orange, borderRadius: BorderRadius.circular(10)),
+                  color: context.c.brand, borderRadius: BorderRadius.circular(10)),
               child: Text('${_rides.length}',
                   style: AppTypography.dmSans(
-                      fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
+                      fontSize: 10, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
             ),
           ],
         ),
@@ -420,10 +417,10 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
           final price   = r['pricePerSeat'] ?? 0;
           final status  = (r['status'] ?? 'scheduled').toString();
           final statusColor = status == 'ongoing'
-              ? const Color(0xFF10B981)
+              ? context.c.ok
               : status == 'completed'
                   ? const Color(0xFF6366F1)
-                  : _orange;
+                  : context.c.brand;
 
           return Container(
             margin: const EdgeInsets.only(bottom: 10),
@@ -437,10 +434,10 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                      color: _orange.withOpacity(0.08),
+                      color: context.c.brand.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.directions_car_rounded,
-                      color: _orange, size: 18),
+                  child: Icon(Icons.directions_car_rounded,
+                      color: context.c.brand, size: 18),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -453,14 +450,14 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                             : dest.isNotEmpty ? dest : origin,
                         style: AppTypography.dmSans(
                             fontWeight: FontWeight.w800, fontSize: 13,
-                            color: _dark),
+                            color: context.c.ink),
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (date.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(date,
                             style: AppTypography.dmSans(
-                                fontSize: 11, color: Colors.grey[400],
+                                fontSize: 11, color: context.c.ink3,
                                 fontWeight: FontWeight.w500)),
                       ],
                     ],
@@ -473,7 +470,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                     Text(price != null && price != 0 ? '~₹$price' : 'Free',
                         style: AppTypography.dmSans(
                             fontWeight: FontWeight.w800, fontSize: 13,
-                            color: _orange)),
+                            color: context.c.brand)),
                     const SizedBox(height: 3),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -556,9 +553,9 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                     style: AppTypography.dmSans(
                         fontWeight: FontWeight.w800, fontSize: 15)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _buddyRequestSent ? Colors.grey[300] : _orange,
-                  disabledBackgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.white,
+                  backgroundColor: _buddyRequestSent ? context.c.ink3 : context.c.brand,
+                  disabledBackgroundColor: context.c.ink3,
+                  foregroundColor: context.c.onBrand,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),

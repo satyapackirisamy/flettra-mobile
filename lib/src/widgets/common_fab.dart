@@ -37,18 +37,18 @@ class CommonFab extends StatelessWidget {
               child: Container(
                 width: 40, 
                 height: 4, 
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))
+                decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(2))
               ),
             ),
             const SizedBox(height: 24),
-            Text("Create New", style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
+            Text("Create New", style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: context.c.ink)),
             const SizedBox(height: 24),
             _buildOptionTile(
               context, 
               "Post", 
               "Share an update", 
               Icons.edit_note_rounded, 
-              const Color(0xFF4F46E5),
+              context.c.brand,
               const Color(0xFFEFF6FF),
               () {
                 Navigator.pop(context);
@@ -62,7 +62,7 @@ class CommonFab extends StatelessWidget {
               "Ride",
               "Create a new ride", 
               Icons.directions_car_rounded, 
-              const Color(0xFFFF6B2C),
+              context.c.brand,
               const Color(0xFFFFF1EB),
                () {
                 Navigator.pop(context);
@@ -77,7 +77,7 @@ class CommonFab extends StatelessWidget {
               "Find travel buddies", 
               Icons.person_add_rounded, 
               Colors.teal,
-              const Color(0xFFECFDF5),
+              context.c.okWash,
                () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const BuddiesScreen()));
@@ -187,13 +187,13 @@ class CommonFab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16, color: const Color(0xFF1E293B))),
+                  Text(title, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16, color: context.c.ink)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: AppTypography.dmSans(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text(subtitle, style: AppTypography.dmSans(color: context.c.ink3, fontSize: 12, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: Colors.grey[300]),
+            Icon(Icons.chevron_right_rounded, color: context.c.ink3),
           ],
         ),
       ),
@@ -208,10 +208,10 @@ class CommonFab extends StatelessWidget {
         width: 64,
         height: 64,
         decoration: BoxDecoration(
-          color: const Color(0xFFFF6B2C),
+          color: context.c.brand,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: const Color(0xFFFF6B2C).withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
-          border: Border.all(color: Colors.white, width: 4),
+          boxShadow: [BoxShadow(color: context.c.brand.withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
+          border: Border.all(color: context.c.surfaceRaised, width: 4),
         ),
         child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
       ),

@@ -39,9 +39,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool          _isLoading  = true;
   bool          _isConnected = false;
 
-  static const Color _orange    = Color(0xFFFF6B2C);
-  static const Color _orangeEnd = Color(0xFFFF8C5A);
-  static const Color _dark      = Color(0xFF1A0A08);
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────────
 
@@ -274,7 +271,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: Column(
         children: [
           _buildHeader(),
@@ -289,9 +286,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildHeader() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [_orange, _orangeEnd],
+          colors: [context.c.brand, context.c.brand],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -321,7 +318,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: context.c.surfaceRaised, width: 2),
                     ),
                     child: WebCircleAvatar(url: _buddyAvatarUrl, radius: 20),
                   ),
@@ -333,7 +330,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF4ADE80),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
+                          border: Border.all(color: context.c.surfaceRaised, width: 2),
                         ),
                       ),
                     ),
@@ -348,7 +345,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Text(
                       _chatTitle,
                       style: AppTypography.dmSans(
-                        fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white,
+                        fontSize: 16, fontWeight: FontWeight.w800, color: context.c.surfaceRaised,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -384,7 +381,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageList() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: _orange));
+      return Center(child: CircularProgressIndicator(color: context.c.brand));
     }
 
     if (_messages.isEmpty) {
@@ -395,20 +392,20 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: _orange.withOpacity(0.08),
+                color: context.c.brand.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.chat_bubble_outline_rounded, size: 48, color: _orange),
+              child: Icon(Icons.chat_bubble_outline_rounded, size: 48, color: context.c.brand),
             ),
             const SizedBox(height: 16),
             Text(
               'No messages yet',
-              style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark),
+              style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: context.c.ink),
             ),
             const SizedBox(height: 6),
             Text(
               'Say hello to $_chatTitle!',
-              style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[400]),
+              style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3),
             ),
           ],
         ),
@@ -450,12 +447,12 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: context.c.ink3,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             label,
-            style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey[500]),
+            style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.ink2),
           ),
         ),
       ),
@@ -520,7 +517,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Text(
                       senderName,
                       style: AppTypography.dmSans(
-                        fontSize: 11, fontWeight: FontWeight.w800, color: _orange,
+                        fontSize: 11, fontWeight: FontWeight.w800, color: context.c.brand,
                       ),
                     ),
                   ),
@@ -530,8 +527,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     gradient: isMe
-                        ? const LinearGradient(
-                            colors: [_orange, _orangeEnd],
+                        ? LinearGradient(
+                            colors: [context.c.brand, context.c.brand],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           )
@@ -548,7 +545,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     content,
                     style: AppTypography.dmSans(
                       fontSize: 14,
-                      color: isMe ? Colors.white : const Color(0xFF1A1A1A),
+                      color: isMe ? Colors.white : context.c.ink,
                       height: 1.45,
                     ),
                   ),
@@ -563,12 +560,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       Text(
                         timeStr,
                         style: AppTypography.dmSans(
-                          fontSize: 9, color: Colors.grey[400], fontWeight: FontWeight.w500,
+                          fontSize: 9, color: context.c.ink3, fontWeight: FontWeight.w500,
                         ),
                       ),
                       if (isMe) ...[
                         const SizedBox(width: 4),
-                        Icon(Icons.done_all_rounded, size: 12, color: _orange.withOpacity(0.7)),
+                        Icon(Icons.done_all_rounded, size: 12, color: context.c.brand.withOpacity(0.7)),
                       ],
                     ],
                   ),
@@ -601,10 +598,10 @@ class _ChatScreenState extends State<ChatScreen> {
               Container(
                 width: 38, height: 38,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
+                  border: Border.all(color: context.c.ink3!),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.add_rounded, color: Colors.grey[500], size: 20),
+                child: Icon(Icons.add_rounded, color: context.c.ink2, size: 20),
               ),
               const SizedBox(width: 8),
 
@@ -617,10 +614,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   child: TextField(
                     controller: _msgCtrl,
-                    style: AppTypography.dmSans(fontSize: 14, color: _dark),
+                    style: AppTypography.dmSans(fontSize: 14, color: context.c.ink),
                     decoration: InputDecoration(
                       hintText: 'Message...',
-                      hintStyle: AppTypography.dmSans(color: Colors.grey[400], fontSize: 14),
+                      hintStyle: AppTypography.dmSans(color: context.c.ink3, fontSize: 14),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
@@ -631,7 +628,7 @@ class _ChatScreenState extends State<ChatScreen> {
               const SizedBox(width: 8),
 
               // Emoji
-              Icon(Icons.sentiment_satisfied_alt_outlined, color: Colors.grey[400], size: 22),
+              Icon(Icons.sentiment_satisfied_alt_outlined, color: context.c.ink3, size: 22),
               const SizedBox(width: 8),
 
               // Send — orange circle with arrow

@@ -48,7 +48,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
         title: const Text('Admin Console'),
         actions: [
@@ -108,13 +108,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           'Users',
                           _stats?['users']?.toString() ?? '0',
                           Icons.people_alt_rounded,
-                          const Color(0xFF4F46E5),
+                          context.c.brand,
                         ),
                         _buildStatCard(
                           'Vendors',
                           _stats?['vendors']?.toString() ?? '0',
                           Icons.storefront_rounded,
-                          const Color(0xFF10B981),
+                          context.c.ok,
                         ),
                         _buildStatCard(
                           'Rides',
@@ -146,7 +146,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       'Vendor Management',
                       'Approve and manage travel partners',
                       Icons.business_rounded,
-                      const Color(0xFF10B981),
+                      context.c.ok,
                       () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminVendorManagementScreen()));
                       },
@@ -164,7 +164,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       'User Management',
                       'Platform users and subscriptions',
                       Icons.person_search_rounded,
-                      const Color(0xFF4F46E5),
+                      context.c.brand,
                       () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminUserManagementScreen()));
                       },
@@ -243,7 +243,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       decoration: BoxDecoration(
         color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: context.c.surfaceSunken),
       ),
       child: ListTile(
         onTap: onTap,
@@ -261,7 +261,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           style: AppTypography.dmSans(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1E293B),
+            color: context.c.ink,
           ),
         ),
         subtitle: Text(

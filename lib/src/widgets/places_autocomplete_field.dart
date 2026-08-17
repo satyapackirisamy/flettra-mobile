@@ -143,7 +143,7 @@ class _PlacesAutocompleteFieldState extends State<PlacesAutocompleteField> {
                 maxHeight: 240,
               ),
               child: _loading
-                  ? const Padding(
+                  ? Padding(
                       padding: EdgeInsets.all(16),
                       child: Center(
                         child: SizedBox(
@@ -151,7 +151,7 @@ class _PlacesAutocompleteFieldState extends State<PlacesAutocompleteField> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Color(0xFFFF6B2C),
+                            color: context.c.brand,
                           ),
                         ),
                       ),
@@ -175,13 +175,13 @@ class _PlacesAutocompleteFieldState extends State<PlacesAutocompleteField> {
                                   width: 28,
                                   height: 28,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFF6B2C).withOpacity(0.1),
+                                    color: context.c.brand.withOpacity(0.1),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.location_on_rounded,
                                     size: 14,
-                                    color: Color(0xFFFF6B2C),
+                                    color: context.c.brand,
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -194,7 +194,7 @@ class _PlacesAutocompleteFieldState extends State<PlacesAutocompleteField> {
                                         style: AppTypography.dmSans(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF1A0A08),
+                                          color: context.c.ink,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -203,7 +203,7 @@ class _PlacesAutocompleteFieldState extends State<PlacesAutocompleteField> {
                                         p.description,
                                         style: AppTypography.dmSans(
                                           fontSize: 11,
-                                          color: Colors.grey[500],
+                                          color: context.c.ink2,
                                           fontWeight: FontWeight.w400,
                                         ),
                                         maxLines: 1,

@@ -75,7 +75,7 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
         title: const Text('Travel Hotspots'),
         actions: [
@@ -101,11 +101,11 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.map_outlined, size: 64, color: Colors.grey[400]),
+                          Icon(Icons.map_outlined, size: 64, color: context.c.ink3),
                           const SizedBox(height: 16),
                           Text(
                             'No destinations created yet',
-                            style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 16),
+                            style: AppTypography.dmSans(color: context.c.ink2, fontSize: 16),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
@@ -157,8 +157,8 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                 : Container(
                     height: 160,
                     width: double.infinity,
-                    color: Colors.grey[200],
-                    child: Icon(Icons.image_not_supported_outlined, color: Colors.grey[400], size: 48),
+                    color: context.c.ink3,
+                    child: Icon(Icons.image_not_supported_outlined, color: context.c.ink3, size: 48),
                   ),
           ),
           Padding(
@@ -181,18 +181,18 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, size: 16, color: Colors.grey[500]),
+                    Icon(Icons.location_on_outlined, size: 16, color: context.c.ink2),
                     const SizedBox(width: 4),
                     Text(
                       dest['location'] ?? 'Global',
-                      style: AppTypography.dmSans(color: Colors.grey[600], fontSize: 13),
+                      style: AppTypography.dmSans(color: context.c.ink2, fontSize: 13),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   dest['description'] ?? 'No description provided.',
-                  style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 13, height: 1.5),
+                  style: AppTypography.dmSans(color: context.c.ink2, fontSize: 13, height: 1.5),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

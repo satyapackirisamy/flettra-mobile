@@ -29,11 +29,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   late Animation<double> _fadeAnim;
 
   // Brand Colors
-  static const Color primaryIndigo = Color(0xFF4F46E5);
+  // TODO(theme): a static field cannot read context; resolve at the call
+  // site with context.c.brand when this screen is migrated.
+  static const Color primaryIndigo = Color(0xFFB9F227);
   static const Color primaryIndigoDark = Color(0xFF3730A3);
   static const Color accentOrange = Color(0xFFFF530A);
   static const Color surfaceLight = Color(0xFFF8F7FF);
-  static const Color inputFill = Color(0xFFF5F5F7);
+  static const Color inputFill = Color(0xFF161915);
   static const Color textDark = Color(0xFF18181B);
   static const Color textGray = Color(0xFF71717A);
   static const Color borderColor = Color(0xFFE4E4E7);
@@ -141,7 +143,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4F46E5).withOpacity(0.06),
+                        color: context.c.brand.withOpacity(0.06),
                         blurRadius: 32,
                         offset: const Offset(0, 8),
                       ),
@@ -327,7 +329,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [primaryIndigo, Color(0xFF7C3AED)],
@@ -536,7 +538,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: primaryIndigo, width: 1.5),
+        borderSide: BorderSide(color: primaryIndigo, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -613,7 +615,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: primaryIndigo, width: 1.5),
+          borderSide: BorderSide(color: primaryIndigo, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -646,7 +648,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
         decoration: BoxDecoration(
           gradient: _isLoading
               ? null
-              : const LinearGradient(
+              : LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [primaryIndigo, Color(0xFF7C3AED)],

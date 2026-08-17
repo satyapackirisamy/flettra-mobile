@@ -125,7 +125,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final isLast = _currentPage == _tutorialSlides.length - 1;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFE),
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -139,7 +139,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       height: 4,
                       margin: const EdgeInsets.symmetric(horizontal: 3),
                       decoration: BoxDecoration(
-                        color: i <= _currentPage ? color : Colors.grey.shade200,
+                        color: i <= _currentPage ? color : context.c.rule,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -152,7 +152,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: _completing ? null : _completeOnboarding,
-                child: Text('Skip', style: AppTypography.dmSans(color: Colors.grey, fontWeight: FontWeight.w700)),
+                child: Text('Skip', style: AppTypography.dmSans(color: context.c.ink3, fontWeight: FontWeight.w700)),
               ),
             ),
             // Content
@@ -187,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           s['description'] as String,
                           textAlign: TextAlign.center,
-                          style: AppTypography.dmSans(fontSize: 15, color: Colors.grey[600], fontWeight: FontWeight.w600, height: 1.5),
+                          style: AppTypography.dmSans(fontSize: 15, color: context.c.ink2, fontWeight: FontWeight.w600, height: 1.5),
                         ),
                       ],
                     ),
@@ -215,7 +215,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: color,
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.c.onBrand,
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
@@ -237,10 +237,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (widget.isPostAuth) return _buildPostAuthOnboarding();
 
     // Current active color
-    final activeColor = (_slides[_currentPage]['color'] as Color?) ?? const Color(0xFF4F46E5);
+    final activeColor = (_slides[_currentPage]['color'] as Color?) ?? context.c.brand;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: context.c.ink,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -253,7 +253,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             },
             itemBuilder: (context, index) {
               final slide = _slides[index];
-              final slideColor = (slide['color'] as Color?) ?? const Color(0xFF4F46E5);
+              final slideColor = (slide['color'] as Color?) ?? context.c.brand;
               return Stack(
                 fit: StackFit.expand,
                 children: [
@@ -261,7 +261,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   SafeNetworkImage(
                     url: slide['image'] as String,
                     fit: BoxFit.cover,
-                    errorWidget: Container(color: const Color(0xFF1E293B)),
+                    errorWidget: Container(color: context.c.ink),
                   ),
                   
                   // Gradient Overlay
@@ -330,7 +330,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       _slides.length,
                       (index) => Row(
                         children: [
-                          _buildIndicator(index == _currentPage, (_slides[index]['color'] as Color?) ?? const Color(0xFF4F46E5)),
+                          _buildIndicator(index == _currentPage, (_slides[index]['color'] as Color?) ?? context.c.brand),
                           const SizedBox(width: 6),
                         ],
                       ),
@@ -351,7 +351,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: activeColor, // Dynamic Background
-                        foregroundColor: Colors.white,
+                        foregroundColor: context.c.onBrand,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         elevation: 8,
                         shadowColor: activeColor.withOpacity(0.5),

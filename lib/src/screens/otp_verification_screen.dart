@@ -68,16 +68,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 60,
-      textStyle: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
+      textStyle: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.ink),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: context.c.surfaceSunken,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.transparent),
       ),
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
         leading: const BackButton(),
         elevation: 0,
@@ -106,7 +106,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 controller: _pinController,
                 defaultPinTheme: defaultPinTheme,
                 focusedPinTheme: defaultPinTheme.copyDecorationWith(
-                   border: Border.all(color: const Color(0xFF4F46E5), width: 2),
+                   border: Border.all(color: context.c.brand, width: 2),
                    color: context.c.surfaceRaised,
                 ),
                 onCompleted: (pin) => _handleVerify(),
@@ -120,7 +120,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _handleVerify,
                 child: _isLoading
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: context.c.surfaceRaised))
                     : const Text('VERIFY & ENTER'),
               ),
             ),

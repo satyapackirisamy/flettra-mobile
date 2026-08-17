@@ -32,11 +32,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late Animation<double> _fadeAnim;
 
   // Brand Colors — Flettra orange palette
-  static const Color primaryIndigo = Color(0xFFFF6B2C);   // brand primary
+  // TODO(theme): these statics predate the token system; read context.c.* at
+  // the call site instead of holding colours in static fields.
+  static const Color primaryIndigo = Color(0xFFB9F227);
   static const Color primaryIndigoDark = Color(0xFFCC3300);
-  static const Color accentOrange = Color(0xFFFF6B2C);
+  static const Color accentOrange = Color(0xFFB9F227);
   static const Color surfaceLight = Colors.white;    // warm peach background
-  static const Color inputFill = Color(0xFFF5F5F7);
+  static const Color inputFill = Color(0xFF161915);
   static const Color textDark = Color(0xFF18181B);
   static const Color textGray = Color(0xFF71717A);
   static const Color borderColor = Color(0xFFE4E4E7);
@@ -239,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFFF6B2C).withOpacity(0.06),
+                              color: context.c.brand.withOpacity(0.06),
                               blurRadius: 32,
                               offset: const Offset(0, 8),
                             ),
@@ -420,7 +422,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [primaryIndigo, Color(0xFFFF7733)],
@@ -495,7 +497,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   color: accentOrange.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.two_wheeler_rounded,
                   color: accentOrange,
                   size: 20,
@@ -638,7 +640,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: primaryIndigo, width: 1.5),
+          borderSide: BorderSide(color: primaryIndigo, width: 1.5),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -665,7 +667,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryIndigo,
-          side: const BorderSide(color: primaryIndigo, width: 1.5),
+          side: BorderSide(color: primaryIndigo, width: 1.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
@@ -681,7 +683,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         decoration: BoxDecoration(
           gradient: _isLoading
               ? null
-              : const LinearGradient(
+              : LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [primaryIndigo, Color(0xFFFF7733)],

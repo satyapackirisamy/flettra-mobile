@@ -20,9 +20,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   late TabController _tabController;
   String _leaderboardScope = 'WEEKLY';
 
-  static const Color _orange = Color(0xFFFF6B2C);
-  static const Color _bg = Colors.white;
-  static const Color _dark = Color(0xFF1A0A08);
 
   @override
   void initState() {
@@ -56,31 +53,31 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        backgroundColor: _bg,
+        backgroundColor: context.c.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: _orange),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.c.brand),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Analytics',
-          style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: _dark, fontSize: 18),
+          style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink, fontSize: 18),
         ),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(52),
           child: Container(
             margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+            decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(14)),
             child: TabBar(
               controller: _tabController,
               labelStyle: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 13),
               unselectedLabelStyle: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 13),
               labelColor: Colors.white,
-              unselectedLabelColor: Colors.grey[500],
-              indicator: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(11)),
+              unselectedLabelColor: context.c.ink2,
+              indicator: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(11)),
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
               tabs: const [Tab(text: 'My Stats'), Tab(text: 'Leaderboard')],
@@ -89,7 +86,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _orange))
+          ? Center(child: CircularProgressIndicator(color: context.c.brand))
           : TabBarView(
               controller: _tabController,
               children: [_buildStats(), _buildLeaderboard()],
@@ -102,7 +99,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   Widget _buildStats() {
     if (_stats == null) {
       return Center(
-        child: Text('No data available', style: AppTypography.dmSans(color: Colors.grey[400])),
+        child: Text('No data available', style: AppTypography.dmSans(color: context.c.ink3)),
       );
     }
 
@@ -126,14 +123,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             'PERSONAL DASHBOARD',
             style: AppTypography.dmSans(
               fontSize: 11, fontWeight: FontWeight.w800,
-              color: _orange, letterSpacing: 1.5,
+              color: context.c.brand, letterSpacing: 1.5,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'My Stats',
             style: AppTypography.dmSans(
-              fontSize: 26, fontWeight: FontWeight.w700, color: _dark,
+              fontSize: 26, fontWeight: FontWeight.w700, color: context.c.ink,
             ),
           ),
           const SizedBox(height: 20),
@@ -146,8 +143,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   label: 'Total Rides',
                   value: '$totalRides',
                   sub: '$completedRides completed',
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1A0A08), Color(0xFFFF6B2C)],
+                  gradient: LinearGradient(
+                    colors: [context.c.ink, context.c.brand],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -160,8 +157,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   label: 'Distance',
                   value: '${distanceKm}km',
                   sub: 'total covered',
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFF6B2C), Color(0xFFFF8C5A)],
+                  gradient: LinearGradient(
+                    colors: [context.c.brand, context.c.brand],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -178,7 +175,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             decoration: BoxDecoration(
               color: context.c.surfaceRaised,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(color: _orange.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 6))],
+              boxShadow: [BoxShadow(color: context.c.brand.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 6))],
             ),
             child: Row(
               children: [
@@ -186,20 +183,20 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('COMPASS POINTS', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange, letterSpacing: 1.0)),
+                      Text('COMPASS POINTS', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand, letterSpacing: 1.0)),
                       const SizedBox(height: 6),
-                      Text('$compassPts', style: AppTypography.dmSans(fontSize: 36, fontWeight: FontWeight.w700, color: _dark, height: 1.0)),
-                      Text('Keep riding to earn more!', style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500)),
+                      Text('$compassPts', style: AppTypography.dmSans(fontSize: 36, fontWeight: FontWeight.w700, color: context.c.ink, height: 1.0)),
+                      Text('Keep riding to earn more!', style: AppTypography.dmSans(fontSize: 11, color: context.c.ink3, fontWeight: FontWeight.w500)),
                     ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: _orange.withOpacity(0.10),
+                    color: context.c.brand.withOpacity(0.10),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.explore_rounded, color: _orange, size: 32),
+                  child: Icon(Icons.explore_rounded, color: context.c.brand, size: 32),
                 ),
               ],
             ),
@@ -220,11 +217,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('30-Day Activity', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15, color: _dark)),
+                    Text('30-Day Activity', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15, color: context.c.ink)),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(8)),
-                      child: Text('Rides', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange)),
+                      decoration: BoxDecoration(color: context.c.surface, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Rides', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
                     ),
                   ],
                 ),
@@ -237,7 +234,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           const SizedBox(height: 24),
 
           // Secondary stats grid
-          Text('Breakdown', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
+          Text('Breakdown', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: context.c.ink)),
           const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 2,
@@ -248,7 +245,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             childAspectRatio: 1.6,
             children: [
               _miniStatCard('As Driver', '$ridesAsDriver', Icons.drive_eta_rounded, const Color(0xFF8B5CF6)),
-              _miniStatCard('Money Saved', '₹$moneySaved', Icons.savings_rounded, const Color(0xFF059669)),
+              _miniStatCard('Money Saved', '₹$moneySaved', Icons.savings_rounded, context.c.ok),
               _miniStatCard('Avg Rating', avgRating.toStringAsFixed(1), Icons.star_rounded, const Color(0xFFF59E0B)),
               _miniStatCard('Reviews', '$totalRatings', Icons.reviews_rounded, const Color(0xFF3B82F6)),
             ],
@@ -257,7 +254,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           const SizedBox(height: 24),
 
           // Travel achievements
-          Text('Travel Achievements', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
+          Text('Travel Achievements', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: context.c.ink)),
           const SizedBox(height: 12),
           SizedBox(
             height: 110,
@@ -276,7 +273,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           // Top Routes
           if ((_stats!['topRoutes'] as List?)?.isNotEmpty == true) ...[
             const SizedBox(height: 24),
-            Text('Top Routes', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: _dark)),
+            Text('Top Routes', style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w800, color: context.c.ink)),
             const SizedBox(height: 12),
             ...(_stats!['topRoutes'] as List).asMap().entries.map((entry) {
               final i = entry.key;
@@ -293,16 +290,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                     Container(
                       width: 32, height: 32,
                       decoration: BoxDecoration(
-                        color: i == 0 ? _orange : _orange.withOpacity(0.12),
+                        color: i == 0 ? context.c.brand : context.c.brand.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
-                        child: Text('#${i + 1}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: i == 0 ? Colors.white : _orange, fontSize: 12)),
+                        child: Text('#${i + 1}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: i == 0 ? Colors.white : context.c.brand, fontSize: 12)),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(child: Text(route['route'], style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: _dark))),
-                    Text('${route['trips']} trips', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: _orange, fontSize: 12)),
+                    Expanded(child: Text(route['route'], style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: context.c.ink))),
+                    Text('${route['trips']} trips', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: context.c.brand, fontSize: 12)),
                   ],
                 ),
               );
@@ -362,17 +359,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       decoration: BoxDecoration(
-        color: earned ? _orange.withOpacity(0.10) : Colors.grey[100],
+        color: earned ? context.c.brand.withOpacity(0.10) : Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: earned ? _orange.withOpacity(0.3) : Colors.transparent),
+        border: Border.all(color: earned ? context.c.brand.withOpacity(0.3) : Colors.transparent),
       ),
       child: Column(
         children: [
-          Icon(icon, color: earned ? _orange : Colors.grey[300], size: 28),
+          Icon(icon, color: earned ? context.c.brand : context.c.ink3, size: 28),
           const SizedBox(height: 6),
           Text(
             title,
-            style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: earned ? _dark : Colors.grey[400]),
+            style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: earned ? context.c.ink : context.c.ink3),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -386,7 +383,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
 
   Widget _buildLeaderboard() {
     if (_leaderboard.isEmpty) {
-      return Center(child: Text('No data available', style: AppTypography.dmSans(color: Colors.grey[400])));
+      return Center(child: Text('No data available', style: AppTypography.dmSans(color: context.c.ink3)));
     }
 
     final top3 = _leaderboard.take(3).toList();
@@ -408,7 +405,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Leaderboard', style: AppTypography.dmSans(fontSize: 24, fontWeight: FontWeight.w700, color: _dark)),
+              Text('Leaderboard', style: AppTypography.dmSans(fontSize: 24, fontWeight: FontWeight.w700, color: context.c.ink)),
               Row(
                 children: ['WEEKLY', 'GLOBAL'].map((s) {
                   final active = _leaderboardScope == s;
@@ -418,11 +415,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                       margin: const EdgeInsets.only(left: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: active ? _orange : Colors.white,
+                        color: active ? context.c.brand : Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: active ? _orange : Colors.grey[200]!),
+                        border: Border.all(color: active ? context.c.brand : context.c.ink3!),
                       ),
-                      child: Text(s, style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: active ? Colors.white : Colors.grey[500])),
+                      child: Text(s, style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: active ? Colors.white : context.c.ink2)),
                     ),
                   );
                 }).toList(),
@@ -445,7 +442,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                     label: 'YOUR RANK',
                     value: '#$myRank',
                     icon: Icons.emoji_events_rounded,
-                    color: _orange,
+                    color: context.c.brand,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -464,7 +461,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
 
           // Rank 4+ list
           if (rest.isNotEmpty) ...[
-            Text('All Riders', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark)),
+            Text('All Riders', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: context.c.ink)),
             const SizedBox(height: 10),
             ...rest.asMap().entries.map((entry) {
               final user = entry.value;
@@ -528,12 +525,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
                             colors: rank == 1
-                                ? [const Color(0xFFFFBB00), const Color(0xFFFF6B2C)]
+                                ? [const Color(0xFFFFBB00), context.c.brand]
                                 : rank == 2
                                     ? [const Color(0xFF94A3B8), const Color(0xFF64748B)]
                                     : [const Color(0xFFCD7C3A), const Color(0xFF92400E)],
                           ),
-                          border: Border.all(color: Colors.white, width: 3),
+                          border: Border.all(color: context.c.surfaceRaised, width: 3),
                         ),
                         child: WebCircleAvatar(
                           radius: isFirst ? 36 : 29,
@@ -553,10 +550,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                                     ? const Color(0xFFD1D5DB)
                                     : const Color(0xFFF97316),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+                            border: Border.all(color: context.c.surfaceRaised, width: 2),
                           ),
                           child: Center(
-                            child: Text('$rank', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                            child: Text('$rank', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
                           ),
                         ),
                       ),
@@ -567,14 +564,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                     width: 72,
                     child: Text(
                       name.split(' ')[0],
-                      style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: _dark),
+                      style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: context.c.ink),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     '$pts pts',
-                    style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: _orange),
+                    style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.brand),
                   ),
                 ],
               );
@@ -644,8 +641,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey[400], letterSpacing: 0.8)),
-                Text(value, style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: _dark, height: 1.1)),
+                Text(label, style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.ink3, letterSpacing: 0.8)),
+                Text(value, style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: context.c.ink, height: 1.1)),
               ],
             ),
           ),
@@ -668,19 +665,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
         children: [
           Container(
             width: 34, height: 34,
-            decoration: BoxDecoration(color: _orange.withOpacity(0.10), shape: BoxShape.circle),
-            child: Center(child: Text('$rank', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: _orange, fontSize: 13))),
+            decoration: BoxDecoration(color: context.c.brand.withOpacity(0.10), shape: BoxShape.circle),
+            child: Center(child: Text('$rank', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.brand, fontSize: 13))),
           ),
           const SizedBox(width: 12),
           WebCircleAvatar(radius: 18, url: ApiService.getAvatarUrl(user['profilePicture'], name: name)),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: _dark)),
+            child: Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: context.c.ink)),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: _orange.withOpacity(0.10), borderRadius: BorderRadius.circular(10)),
-            child: Text('$pts pts', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: _orange, fontSize: 12)),
+            decoration: BoxDecoration(color: context.c.brand.withOpacity(0.10), borderRadius: BorderRadius.circular(10)),
+            child: Text('$pts pts', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: context.c.brand, fontSize: 12)),
           ),
         ],
       ),
@@ -718,7 +715,7 @@ class _ActivityBarChart extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 1.5),
               decoration: BoxDecoration(
                 color: frac > 0.5
-                    ? const Color(0xFFFF6B2C)
+                    ? context.c.brand
                     : isWeekend
                         ? const Color(0xFFFFB399)
                         : const Color(0xFFFFD5C8),

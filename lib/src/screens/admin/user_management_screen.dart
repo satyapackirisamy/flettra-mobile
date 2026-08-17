@@ -121,7 +121,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         value: id,
         groupValue: selectedPlan,
         onChanged: (v) => onTap(v!),
-        activeColor: const Color(0xFF4F46E5),
+        activeColor: context.c.brand,
       ),
       title: Text(label, style: AppTypography.dmSans(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
     );
@@ -130,7 +130,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
         title: const Text('Platform Users'),
         bottom: PreferredSize(
@@ -237,7 +237,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     switch (plan) {
       case 'premium': planColor = Colors.purple; break;
       case 'basic': planColor = Colors.green; break;
-      default: planColor = Colors.grey; break;
+      default: planColor = context.c.ink3; break;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

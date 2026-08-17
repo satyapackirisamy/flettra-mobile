@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import '../services/moderation_service.dart';
 import '../utils/snackbar_helper.dart';
@@ -20,7 +21,7 @@ Future<void> showModerationSheet(
 }) {
   return showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: context.c.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
@@ -85,7 +86,7 @@ class _ModerationSheetState extends State<_ModerationSheet> {
             ),
 
             if (_loading)
-              const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: CircularProgressIndicator(color: Color(0xFFFF6B2C)))
+              Padding(padding: EdgeInsets.symmetric(vertical: 24), child: CircularProgressIndicator(color: context.c.brand))
             else ...[
               // Report post (only available when postId is provided)
               if (widget.postId != null) ...[
@@ -247,9 +248,9 @@ class _ReportDialogState extends State<_ReportDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: _selectedReason == r.$1 ? const Color(0xFFFFF0EB) : const Color(0xFFF5F5F7),
+                  color: _selectedReason == r.$1 ? context.c.brandWash : context.c.surfaceSunken,
                   border: Border.all(
-                    color: _selectedReason == r.$1 ? const Color(0xFFFF6B2C) : Colors.transparent,
+                    color: _selectedReason == r.$1 ? context.c.brand : Colors.transparent,
                     width: 1.5,
                   ),
                 ),
@@ -258,7 +259,7 @@ class _ReportDialogState extends State<_ReportDialog> {
                     Text(r.$2, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w500)),
                     const Spacer(),
                     if (_selectedReason == r.$1)
-                      const Icon(Icons.check_circle_rounded, size: 16, color: Color(0xFFFF6B2C)),
+                      Icon(Icons.check_circle_rounded, size: 16, color: context.c.brand),
                   ],
                 ),
               ),
@@ -273,7 +274,7 @@ class _ReportDialogState extends State<_ReportDialog> {
                   hintText: 'Additional details (optional)…',
                   hintStyle: AppTypography.dmSans(fontSize: 13, color: const Color(0xFFA1A1AA)),
                   filled: true,
-                  fillColor: const Color(0xFFF5F5F7),
+                  fillColor: context.c.surfaceSunken,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
                 ),
@@ -291,13 +292,13 @@ class _ReportDialogState extends State<_ReportDialog> {
                 ElevatedButton(
                   onPressed: _selectedReason == null || _loading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6B2C),
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.c.brand,
+                    foregroundColor: context.c.onBrand,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
                   child: _loading
-                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: context.c.surfaceRaised))
                     : Text('Submit report', style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13)),
                 ),
               ],
@@ -315,14 +316,15 @@ class _SheetTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String? subtitle;
-  final Color color;
+  /// Null resolves to the default ink colour at build time.
+  final Color? color;
   final VoidCallback onTap;
 
   const _SheetTile({
     required this.icon,
     required this.label,
     this.subtitle,
-    this.color = const Color(0xFF1A1A1A),
+    this.color,
     required this.onTap,
   });
 
@@ -334,12 +336,12 @@ class _SheetTile extends StatelessWidget {
       leading: Container(
         width: 40, height: 40,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color ?? context.c.ink.withOpacity(0.08),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, color: color, size: 20),
+        child: Icon(icon, color: color ?? context.c.ink, size: 20),
       ),
-      title: Text(label, style: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: color)),
+      title: Text(label, style: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: color ?? context.c.ink)),
       subtitle: subtitle != null
         ? Text(subtitle!, style: AppTypography.dmSans(fontSize: 12, color: const Color(0xFF9CA3AF)))
         : null,

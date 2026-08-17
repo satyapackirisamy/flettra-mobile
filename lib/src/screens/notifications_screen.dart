@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import '../services/api_service.dart';
 import 'ride_details_screen.dart';
@@ -68,9 +69,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         elevation: 0,
         title: Text('Notifications', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
         actions: [
@@ -79,26 +80,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               await _apiService.client.post('/notifications/read-all');
               _fetchNotifications();
             },
-            child: Text('Mark all read', style: AppTypography.dmSans(color: const Color(0xFFFF6B2C), fontWeight: FontWeight.w700, fontSize: 13)),
+            child: Text('Mark all read', style: AppTypography.dmSans(color: context.c.brand, fontWeight: FontWeight.w700, fontSize: 13)),
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B2C)))
+          ? Center(child: CircularProgressIndicator(color: context.c.brand))
           : _notifications.isEmpty
               ? Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.notifications_none_rounded, size: 56, color: Colors.grey[300]),
+                      Icon(Icons.notifications_none_rounded, size: 56, color: context.c.ink3),
                       const SizedBox(height: 12),
-                      Text('No notifications yet', style: AppTypography.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
+                      Text('No notifications yet', style: AppTypography.dmSans(color: context.c.ink3, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 )
               : RefreshIndicator(
                   onRefresh: _fetchNotifications,
-                  color: const Color(0xFFFF6B2C),
+                  color: context.c.brand,
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: _notifications.length,
@@ -113,7 +114,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: isUnread ? const Color(0xFFFFF7ED) : const Color(0xFFF8F9FA),
+                            color: isUnread ? const Color(0xFFFFF7ED) : context.c.surfaceSunken,
                             borderRadius: BorderRadius.circular(16),
                             border: isUnread ? Border.all(color: const Color(0xFFFFEDD5)) : null,
                           ),
@@ -142,7 +143,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       n['message'] ?? '',
-                                      style: AppTypography.dmSans(color: Colors.grey[600], fontSize: 12, height: 1.3),
+                                      style: AppTypography.dmSans(color: context.c.ink2, fontSize: 12, height: 1.3),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -152,7 +153,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               if (isUnread)
                                 Container(
                                   width: 8, height: 8,
-                                  decoration: const BoxDecoration(color: Color(0xFFFF6B2C), shape: BoxShape.circle),
+                                  decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle),
                                 ),
                             ],
                           ),
@@ -177,25 +178,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'buddy_request':
         return _NotifIcon(Icons.person_add_rounded, const Color(0xFF2563EB), const Color(0xFFEFF6FF));
       case 'buddy_accepted':
-        return _NotifIcon(Icons.people_rounded, const Color(0xFF059669), const Color(0xFFECFDF5));
+        return _NotifIcon(Icons.people_rounded, context.c.ok, context.c.okWash);
       case 'ride_request':
-        return _NotifIcon(Icons.front_hand_rounded, const Color(0xFFFF6B2C), const Color(0xFFFFF3E0));
+        return _NotifIcon(Icons.front_hand_rounded, context.c.brand, const Color(0xFFFFF3E0));
       case 'ride_joined':
-        return _NotifIcon(Icons.person_add_alt_1_rounded, const Color(0xFF059669), const Color(0xFFECFDF5));
+        return _NotifIcon(Icons.person_add_alt_1_rounded, context.c.ok, context.c.okWash);
       case 'ride_accepted':
-        return _NotifIcon(Icons.check_circle_rounded, const Color(0xFF059669), const Color(0xFFECFDF5));
+        return _NotifIcon(Icons.check_circle_rounded, context.c.ok, context.c.okWash);
       case 'ride_cancelled':
-        return _NotifIcon(Icons.cancel_rounded, const Color(0xFFDC2626), const Color(0xFFFEF2F2));
+        return _NotifIcon(Icons.cancel_rounded, context.c.bad, context.c.badWash);
       case 'ride_completed':
-        return _NotifIcon(Icons.flag_rounded, const Color(0xFFFF6B2C), const Color(0xFFFFF3E0));
+        return _NotifIcon(Icons.flag_rounded, context.c.brand, const Color(0xFFFFF3E0));
       case 'ride_started':
-        return _NotifIcon(Icons.play_circle_rounded, const Color(0xFF059669), const Color(0xFFECFDF5));
+        return _NotifIcon(Icons.play_circle_rounded, context.c.ok, context.c.okWash);
       case 'rating_received':
         return _NotifIcon(Icons.star_rounded, const Color(0xFFFBBF24), const Color(0xFFFFFBEB));
       case 'payment':
         return _NotifIcon(Icons.payment_rounded, const Color(0xFF2563EB), const Color(0xFFEFF6FF));
       default:
-        return _NotifIcon(Icons.notifications_rounded, Colors.grey, const Color(0xFFF8F9FA));
+        return _NotifIcon(Icons.notifications_rounded, context.c.ink3, context.c.surfaceSunken);
     }
   }
 }

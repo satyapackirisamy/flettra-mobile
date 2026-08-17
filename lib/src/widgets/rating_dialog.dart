@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import '../services/api_service.dart';
 
@@ -70,7 +71,7 @@ class _RatingDialogState extends State<RatingDialog> {
             const SizedBox(height: 4),
             Text(
               widget.rateeRole == 'driver' ? 'How was your driver?' : 'How was this passenger?',
-              style: AppTypography.dmSans(color: Colors.grey, fontSize: 13),
+              style: AppTypography.dmSans(color: context.c.ink3, fontSize: 13),
             ),
             const SizedBox(height: 16),
             Row(
@@ -84,7 +85,7 @@ class _RatingDialogState extends State<RatingDialog> {
                     child: Icon(
                       star <= _rating ? Icons.star_rounded : Icons.star_border_rounded,
                       size: 40,
-                      color: star <= _rating ? const Color(0xFFFBBF24) : Colors.grey.shade300,
+                      color: star <= _rating ? const Color(0xFFFBBF24) : context.c.rule,
                     ),
                   ),
                 );

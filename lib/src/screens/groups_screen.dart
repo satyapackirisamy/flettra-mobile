@@ -22,9 +22,6 @@ class _GroupsScreenState extends State<GroupsScreen> {
   String _search = '';
   int _unreadNotifications = 0;
 
-  static const Color _primary = Color(0xFFFF6B2C);
-  static const Color _accent = Color(0xFFFF7851);
-  static const Color _bgSoft = Color(0xFFFFF0EB);
 
   static const List<String> _heroImages = [
     'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=800',
@@ -102,11 +99,11 @@ class _GroupsScreenState extends State<GroupsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(2)))),
+              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: 24),
               Row(
                 children: [
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _bgSoft, borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.group_add_rounded, color: _primary, size: 22)),
+                  Container(padding: EdgeInsets.all(10), decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(14)), child: Icon(Icons.group_add_rounded, color: context.c.brand, size: 22)),
                   const SizedBox(width: 14),
                   Text('New Group', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                 ],
@@ -118,13 +115,13 @@ class _GroupsScreenState extends State<GroupsScreen> {
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(14)),
+                decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(14)),
                 child: Row(
                   children: [
-                    const Icon(Icons.lock_outline_rounded, size: 18, color: Colors.grey),
+                    Icon(Icons.lock_outline_rounded, size: 18, color: context.c.ink3),
                     const SizedBox(width: 12),
                     Expanded(child: Text('Private Group', style: AppTypography.dmSans(fontWeight: FontWeight.w700))),
-                    Switch(value: isPrivate, onChanged: (v) => setSheetState(() => isPrivate = v), activeColor: _primary),
+                    Switch(value: isPrivate, onChanged: (v) => setSheetState(() => isPrivate = v), activeColor: context.c.brand),
                   ],
                 ),
               ),
@@ -144,8 +141,8 @@ class _GroupsScreenState extends State<GroupsScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.c.brand,
+                    foregroundColor: context.c.onBrand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
@@ -167,9 +164,9 @@ class _GroupsScreenState extends State<GroupsScreen> {
       style: AppTypography.dmSans(fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: AppTypography.dmSans(color: Colors.grey[400]),
-        prefixIcon: Icon(icon, color: Colors.grey[400], size: 18),
-        filled: true, fillColor: const Color(0xFFF8F9FA),
+        hintStyle: AppTypography.dmSans(color: context.c.ink3),
+        prefixIcon: Icon(icon, color: context.c.ink3, size: 18),
+        filled: true, fillColor: context.c.surfaceSunken,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
@@ -179,13 +176,13 @@ class _GroupsScreenState extends State<GroupsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: _primary))
+            ? Center(child: CircularProgressIndicator(color: context.c.brand))
             : RefreshIndicator(
                 onRefresh: _loadGroups,
-                color: _primary,
+                color: context.c.brand,
                 child: CustomScrollView(
                   physics: const BouncingScrollPhysics(),
                   slivers: [
@@ -357,13 +354,13 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                   children: [
                                     const Icon(Icons.lock_rounded, size: 10, color: Colors.white),
                                     const SizedBox(width: 4),
-                                    Text('PRIVATE', style: AppTypography.dmSans(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
+                                    Text('PRIVATE', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 9, fontWeight: FontWeight.w800)),
                                   ],
                                 ),
                               ),
                           ],
                         ),
-                        Text(g['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(g['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.surfaceRaised), maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -375,15 +372,15 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                 children: [
                                   const Icon(Icons.people_rounded, size: 14, color: Colors.white),
                                   const SizedBox(width: 6),
-                                  Text('${_memberCount(g)} members', style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12)),
+                                  Text('${_memberCount(g)} members', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontWeight: FontWeight.w600, fontSize: 12)),
                                 ],
                               ),
                             ),
                             const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                              child: Text('Open', style: AppTypography.dmSans(color: _primary, fontWeight: FontWeight.w800, fontSize: 12)),
+                              decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(10)),
+                              child: Text('Open', style: AppTypography.dmSans(color: context.c.brand, fontWeight: FontWeight.w800, fontSize: 12)),
                             ),
                           ],
                         ),
@@ -532,7 +529,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
             final g = _filteredSuggested[i];
             final members = _memberCount(g);
             final colors = [
-              [const Color(0xFFFF6B2C), const Color(0xFFFF7851)],
+              [context.c.brand, context.c.brand],
               [const Color(0xFF1A5276), const Color(0xFF2E86C1)],
               [const Color(0xFF145A32), const Color(0xFF27AE60)],
               [const Color(0xFF4A235A), const Color(0xFF8E44AD)],
@@ -559,25 +556,25 @@ class _GroupsScreenState extends State<GroupsScreen> {
                       child: Center(
                         child: Text(
                           (g['name'] as String? ?? 'G').substring(0, 1).toUpperCase(),
-                          style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
+                          style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: context.c.surfaceRaised),
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(g['name'] ?? 'Group', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: const Color(0xFF1A1A1A)), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    Text(g['name'] ?? 'Group', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: context.c.ink), maxLines: 2, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 4),
-                    Text(g['description'] ?? '', style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    Text(g['description'] ?? '', style: AppTypography.dmSans(color: context.c.ink2, fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
                     const Spacer(),
                     Row(
                       children: [
-                        const Icon(Icons.people_outline_rounded, size: 12, color: Colors.grey),
+                        Icon(Icons.people_outline_rounded, size: 12, color: context.c.ink3),
                         const SizedBox(width: 3),
-                        Text('$members', style: AppTypography.dmSans(color: Colors.grey[500], fontSize: 11, fontWeight: FontWeight.w600)),
+                        Text('$members', style: AppTypography.dmSans(color: context.c.ink2, fontSize: 11, fontWeight: FontWeight.w600)),
                         const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(color: _bgSoft, borderRadius: BorderRadius.circular(8)),
-                          child: Text('Join', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 11, color: _primary)),
+                          decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(8)),
+                          child: Text('Join', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 11, color: context.c.brand)),
                         ),
                       ],
                     ),

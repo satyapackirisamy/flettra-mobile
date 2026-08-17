@@ -31,9 +31,6 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
   bool _isSearching = false;
   String? _userId;
 
-  static const Color _orange = Color(0xFFFF6B2C);
-  static const Color _dark = Color(0xFF1A0A08);
-  static const Color _bg = Color(0xFFEEF6FA); // light blue-grey like reference
 
   @override
   void initState() {
@@ -114,7 +111,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Request sent!', style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
-          backgroundColor: _orange, behavior: SnackBarBehavior.floating,
+          backgroundColor: context.c.brand, behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ));
         _handleSearch(_searchController.text);
@@ -138,7 +135,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
         title: Text('Remove Buddy?', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
         content: Text('Remove $name from your circle?', style: AppTypography.dmSans()),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('CANCEL', style: AppTypography.dmSans(fontWeight: FontWeight.bold, color: Colors.grey))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('CANCEL', style: AppTypography.dmSans(fontWeight: FontWeight.bold, color: context.c.ink3))),
           TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('REMOVE', style: AppTypography.dmSans(color: Colors.red, fontWeight: FontWeight.bold))),
         ],
       ),
@@ -154,22 +151,22 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        backgroundColor: _bg,
+        backgroundColor: context.c.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _dark, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.c.ink, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Buddy Network', style: AppTypography.dmSans(color: _dark, fontWeight: FontWeight.w700, fontSize: 18)),
+        title: Text('Buddy Network', style: AppTypography.dmSans(color: context.c.ink, fontWeight: FontWeight.w700, fontSize: 18)),
         centerTitle: true,
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.tune_rounded, color: _dark, size: 20),
+            decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(10)),
+            child: Icon(Icons.tune_rounded, color: context.c.ink, size: 20),
           ),
         ],
       ),
@@ -186,11 +183,11 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
               child: TextField(
                 controller: _searchController,
                 onChanged: _handleSearch,
-                style: AppTypography.dmSans(fontWeight: FontWeight.w600, color: _dark),
+                style: AppTypography.dmSans(fontWeight: FontWeight.w600, color: context.c.ink),
                 decoration: InputDecoration(
                   hintText: 'Search travel buddies...',
-                  hintStyle: AppTypography.dmSans(color: Colors.grey[400], fontSize: 14),
-                  prefixIcon: Icon(Icons.search_rounded, color: Colors.grey[400], size: 22),
+                  hintStyle: AppTypography.dmSans(color: context.c.ink3, fontSize: 14),
+                  prefixIcon: Icon(Icons.search_rounded, color: context.c.ink3, size: 22),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 ),
@@ -200,7 +197,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
 
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: _orange))
+                ? Center(child: CircularProgressIndicator(color: context.c.brand))
                 : _isSearching
                     ? _buildSearchResults()
                     : SingleChildScrollView(
@@ -232,11 +229,11 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('RECENT REQUESTS', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 1.2)),
+              Text('RECENT REQUESTS', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 1.2)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(20)),
-                child: Text('${_requests.length} PENDING', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(20)),
+                child: Text('${_requests.length} PENDING', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
               ),
             ],
           ),
@@ -273,7 +270,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _orange, width: 2.5),
+              border: Border.all(color: context.c.brand, width: 2.5),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -283,9 +280,9 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
                   image: ApiService.networkImageProvider(avatarUrl),
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
-                    color: _orange.withOpacity(0.12),
+                    color: context.c.brand.withOpacity(0.12),
                     child: Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                        style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: _orange))),
+                        style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: context.c.brand))),
                   ),
                 ),
               ),
@@ -296,8 +293,8 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: _dark)),
-                Text('Wants to connect with you', style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
+                Text(name, style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: context.c.ink)),
+                Text('Wants to connect with you', style: AppTypography.dmSans(fontSize: 11, color: context.c.ink3, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),
@@ -307,8 +304,8 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             onTap: () => _respondToRequest(req['id'], true),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
-              decoration: BoxDecoration(color: _dark, borderRadius: BorderRadius.circular(24)),
-              child: Text('Accept', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+              decoration: BoxDecoration(color: context.c.ink, borderRadius: BorderRadius.circular(24)),
+              child: Text('Accept', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
             ),
           ),
           const SizedBox(width: 8),
@@ -318,7 +315,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
-              child: const Icon(Icons.close_rounded, size: 16, color: Colors.grey),
+              child: Icon(Icons.close_rounded, size: 16, color: context.c.ink3),
             ),
           ),
         ],
@@ -337,11 +334,11 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Your buddies', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 1.2)),
+              Text('Your buddies', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 1.2)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: _dark, borderRadius: BorderRadius.circular(20)),
-                child: Text('${_buddies.length} CONNECTED', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                decoration: BoxDecoration(color: context.c.ink, borderRadius: BorderRadius.circular(20)),
+                child: Text('${_buddies.length} CONNECTED', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
               ),
             ],
           ),
@@ -373,11 +370,11 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.people_outline_rounded, size: 64, color: Colors.grey[300]),
+              Icon(Icons.people_outline_rounded, size: 64, color: context.c.ink3),
               const SizedBox(height: 16),
-              Text('No users found', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[400], fontSize: 16)),
+              Text('No users found', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink3, fontSize: 16)),
               const SizedBox(height: 8),
-              Text('Search for travel companions above', style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[400])),
+              Text('Search for travel companions above', style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3)),
             ],
           ),
         ),
@@ -391,7 +388,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Suggested', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 1.2)),
+          Text('Suggested', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 1.2)),
           const SizedBox(height: 12),
           AnimationLimiter(
             child: ListView.builder(
@@ -494,9 +491,9 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.search_off_rounded, size: 52, color: Colors.grey[300]),
+              Icon(Icons.search_off_rounded, size: 52, color: context.c.ink3),
               const SizedBox(height: 12),
-              Text('No users found', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[400])),
+              Text('No users found', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink3)),
             ],
           ),
         ),
@@ -535,14 +532,14 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(name, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+                child: Text(name, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: context.c.ink), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.location_on_rounded, size: 11, color: Colors.grey[400]),
+                  Icon(Icons.location_on_rounded, size: 11, color: context.c.ink3),
                   const SizedBox(width: 2),
-                  Flexible(child: Text(location, style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
+                  Flexible(child: Text(location, style: AppTypography.dmSans(fontSize: 11, color: context.c.ink3, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -554,7 +551,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
                     children: interests.take(2).map((tag) => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-                      child: Text(tag, style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.grey[600], letterSpacing: 0.5)),
+                      child: Text(tag, style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 0.5)),
                     )).toList(),
                   ),
                 ),
@@ -565,9 +562,9 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 14),
                     padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(color: isBuddy ? const Color(0xFF10B981) : _orange, borderRadius: BorderRadius.circular(30)),
+                    decoration: BoxDecoration(color: isBuddy ? context.c.ok : context.c.brand, borderRadius: BorderRadius.circular(30)),
                     child: Center(
-                      child: Text(isBuddy ? 'Connected ✓' : 'Connect', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                      child: Text(isBuddy ? 'Connected ✓' : 'Connect', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
                     ),
                   ),
                 ),

@@ -107,11 +107,11 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
       lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(
-            primary: Color(0xFFFF6B2C),
+          colorScheme: ColorScheme.light(
+            primary: context.c.brand,
             onPrimary: Colors.white,
             surface: Colors.white,
-            onSurface: Color(0xFF1A1A1A),
+            onSurface: context.c.ink,
           ),
         ),
         child: child!,
@@ -123,11 +123,11 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
         initialTime: TimeOfDay.fromDateTime(initial),
         builder: (context, child) => Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFFFF6B2C),
+            colorScheme: ColorScheme.light(
+              primary: context.c.brand,
               onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: Color(0xFF1A1A1A),
+              onSurface: context.c.ink,
             ),
           ),
           child: child!,
@@ -234,18 +234,14 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
 
 
   // ─── Colors ───────────────────────────────────────────────────────────────
-  static const Color _primary = Color(0xFFFF6B2C);
-  static const Color _primaryEnd = Color(0xFFFF8C5A);
-  static const Color _dark    = Color(0xFF1A1A1A);
-  static const Color _bg      = Color(0xFFF8F8F8);
 
   // ─── Build ────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: GestureDetector(
@@ -253,15 +249,15 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
           child: Container(
             margin: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: context.c.surfaceSunken,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Color(0xFF1A1A1A)),
+            child: Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: context.c.ink),
           ),
         ),
         title: Text(
           'Create Ride',
-          style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: _dark, letterSpacing: -0.4),
+          style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: context.c.ink, letterSpacing: -0.4),
         ),
         centerTitle: true,
         actions: [
@@ -272,13 +268,13 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
-                  color: _primary,
+                  color: context.c.brand,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Center(
                   child: _isLoading
-                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text('Publish', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                      ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2))
+                      : Text('Publish', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
                 ),
               ),
             ),
@@ -309,15 +305,15 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                           margin: const EdgeInsets.only(right: 10),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
-                            color: _primary.withOpacity(0.06),
-                            border: Border.all(color: _primary.withOpacity(0.35), width: 1.5),
+                            color: context.c.brand.withOpacity(0.06),
+                            border: Border.all(color: context.c.brand.withOpacity(0.35), width: 1.5),
                           ),
                           child: _isUploading
-                              ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: _primary, strokeWidth: 2)))
+                              ? Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: context.c.brand, strokeWidth: 2)))
                               : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                  Icon(Icons.add_photo_alternate_rounded, color: _primary, size: 24),
+                                  Icon(Icons.add_photo_alternate_rounded, color: context.c.brand, size: 24),
                                   const SizedBox(height: 5),
-                                  Text('Upload', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _primary)),
+                                  Text('Upload', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
                                 ]),
                         ),
                       ),
@@ -331,7 +327,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(14),
                               border: isSelected
-                                  ? Border.all(color: _primary, width: 2.5)
+                                  ? Border.all(color: context.c.brand, width: 2.5)
                                   : Border.all(color: Colors.transparent),
                             ),
                             child: ClipRRect(
@@ -345,7 +341,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                                     alignment: Alignment.center,
                                     child: Text(
                                       entry.key,
-                                      style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+                                      style: AppTypography.dmSans(color: context.c.surfaceRaised, fontWeight: FontWeight.w700, fontSize: 12),
                                     ),
                                   ),
                                   if (isSelected)
@@ -353,7 +349,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                                       top: 6, right: 6,
                                       child: Container(
                                         width: 20, height: 20,
-                                        decoration: const BoxDecoration(color: _primary, shape: BoxShape.circle),
+                                        decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle),
                                         child: const Icon(Icons.check_rounded, color: Colors.white, size: 13),
                                       ),
                                     ),
@@ -383,7 +379,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                               child: Row(mainAxisSize: MainAxisSize.min, children: [
                                 const Icon(Icons.photo_camera_rounded, color: Colors.white, size: 12),
                                 const SizedBox(width: 4),
-                                Text('Change', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+                                Text('Change', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
                               ]),
                             ),
                           ),
@@ -406,16 +402,16 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                       children: [
                         Container(
                           width: 34, height: 34,
-                          decoration: BoxDecoration(color: _primary, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(10)),
                           child: Center(
                             child: Text(
                               (member['name'] as String).isNotEmpty ? member['name'][0].toUpperCase() : '?',
-                              style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 14),
+                              style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.surfaceRaised, fontSize: 14),
                             ),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(child: Text(member['name'] as String, style: AppTypography.dmSans(fontWeight: FontWeight.w600, color: _dark))),
+                        Expanded(child: Text(member['name'] as String, style: AppTypography.dmSans(fontWeight: FontWeight.w600, color: context.c.ink))),
                         GestureDetector(
                           onTap: () => setState(() => _currentSelectedMembers.remove(member)),
                           child: const Icon(Icons.remove_circle_outline_rounded, color: Colors.redAccent, size: 20),
@@ -433,7 +429,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _nameController,
-                  style: AppTypography.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+                  style: AppTypography.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: context.c.ink),
                   decoration: _fieldDecor('Ride name (optional)', Icons.drive_file_rename_outline_rounded),
                 ),
                 const SizedBox(height: 10),
@@ -473,12 +469,12 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _primary.withOpacity(0.08),
+                      color: context.c.brand.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       '$_calculatedDuration day${_calculatedDuration != 1 ? 's' : ''} trip',
-                      style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: _primary),
+                      style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: context.c.brand),
                     ),
                   ),
                 ),
@@ -495,7 +491,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                       child: TextFormField(
                         controller: _seatsController,
                         keyboardType: TextInputType.number,
-                        style: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: _dark),
+                        style: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: context.c.ink),
                         decoration: _fieldDecor('Seats available', Icons.event_seat_rounded),
                         validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
                       ),
@@ -505,7 +501,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                       child: TextFormField(
                         controller: _priceController,
                         keyboardType: TextInputType.number,
-                        style: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: _dark),
+                        style: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 14, color: context.c.ink),
                         decoration: _fieldDecor('Price per seat (₹, 0 = free)', Icons.currency_rupee_rounded),
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) return null;
@@ -531,7 +527,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                           margin: EdgeInsets.only(right: mode != TransportMode.values.last ? 8 : 0),
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
-                            color: selected ? _primary : const Color(0xFFF1F5F9),
+                            color: selected ? context.c.brand : context.c.surfaceSunken,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -561,14 +557,14 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                           margin: EdgeInsets.only(right: pref != GenderPreference.values.last ? 6 : 0),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            color: selected ? _primary.withOpacity(0.12) : const Color(0xFFF1F5F9),
+                            color: selected ? context.c.brand.withOpacity(0.12) : context.c.surfaceSunken,
                             borderRadius: BorderRadius.circular(10),
-                            border: selected ? Border.all(color: _primary, width: 1.5) : null,
+                            border: selected ? Border.all(color: context.c.brand, width: 1.5) : null,
                           ),
                           child: Text(
                             pref.label,
                             textAlign: TextAlign.center,
-                            style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: selected ? _primary : const Color(0xFF6B7280)),
+                            style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: selected ? context.c.brand : const Color(0xFF6B7280)),
                           ),
                         ),
                       ),
@@ -608,12 +604,12 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                 TextFormField(
                   controller: _descriptionController,
                   maxLines: 3,
-                  style: AppTypography.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+                  style: AppTypography.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: context.c.ink),
                   decoration: InputDecoration(
                     hintText: 'What\'s this trip about? Who should join?',
                     hintStyle: AppTypography.dmSans(fontSize: 13, color: const Color(0xFFAFB8C4)),
                     filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
+                    fillColor: context.c.surfaceSunken,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.all(14),
                   ),
@@ -629,12 +625,12 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                 TextFormField(
                   controller: _rulesController,
                   maxLines: 2,
-                  style: AppTypography.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+                  style: AppTypography.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: context.c.ink),
                   decoration: InputDecoration(
                     hintText: 'Optional — safety rules, packing list, etc.',
                     hintStyle: AppTypography.dmSans(fontSize: 13, color: const Color(0xFFAFB8C4)),
                     filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
+                    fillColor: context.c.surfaceSunken,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.all(14),
                   ),
@@ -655,18 +651,18 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                     color: _isLoading ? const Color(0xFFE2E8F0) : null,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: _isLoading ? null : [
-                      BoxShadow(color: _primary.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 6)),
+                      BoxShadow(color: context.c.brand.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 6)),
                     ],
                   ),
                   child: Center(
                     child: _isLoading
-                        ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                        ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2.5))
                         : Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(Icons.rocket_launch_rounded, color: Colors.white, size: 18),
                               const SizedBox(width: 10),
-                              Text('Publish Ride', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.2)),
+                              Text('Publish Ride', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, letterSpacing: -0.2)),
                             ],
                           ),
                   ),
@@ -699,12 +695,12 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
       children: [
         Container(
           width: 3, height: 16,
-          decoration: BoxDecoration(color: _primary, borderRadius: BorderRadius.circular(2)),
+          decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(2)),
         ),
         const SizedBox(width: 8),
-        Icon(icon, size: 15, color: _primary),
+        Icon(icon, size: 15, color: context.c.brand),
         const SizedBox(width: 6),
-        Flexible(child: Text(text, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: _dark, letterSpacing: -0.2))),
+        Flexible(child: Text(text, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: context.c.ink, letterSpacing: -0.2))),
       ],
     );
   }
@@ -715,10 +711,10 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
       hintStyle: AppTypography.dmSans(fontSize: 13, color: const Color(0xFFAFB8C4)),
       prefixIcon: Icon(icon, size: 18, color: const Color(0xFFAFB8C4)),
       filled: true,
-      fillColor: const Color(0xFFF8FAFC),
+      fillColor: context.c.surfaceSunken,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFFF6B2C), width: 1.5)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.c.brand, width: 1.5)),
       errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF43F5E), width: 1)),
     );
   }
@@ -729,18 +725,18 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: context.c.surfaceSunken,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(icon, size: 12, color: _primary),
+            Icon(icon, size: 12, color: context.c.brand),
             const SizedBox(width: 4),
-            Text(label.toUpperCase(), style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: _primary, letterSpacing: 0.6)),
+            Text(label.toUpperCase(), style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: context.c.brand, letterSpacing: 0.6)),
           ]),
           const SizedBox(height: 6),
-          Text(DateFormat('dd MMM').format(date), style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: _dark)),
+          Text(DateFormat('dd MMM').format(date), style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.ink)),
           Text(DateFormat('HH:mm').format(date), style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF6B7280))),
         ]),
       ),
@@ -755,7 +751,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
     required ValueChanged<bool> onChanged,
     Color? activeColor,
   }) {
-    final color = activeColor ?? _primary;
+    final color = activeColor ?? context.c.brand;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -763,7 +759,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: value ? color.withOpacity(0.1) : const Color(0xFFF1F5F9),
+              color: value ? color.withOpacity(0.1) : context.c.surfaceSunken,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 18, color: value ? color : const Color(0xFF9CA3AF)),
@@ -771,7 +767,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _dark)),
+              Text(title, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.ink)),
               Text(subtitle, style: AppTypography.dmSans(fontSize: 11, color: const Color(0xFF9CA3AF))),
             ]),
           ),
@@ -795,7 +791,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
       controller: controller,
       hint: label,
       icon: icon,
-      textStyle: AppTypography.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: _dark),
+      textStyle: AppTypography.dmSans(fontWeight: FontWeight.w500, fontSize: 14, color: context.c.ink),
       decorationBuilder: (hint, ico) => _fieldDecor(hint, ico),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
       dropdownMaxWidth: (MediaQuery.of(context).size.width - 52) / 2,

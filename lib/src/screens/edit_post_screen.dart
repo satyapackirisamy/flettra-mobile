@@ -88,10 +88,10 @@ class _EditPostScreenState extends State<EditPostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
         title: Text('Edit Post', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 18)),
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
@@ -101,14 +101,14 @@ class _EditPostScreenState extends State<EditPostScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: _isLoading
-                ? const Padding(
+                ? Padding(
                     padding: EdgeInsets.all(12),
-                    child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFFF6B2C))),
+                    child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: context.c.brand)),
                   )
                 : FilledButton(
                     onPressed: _contentController.text.trim().isEmpty ? null : _submitEdit,
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF6B2C),
+                      backgroundColor: context.c.brand,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                     ),
@@ -134,7 +134,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     style: AppTypography.dmSans(fontSize: 17, height: 1.6),
                     decoration: InputDecoration(
                       hintText: "What's on your mind?",
-                      hintStyle: AppTypography.dmSans(color: Colors.grey[400], fontSize: 17),
+                      hintStyle: AppTypography.dmSans(color: context.c.ink3, fontSize: 17),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -142,7 +142,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                   // Existing images
                   if (_existingImageUrls.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text('Current photos', style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                    Text('Current photos', style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     SizedBox(
                       height: 140,
@@ -163,8 +163,8 @@ class _EditPostScreenState extends State<EditPostScreen> {
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, __, ___) => Container(
                                       width: 140, height: 140,
-                                      decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(16)),
-                                      child: const Icon(Icons.broken_image, color: Colors.grey),
+                                      decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(16)),
+                                      child: Icon(Icons.broken_image, color: context.c.ink3),
                                     ),
                                   ),
                                 ),
@@ -189,7 +189,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
                   // Newly picked images
                   if (_newImages.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text('New photos', style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                    Text('New photos', style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     SizedBox(
                       height: 140,
@@ -243,7 +243,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
           Container(
             decoration: BoxDecoration(
               color: context.c.surfaceRaised,
-              border: Border(top: BorderSide(color: Colors.grey[200]!)),
+              border: Border(top: BorderSide(color: context.c.ink3!)),
             ),
             padding: EdgeInsets.only(
               left: 12, right: 12, top: 8,
@@ -257,9 +257,9 @@ class _EditPostScreenState extends State<EditPostScreen> {
                     padding: const EdgeInsets.only(left: 8),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: const Color(0xFFFF6B2C).withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                      decoration: BoxDecoration(color: context.c.brand.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
                       child: Text('+${_newImages.length} new',
-                        style: AppTypography.dmSans(color: const Color(0xFFFF6B2C), fontSize: 12, fontWeight: FontWeight.w700),
+                        style: AppTypography.dmSans(color: context.c.brand, fontSize: 12, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -279,9 +279,9 @@ class _EditPostScreenState extends State<EditPostScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            Icon(icon, color: const Color(0xFFFF6B2C), size: 22),
+            Icon(icon, color: context.c.brand, size: 22),
             const SizedBox(width: 6),
-            Text(label, style: AppTypography.dmSans(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(label, style: AppTypography.dmSans(color: context.c.ink2, fontSize: 14, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

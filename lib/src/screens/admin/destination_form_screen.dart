@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../../theme/flettra_colors.dart';
 import '../../theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -101,15 +102,15 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
   Widget build(BuildContext context) {
     final isEditing = widget.destination != null;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
         title: Text(isEditing ? 'Edit Destination' : 'New Destination'),
         actions: [
           _isLoading 
-            ? const Center(child: Padding(padding: EdgeInsets.all(16.0), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF4F46E5))))) 
+            ? Center(child: Padding(padding: EdgeInsets.all(16.0), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: context.c.brand)))) 
             : TextButton(
                 onPressed: _handleSave,
-                child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF4F46E5))),
+                child: Text('Save', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: context.c.brand)),
               ),
           const SizedBox(width: 8),
         ],
@@ -151,12 +152,12 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
                     child: ElevatedButton(
                       onPressed: _isUploading ? null : _pickAndUploadImage,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4F46E5),
-                        foregroundColor: Colors.white,
+                        backgroundColor: context.c.brand,
+                        foregroundColor: context.c.onBrand,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                       child: _isUploading 
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 
+                        ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: context.c.surfaceRaised)) 
                         : const Icon(Icons.upload_file_rounded),
                     ),
                   ),
@@ -196,7 +197,7 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
                 subtitle: Text('Should this appear on user home screen', style: AppTypography.dmSans(fontSize: 12)),
                 value: _isActive,
                 onChanged: (v) => setState(() => _isActive = v),
-                activeColor: const Color(0xFF4F46E5),
+                activeColor: context.c.brand,
               ),
               const SizedBox(height: 48),
             ],
@@ -209,7 +210,7 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
   Widget _buildInputLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(label, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1E293B))),
+      child: Text(label, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.bold, color: context.c.ink)),
     );
   }
 
@@ -231,10 +232,10 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
         hintText: hint,
         hintStyle: AppTypography.dmSans(color: const Color(0xFF94A3B8)),
         filled: true,
-        fillColor: const Color(0xFFF8FAFC),
+        fillColor: context.c.surfaceSunken,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: context.c.brand, width: 2)),
       ),
     );
   }

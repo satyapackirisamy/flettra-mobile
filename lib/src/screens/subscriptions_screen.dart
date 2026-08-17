@@ -65,7 +65,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFE),
+      backgroundColor: context.c.surface,
       appBar: AppBar(
         title: const Text('Society Access', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24, letterSpacing: -1.0)),
       ),
@@ -94,20 +94,20 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
             decoration: BoxDecoration(
               color: context.c.surfaceRaised,
               borderRadius: BorderRadius.circular(32),
-              border: Border.all(color: isPremium ? const Color(0xFF4F46E5).withOpacity(0.3) : const Color(0xFFF1F5F9), width: isPremium ? 2 : 1),
+              border: Border.all(color: isPremium ? context.c.brand.withOpacity(0.3) : context.c.surfaceSunken, width: isPremium ? 2 : 1),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(plan['name'].toString().toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isPremium ? const Color(0xFF4F46E5) : Colors.grey[400], letterSpacing: 2.0)),
+                Text(plan['name'].toString().toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isPremium ? context.c.brand : context.c.ink3, letterSpacing: 2.0)),
                 const SizedBox(height: 12),
-                Text(plan['description'], style: TextStyle(color: Colors.grey[600], height: 1.5, fontSize: 13, fontWeight: FontWeight.w500)),
+                Text(plan['description'], style: TextStyle(color: context.c.ink2, height: 1.5, fontSize: 13, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 32),
                 RichText(
                   text: TextSpan(
                     children: [
-                      TextSpan(text: "₹${plan['price']}", style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w700, color: Color(0xFF1E293B), letterSpacing: -1.0)),
-                      TextSpan(text: " / ${plan['durationDays']}d", style: TextStyle(color: Colors.grey[400], fontWeight: FontWeight.w700, fontSize: 14)),
+                      TextSpan(text: "₹${plan['price']}", style: TextStyle(fontSize: 48, fontWeight: FontWeight.w700, color: context.c.ink, letterSpacing: -1.0)),
+                      TextSpan(text: " / ${plan['durationDays']}d", style: TextStyle(color: context.c.ink3, fontWeight: FontWeight.w700, fontSize: 14)),
                     ],
                   ),
                 ),
@@ -118,7 +118,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Row(
                     children: [
-                      const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 18),
+                      Icon(Icons.check_circle_rounded, color: context.c.ok, size: 18),
                       const SizedBox(width: 12),
                       Expanded(child: Text(f, style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF334155), fontSize: 13))),
                     ],
@@ -130,8 +130,8 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                   child: ElevatedButton(
                     onPressed: () => _subscribe(plan),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isPremium ? const Color(0xFF4F46E5) : const Color(0xFF1E293B),
-                      foregroundColor: Colors.white,
+                      backgroundColor: isPremium ? context.c.brand : context.c.ink,
+                      foregroundColor: context.c.onBrand,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -149,7 +149,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: context.c.ink,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
                 ),

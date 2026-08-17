@@ -27,10 +27,6 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   final TextEditingController _searchController = TextEditingController();
 
-  static const Color _orange    = Color(0xFFFF6B2C);
-  static const Color _orangeEnd = Color(0xFFFF8C5A);
-  static const Color _dark      = Color(0xFF1A0A08);
-  static const Color _bg        = Colors.white;
 
   static const List<String> _filters = ['ALL', 'MY RIDES', 'ONGOING', 'HISTORY'];
 
@@ -113,7 +109,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,14 +138,14 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
             style: AppTypography.dmSans(
               fontSize: 28,
               fontWeight: FontWeight.w700,
-              color: _dark,
+              color: context.c.ink,
               letterSpacing: -0.8,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             'Discover and join adventures',
-            style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[400], fontWeight: FontWeight.w500),
+            style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 16),
         ],
@@ -171,15 +167,15 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
         child: TextField(
           controller: _searchController,
           onChanged: (v) => setState(() => _searchQuery = v),
-          style: AppTypography.dmSans(fontSize: 14, color: _dark),
+          style: AppTypography.dmSans(fontSize: 14, color: context.c.ink),
           decoration: InputDecoration(
             hintText: 'Search by name, origin or destination...',
-            hintStyle: AppTypography.dmSans(color: Colors.grey[400], fontSize: 13),
-            prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Colors.grey),
+            hintStyle: AppTypography.dmSans(color: context.c.ink3, fontSize: 13),
+            prefixIcon: Icon(Icons.search_rounded, size: 20, color: context.c.ink3),
             suffixIcon: _searchQuery.isNotEmpty
                 ? GestureDetector(
                     onTap: () { _searchController.clear(); setState(() => _searchQuery = ''); },
-                    child: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                    child: Icon(Icons.close_rounded, size: 18, color: context.c.ink3),
                   )
                 : null,
             border: InputBorder.none,
@@ -219,7 +215,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                   style: AppTypography.dmSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: isActive ? Colors.white : Colors.grey[500],
+                    color: isActive ? Colors.white : context.c.ink2,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -235,7 +231,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildList() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: _orange));
+      return Center(child: CircularProgressIndicator(color: context.c.brand));
     }
 
     final rides = _filteredRides;
@@ -248,20 +244,20 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: _orange.withOpacity(0.08),
+                color: context.c.brand.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.directions_bike_rounded, size: 40, color: _orange),
+              child: Icon(Icons.directions_bike_rounded, size: 40, color: context.c.brand),
             ),
             const SizedBox(height: 16),
             Text(
               _selectedFilter == 'ALL' ? 'No rides available' : 'No rides here',
-              style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark),
+              style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: context.c.ink),
             ),
             const SizedBox(height: 6),
             Text(
               _selectedFilter == 'ALL' ? 'Check back soon for new adventures' : 'Try a different filter',
-              style: AppTypography.dmSans(fontSize: 13, color: Colors.grey[400]),
+              style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3),
             ),
           ],
         ),
@@ -270,7 +266,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
     return RefreshIndicator(
       onRefresh: _fetch,
-      color: _orange,
+      color: context.c.brand,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
         physics: const BouncingScrollPhysics(),
@@ -327,8 +323,8 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                     errorWidget: Container(
                       height: 160,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF1A0A08), Color(0xFF3D1A0E)],
+                        gradient: LinearGradient(
+                          colors: [context.c.ink, Color(0xFF3D1A0E)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -365,7 +361,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text('MY RIDE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 0.8)),
+                          child: Text('MY RIDE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, letterSpacing: 0.8)),
                         ),
                       if (status == 'ongoing' || status == 'in_progress') ...[
                         if (isOwner) const SizedBox(width: 6),
@@ -378,9 +374,9 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                              Container(width: 6, height: 6, decoration: BoxDecoration(color: context.c.surfaceRaised, shape: BoxShape.circle)),
                               const SizedBox(width: 5),
-                              Text('LIVE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white)),
+                              Text('LIVE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
                             ],
                           ),
                         ),
@@ -401,7 +397,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       ),
                       child: Text(
                         '~₹$price',
-                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.surfaceRaised),
                       ),
                     ),
                   ),
@@ -412,7 +408,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                   right: 14,
                   child: Text(
                     name,
-                    style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, shadows: [const Shadow(color: Colors.black45, blurRadius: 8)]),
+                    style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, shadows: [const Shadow(color: Colors.black45, blurRadius: 8)]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -432,14 +428,14 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(color: _orange.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                          child: const Icon(Icons.near_me_rounded, size: 13, color: _orange),
+                          decoration: BoxDecoration(color: context.c.brand.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                          child: Icon(Icons.near_me_rounded, size: 13, color: context.c.brand),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             '$origin → $dest',
-                            style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _dark),
+                            style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.ink),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -450,14 +446,14 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                   Row(
                     children: [
                       // Date
-                      Icon(Icons.calendar_today_rounded, size: 12, color: Colors.grey[400]),
+                      Icon(Icons.calendar_today_rounded, size: 12, color: context.c.ink3),
                       const SizedBox(width: 5),
-                      Text(dateStr, style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                      Text(dateStr, style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w600)),
                       const SizedBox(width: 12),
                       // Seats
-                      Icon(Icons.event_seat_rounded, size: 12, color: Colors.grey[400]),
+                      Icon(Icons.event_seat_rounded, size: 12, color: context.c.ink3),
                       const SizedBox(width: 4),
-                      Text('$seats seats', style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                      Text('$seats seats', style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w600)),
                       const Spacer(),
                       // Book button
                       Container(
@@ -467,7 +463,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                         ),
                         child: Text(
                           isOwner ? 'View' : 'Book Spot',
-                          style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
+                          style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.surfaceRaised),
                         ),
                       ),
                     ],
@@ -484,14 +480,14 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                           child: Center(
                             child: Text(
                               driverName.isNotEmpty ? driverName[0].toUpperCase() : 'D',
-                              style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white),
+                              style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.surfaceRaised),
                             ),
                           ),
                         ),
                         const SizedBox(width: 7),
                         Text(
                           'by $driverName',
-                          style: AppTypography.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600),
+                          style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
