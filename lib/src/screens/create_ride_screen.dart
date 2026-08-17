@@ -350,7 +350,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                                       child: Container(
                                         width: 20, height: 20,
                                         decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle),
-                                        child: const Icon(Icons.check_rounded, color: Colors.white, size: 13),
+                                        child: Icon(Icons.check_rounded, color: context.c.onBrand, size: 13),
                                       ),
                                     ),
                                 ],
@@ -535,7 +535,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                             children: [
                               Text(mode.emoji, style: const TextStyle(fontSize: 16)),
                               const SizedBox(width: 6),
-                              Text(mode.label, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: selected ? Colors.white : const Color(0xFF374151))),
+                              Text(mode.label, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: selected ? context.c.onBrand : const Color(0xFF374151))),
                             ],
                           ),
                         ),

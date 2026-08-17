@@ -601,7 +601,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   child: Container(
                     width: 20, height: 20,
                     decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle, border: Border.all(color: context.c.surfaceRaised, width: 2)),
-                    child: const Icon(Icons.check_rounded, color: Colors.white, size: 11),
+                    child: Icon(Icons.check_rounded, color: context.c.onBrand, size: 11),
                   ),
                 ),
               ],
@@ -859,7 +859,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 Text('MEMBER LEVEL', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.brand, letterSpacing: 1.5)),
                 const SizedBox(height: 4),
                 Text(levelInfo['name'] as String, style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, fontStyle: FontStyle.italic)),
-                Text(levelInfo['desc'] as String, style: AppTypography.dmSans(fontSize: 11, color: Colors.white54, fontWeight: FontWeight.w500)),
+                Text(levelInfo['desc'] as String, style: AppTypography.dmSans(fontSize: 11, color: context.c.onBrand.withValues(alpha: 0.54), fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -868,13 +868,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             alignment: Alignment.center,
             children: [
               Container(width: 52, height: 52, decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle)),
-              const Icon(Icons.star_rounded, color: Colors.white, size: 28),
+              Icon(Icons.star_rounded, color: context.c.onBrand, size: 28),
             ],
           ),
           const SizedBox(width: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
             child: Text('VIP', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
           ),
         ],

@@ -215,7 +215,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                   style: AppTypography.dmSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: isActive ? Colors.white : context.c.ink2,
+                    color: isActive ? context.c.onBrand : context.c.ink2,
                     letterSpacing: 0.3,
                   ),
                 ),

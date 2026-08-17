@@ -459,7 +459,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     child: _isLoading
                         ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2.5))
                         : Row(mainAxisSize: MainAxisSize.min, children: [
-                            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                            Icon(Icons.check_circle_rounded, color: context.c.onBrand, size: 18),
                             const SizedBox(width: 10),
                             Text('Apply Changes', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
                           ]),

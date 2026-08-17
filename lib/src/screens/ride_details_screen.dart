@@ -378,7 +378,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                       onTap: () => Navigator.pop(context),
                       child: Container(
                         decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle),
-                        child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Colors.white),
+                        child: Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: context.c.onBrand),
                       ),
                     ),
                   ),
@@ -1130,7 +1130,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                             const SizedBox(height: 10),
                             Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))]),
+                              decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))]),
                               child: Column(
                                 children: [
                                   _costRow('Est. Budget/seat', '~₹${_ride!["pricePerSeat"]}'),
@@ -1175,9 +1175,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: enabled ? Colors.white : context.c.ink3),
+            Icon(icon, size: 14, color: enabled ? context.c.onBrand : context.c.ink3),
             const SizedBox(width: 6),
-            Text(label, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: enabled ? Colors.white : context.c.ink3)),
+            Text(label, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: enabled ? context.c.onBrand : context.c.ink3)),
           ],
         ),
       ),
@@ -1237,7 +1237,10 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
   Widget _bottomBar(String label, IconData icon, VoidCallback? onTap, {bool enabled = true}) {
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
-      decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, -4))]),
+      decoration: BoxDecoration(
+        color: context.c.surfaceRaised,
+        border: Border(top: BorderSide(color: context.c.rule, width: 0.5)),
+      ),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
@@ -1784,7 +1787,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                   children: allParticipants.map((p) {
                     final selected = paidById == p['id'];
                     return ChoiceChip(
-                      label: Text(p['name']!, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: selected ? Colors.white : const Color(0xFF475569))),
+                      label: Text(p['name']!, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: selected ? context.c.onBrand : context.c.ink2)),
                       selected: selected,
                       onSelected: (_) => setSheetState(() => paidById = p['id']!),
                       selectedColor: context.c.brand,
@@ -1806,7 +1809,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                     final id = p['id']!;
                     final isSelected = splitIds.contains(id);
                     return FilterChip(
-                      label: Text(p['name']!, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: isSelected ? Colors.white : const Color(0xFF475569))),
+                      label: Text(p['name']!, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: isSelected ? context.c.onBrand : context.c.ink2)),
                       selected: isSelected,
                       onSelected: (val) {
                         setSheetState(() {
@@ -1815,7 +1818,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                       },
                       selectedColor: context.c.brand,
                       backgroundColor: context.c.surfaceSunken,
-                      checkmarkColor: Colors.white,
+                      checkmarkColor: context.c.onBrand,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       side: BorderSide.none,
                     );
@@ -1897,7 +1900,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
       floatingActionButton: widget.canEdit ? FloatingActionButton(
         onPressed: _addExpense,
         backgroundColor: context.c.brand,
-        child: const Icon(Icons.add_rounded, color: Colors.white),
+        child: Icon(Icons.add_rounded, color: context.c.onBrand),
       ) : null,
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: context.c.brand))
@@ -1911,16 +1914,17 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
+                      color: context.c.brand,
+                      borderRadius: BorderRadius.circular(AppRadius.card),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Total Trip Expense', style: AppTypography.dmSans(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700)),
+                        Text('Total Trip Expense', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.7), fontSize: 13, fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
                         Text('₹${(total is num ? total : double.tryParse('$total') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 36, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 16),
-                        Container(height: 1, color: Colors.white24),
+                        Container(height: 1, color: context.c.onBrand.withValues(alpha: 0.24)),
                         const SizedBox(height: 16),
                         Row(
                           children: [
@@ -1928,7 +1932,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('YOUR SHARE', style: AppTypography.dmSans(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                                  Text('YOUR SHARE', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                                   const SizedBox(height: 4),
                                   Text('₹${(perPerson is num ? perPerson : double.tryParse('$perPerson') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 20, fontWeight: FontWeight.w800)),
                                 ],
@@ -1938,7 +1942,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('EXPENSES', style: AppTypography.dmSans(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                                  Text('EXPENSES', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                                   const SizedBox(height: 4),
                                   Text('${_expenses.length}', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 20, fontWeight: FontWeight.w800)),
                                 ],

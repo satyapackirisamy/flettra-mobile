@@ -125,7 +125,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             margin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
                             child: Text('PRIVATE', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                           ),
                         Text(_group!['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 26, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),

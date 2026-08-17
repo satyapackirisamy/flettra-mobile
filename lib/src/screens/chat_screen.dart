@@ -545,7 +545,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     content,
                     style: AppTypography.dmSans(
                       fontSize: 14,
-                      color: isMe ? Colors.white : context.c.ink,
+                      color: isMe ? context.c.onBrand : context.c.ink,
                       height: 1.45,
                     ),
                   ),

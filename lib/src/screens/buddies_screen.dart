@@ -239,7 +239,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           ),
           const SizedBox(height: 12),
           Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4))]),
+            decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4))]),
             child: Column(
               children: _requests.asMap().entries.map((entry) {
                 final i = entry.key;

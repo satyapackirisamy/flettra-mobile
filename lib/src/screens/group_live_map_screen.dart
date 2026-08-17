@@ -574,7 +574,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                         CameraUpdate.newLatLngZoom(LatLng(_nextOnRoute!.lat, _nextOnRoute!.lng), 15)),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
                       child: Text('Go', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
                     ),
                   ),
@@ -676,14 +676,14 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     style: AppTypography.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: isActive ? Colors.white : const Color(0xFF555555),
+                      color: isActive ? context.c.onBrand : const Color(0xFF555555),
                     ),
                   ),
                   if (isActive && _pois.isNotEmpty) ...[
                     const SizedBox(width: 5),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
                       child: Text(
                         '${_pois.length}',
                         style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: context.c.surfaceRaised),
@@ -873,7 +873,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                         ),
                         child: Center(child: Text(
                           name[0].toUpperCase(),
-                          style: TextStyle(color: hasLoc ? Colors.white : context.c.ink3, fontSize: 20, fontWeight: FontWeight.w700),
+                          style: TextStyle(color: hasLoc ? context.c.onBrand : context.c.ink3, fontSize: 20, fontWeight: FontWeight.w700),
                         )),
                       ),
                       if (hasLoc)

@@ -230,14 +230,16 @@ class _ChatWidgetState extends State<ChatWidget> {
                       Text(content,
                           style: AppTypography.dmSans(
                             fontSize: 14,
-                            color: isMe ? Colors.white : context.c.ink,
+                            color: isMe ? context.c.onBrand : context.c.ink,
                             height: 1.4,
                           )),
                       const SizedBox(height: 3),
                       Text(timeStr,
                           style: AppTypography.dmSans(
                             fontSize: 9,
-                            color: isMe ? Colors.white60 : context.c.ink3,
+                            color: isMe
+                                ? context.c.onBrand.withValues(alpha: 0.6)
+                                : context.c.ink3,
                           )),
                     ],
                   ),

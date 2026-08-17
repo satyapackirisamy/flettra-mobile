@@ -348,7 +348,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 margin: const EdgeInsets.only(bottom: 8),
-                                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+                                decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -366,7 +366,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+                              decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [

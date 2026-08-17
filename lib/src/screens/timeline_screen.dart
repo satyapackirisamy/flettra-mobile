@@ -115,7 +115,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                       color: active ? context.c.brand : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(s, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: active ? Colors.white : context.c.ink3)),
+                    child: Text(s, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: active ? context.c.onBrand : context.c.ink3)),
                   ),
                 );
               }).toList(),
@@ -293,7 +293,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   top: 12, right: 12,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.9), borderRadius: BorderRadius.circular(12)),
                     child: Text(_categoryTag(post), style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.ink, letterSpacing: 0.8)),
                   ),
                 ),
@@ -364,7 +364,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
             children: [
               Container(
                 width: 36, height: 36,
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), shape: BoxShape.circle),
                 child: Center(child: Text(name[0], style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.surfaceRaised, fontSize: 16))),
               ),
               const SizedBox(width: 10),
@@ -381,7 +381,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 onTap: () {},
                 child: Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
                   child: const Icon(Icons.ios_share_rounded, size: 18, color: Colors.white),
                 ),
               ),

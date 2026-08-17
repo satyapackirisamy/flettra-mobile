@@ -213,7 +213,7 @@ class CommonFab extends StatelessWidget {
           boxShadow: [BoxShadow(color: context.c.brand.withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
           border: Border.all(color: context.c.surfaceRaised, width: 4),
         ),
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
+        child: Icon(Icons.add_rounded, color: context.c.onBrand, size: 32),
       ),
     );
   }

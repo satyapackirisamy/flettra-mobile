@@ -294,7 +294,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
-                        child: Text('#${i + 1}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: i == 0 ? Colors.white : context.c.brand, fontSize: 12)),
+                        child: Text('#${i + 1}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: i == 0 ? context.c.onBrand : context.c.brand, fontSize: 12)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -419,7 +419,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: active ? context.c.brand : context.c.ink3!),
                       ),
-                      child: Text(s, style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: active ? Colors.white : context.c.ink2)),
+                      child: Text(s, style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: active ? context.c.onBrand : context.c.ink2)),
                     ),
                   );
                 }).toList(),
