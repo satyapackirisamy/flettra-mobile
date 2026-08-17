@@ -830,7 +830,7 @@ class RideListScreenState extends State<RideListScreen> {
         width: cardW,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: context.c.ruleSoft),
         ),
@@ -1112,7 +1112,7 @@ class RideListScreenState extends State<RideListScreen> {
           style: AppTypography.dmSans(
             fontSize: compact ? 10 : 11,
             fontWeight: FontWeight.w800,
-            color: Colors.white,
+            color: context.c.surfaceRaised,
           ),
         ),
       ),

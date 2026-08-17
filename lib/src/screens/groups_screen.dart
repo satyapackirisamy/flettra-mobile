@@ -94,8 +94,8 @@ class _GroupsScreenState extends State<GroupsScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Container(
           padding: EdgeInsets.fromLTRB(24, 16, 24, MediaQuery.of(ctx).viewInsets.bottom + 32),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: context.c.surfaceRaised,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Column(
@@ -543,7 +543,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.c.surfaceRaised,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: const Color(0xFFF0E8E6)),
                 ),

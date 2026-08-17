@@ -85,54 +85,59 @@ class FlettraColors extends ThemeExtension<FlettraColors> {
   // ── Light ────────────────────────────────────────────────────────────────
 
   static const FlettraColors light = FlettraColors(
-    // Deepened from the original #FF6B2C so white text on a filled button
-    // clears contrast at button sizes.
-    brand: Color(0xFFE8551A),
-    brandWash: Color(0xFFFDEFE7),
+    // Nightshift's daylight counterpart. Lime is unreadable as text on a light
+    // ground, so in this mode the brand resolves to the deep olive end of the
+    // same hue — legible as a label and usable as a fill with white on top.
+    // Dark is the default; this exists for anyone who forces light.
+    brand: Color(0xFF43600A),
+    brandWash: Color(0xFFEDF6D5),
     onBrand: Color(0xFFFFFFFF),
-    route: Color(0xFF0F6E68),
-    routeWash: Color(0xFFE4F1EF),
-    ink: Color(0xFF17120E),
-    ink2: Color(0xFF6B625B),
-    ink3: Color(0xFF9C918A),
+    route: Color(0xFF1A56B8),
+    routeWash: Color(0xFFE6EEFB),
+    ink: Color(0xFF12140F),
+    ink2: Color(0xFF5C6156),
+    ink3: Color(0xFF8D9385),
     surface: Color(0xFFFFFFFF),
-    surfaceSunken: Color(0xFFF2EEE9),
+    surfaceSunken: Color(0xFFF3F4EF),
     surfaceRaised: Color(0xFFFFFFFF),
-    rule: Color(0xFFE6DFD8),
-    ruleSoft: Color(0xFFF0EAE4),
-    ok: Color(0xFF12805C),
-    okWash: Color(0xFFE4F3EE),
-    warn: Color(0xFFB4690E),
-    warnWash: Color(0xFFFBF0DF),
-    bad: Color(0xFFC2321F),
-    badWash: Color(0xFFFBEBE8),
-    scrim: Color(0x8C17120E),
+    rule: Color(0xFFE2E4DA),
+    ruleSoft: Color(0xFFEDEEE6),
+    ok: Color(0xFF1B7F4B),
+    okWash: Color(0xFFE4F3E9),
+    warn: Color(0xFF8A5B0A),
+    warnWash: Color(0xFFFBF1DC),
+    bad: Color(0xFFB3271A),
+    badWash: Color(0xFFFCE9E7),
+    scrim: Color(0x8C12140F),
   );
 
   // ── Dark ─────────────────────────────────────────────────────────────────
 
   static const FlettraColors dark = FlettraColors(
-    // Brightened — #E8551A goes muddy on a dark ground.
-    brand: Color(0xFFFF7A3D),
-    brandWash: Color(0xFF33200F),
-    onBrand: Color(0xFF1A0B03),
-    route: Color(0xFF48B3AB),
-    routeWash: Color(0xFF0F2B29),
-    ink: Color(0xFFF5F1ED),
-    ink2: Color(0xFFADA49C),
-    ink3: Color(0xFF7E756E),
-    surface: Color(0xFF131110),
-    surfaceSunken: Color(0xFF0C0B0A),
-    surfaceRaised: Color(0xFF1D1A18),
-    rule: Color(0xFF302B27),
-    ruleSoft: Color(0xFF241F1C),
-    ok: Color(0xFF3BB98C),
-    okWash: Color(0xFF0F2A22),
-    warn: Color(0xFFDFA02F),
-    warnWash: Color(0xFF2E2211),
-    bad: Color(0xFFE8705C),
+    // Nightshift. The lime is loud enough that it can only carry one thing per
+    // screen — which is the point: the palette enforces the accent discipline
+    // instead of relying on us to.
+    brand: Color(0xFFB9F227),
+    brandWash: Color(0xFF232D0C),
+    onBrand: Color(0xFF0F1405),
+    // Movement reads blue so it never competes with the lime for attention.
+    route: Color(0xFF7FB2FF),
+    routeWash: Color(0xFF121C2E),
+    ink: Color(0xFFEDF2E6),
+    ink2: Color(0xFF9AA692),
+    ink3: Color(0xFF6B7565),
+    surface: Color(0xFF161915),
+    surfaceSunken: Color(0xFF0B0D0A),
+    surfaceRaised: Color(0xFF161915),
+    rule: Color(0xFF272B24),
+    ruleSoft: Color(0xFF1F231C),
+    ok: Color(0xFF5FD98A),
+    okWash: Color(0xFF122A1C),
+    warn: Color(0xFFE8B33D),
+    warnWash: Color(0xFF2C2210),
+    bad: Color(0xFFFF7A6B),
     badWash: Color(0xFF2E1815),
-    scrim: Color(0x99000000),
+    scrim: Color(0xB3000000),
   );
 
   @override

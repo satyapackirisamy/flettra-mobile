@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import '../services/auth_service.dart';
 import '../widgets/places_autocomplete_field.dart';
@@ -136,7 +137,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surfaceRaised,
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
@@ -346,7 +347,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                     style: AppTypography.dmSans(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: context.c.surfaceRaised,
                       height: 1,
                     ),
                   ),
@@ -385,7 +386,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surfaceRaised,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: borderColor),
                   ),
@@ -672,11 +673,11 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
           child: _isLoading
-              ? const SizedBox(
+              ? SizedBox(
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: context.c.surfaceRaised,
                     strokeWidth: 2.5,
                   ),
                 )
@@ -688,14 +689,14 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                       style: AppTypography.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: context.c.surfaceRaised,
                         letterSpacing: 0.2,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_rounded,
-                      color: Colors.white,
+                      color: context.c.surfaceRaised,
                       size: 18,
                     ),
                   ],

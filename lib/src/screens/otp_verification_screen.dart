@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:pinput/pinput.dart';
 import '../services/auth_service.dart';
@@ -106,7 +107,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 defaultPinTheme: defaultPinTheme,
                 focusedPinTheme: defaultPinTheme.copyDecorationWith(
                    border: Border.all(color: const Color(0xFF4F46E5), width: 2),
-                   color: Colors.white,
+                   color: context.c.surfaceRaised,
                 ),
                 onCompleted: (pin) => _handleVerify(),
               ),

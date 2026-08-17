@@ -719,7 +719,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 width: double.infinity,
                                 padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: context.c.surfaceRaised,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(color: const Color(0xFFFFE4D6), width: 1.5),
                                 ),
@@ -754,7 +754,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: context.c.surfaceRaised,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Column(
@@ -1001,7 +1001,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 10),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: context.c.surfaceRaised,
                                     borderRadius: BorderRadius.circular(18),
                                   ),
                                   child: Theme(
@@ -1099,7 +1099,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                   margin: const EdgeInsets.only(top: 4),
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: context.c.surfaceRaised,
                                     borderRadius: BorderRadius.circular(14),
                                     border: Border.all(color: const Color(0xFFFF6B2C).withOpacity(0.3)),
                                   ),
@@ -2122,7 +2122,7 @@ class _LiveMapFabState extends State<_LiveMapFab>
               Text(
                 'LIVE MAP',
                 style: AppTypography.dmSans(
-                  color: Colors.white,
+                  color: context.c.surfaceRaised,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.0,

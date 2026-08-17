@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
@@ -155,7 +156,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 24, offset: const Offset(0, 8))],
       ),
@@ -257,7 +258,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
@@ -406,7 +407,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(

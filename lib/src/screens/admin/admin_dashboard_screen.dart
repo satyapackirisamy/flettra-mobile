@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/flettra_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
@@ -188,7 +189,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -240,7 +241,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFF1F5F9)),
       ),

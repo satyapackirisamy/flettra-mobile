@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../theme/flettra_colors.dart';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class CloudinaryService {
       builder: (_) => Container(
         margin: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(24),
         ),
         child: SafeArea(

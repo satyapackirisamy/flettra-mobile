@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'dart:math' show cos, sqrt, asin, sin, pi;
 import 'dart:ui' as ui;
@@ -181,7 +182,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
       text: TextSpan(
         text: letter,
         style: TextStyle(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           fontSize: highlight ? 18 : 16,
           fontWeight: FontWeight.w800,
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
@@ -131,7 +132,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildHeader() {
     return Container(
-      color: Colors.white,
+      color: context.c.surfaceRaised,
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,7 +161,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildSearchBar() {
     return Container(
-      color: Colors.white,
+      color: context.c.surfaceRaised,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Container(
         decoration: BoxDecoration(
@@ -193,7 +194,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildFilterPills() {
     return Container(
-      color: Colors.white,
+      color: context.c.surfaceRaised,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -307,7 +308,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(

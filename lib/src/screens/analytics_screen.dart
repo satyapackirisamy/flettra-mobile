@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import '../services/api_service.dart';
 import '../widgets/network_image_widget.dart';
@@ -175,7 +176,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.c.surfaceRaised,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [BoxShadow(color: _orange.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 6))],
             ),
@@ -210,7 +211,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.c.surfaceRaised,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -284,7 +285,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.c.surfaceRaised,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -627,7 +628,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [BoxShadow(color: color.withOpacity(0.1), blurRadius: 16, offset: const Offset(0, 4))],
       ),
@@ -660,7 +661,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

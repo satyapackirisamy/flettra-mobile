@@ -242,7 +242,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                 left: 20,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surfaceRaised,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(color: Colors.black.withOpacity(0.12),
@@ -326,7 +326,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -375,7 +375,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surfaceRaised,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
@@ -429,7 +429,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.c.surfaceRaised,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(

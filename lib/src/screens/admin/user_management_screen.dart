@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/flettra_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 import '../../widgets/network_image_widget.dart';
@@ -178,7 +179,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   Widget _buildUserTile(dynamic user) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),

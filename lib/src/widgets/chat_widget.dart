@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -257,7 +258,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   Widget _buildInputBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         border: Border(top: BorderSide(color: Colors.grey[100]!)),
       ),
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),

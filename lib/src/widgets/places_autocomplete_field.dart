@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import '../services/places_service.dart';
@@ -132,7 +133,7 @@ class _PlacesAutocompleteFieldState extends State<PlacesAutocompleteField> {
         child: Material(
           elevation: 8,
           borderRadius: BorderRadius.circular(16),
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           shadowColor: Colors.black.withOpacity(0.12),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),

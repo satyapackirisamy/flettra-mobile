@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/cloudinary_service.dart';
@@ -22,7 +23,7 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: Colors.white,
+      color: context.c.surfaceRaised,
       child: tabBar,
     );
   }
@@ -267,7 +268,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         onTap: _pickAndUploadAvatar,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.c.surfaceRaised,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 16, offset: const Offset(0, 4))],
                           ),
@@ -337,7 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surfaceRaised,
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: Row(
@@ -444,7 +445,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -572,7 +573,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           : null,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -809,7 +810,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 style: AppTypography.dmSans(
                   fontSize: fontSize,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: context.c.surfaceRaised,
                 ),
               )
             : Icon(Icons.person_rounded, size: size * 0.55, color: Colors.white),

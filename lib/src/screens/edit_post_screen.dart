@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -241,7 +242,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
           // Bottom toolbar
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.c.surfaceRaised,
               border: Border(top: BorderSide(color: Colors.grey[200]!)),
             ),
             padding: EdgeInsets.only(

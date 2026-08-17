@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 
@@ -91,7 +92,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
           Container(
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.c.surfaceRaised,
               borderRadius: BorderRadius.circular(32),
               border: Border.all(color: isPremium ? const Color(0xFF4F46E5).withOpacity(0.3) : const Color(0xFFF1F5F9), width: isPremium ? 2 : 1),
             ),

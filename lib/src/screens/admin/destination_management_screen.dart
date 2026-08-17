@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/flettra_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 import '../../widgets/network_image_widget.dart';
@@ -137,7 +138,7 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
   Widget _buildDestinationCard(dynamic dest) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),

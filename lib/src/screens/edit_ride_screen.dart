@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
@@ -382,7 +383,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.c.surfaceRaised,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.grey[100]!),
                 ),

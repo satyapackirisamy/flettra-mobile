@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
@@ -234,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surfaceRaised,
                           borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
@@ -453,7 +454,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       style: AppTypography.dmSans(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: context.c.surfaceRaised,
                         height: 1,
                       ),
                     ),
@@ -706,11 +707,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
           child: _isLoading
-              ? const SizedBox(
+              ? SizedBox(
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: context.c.surfaceRaised,
                     strokeWidth: 2.5,
                   ),
                 )
@@ -722,14 +723,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       style: AppTypography.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: context.c.surfaceRaised,
                         letterSpacing: 0.2,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_rounded,
-                      color: Colors.white,
+                      color: context.c.surfaceRaised,
                       size: 18,
                     ),
                   ],

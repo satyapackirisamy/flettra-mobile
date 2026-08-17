@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flettra_mobile/src/theme/app_theme.dart';
 import 'package:flettra_mobile/src/theme/app_typography.dart';
 import 'package:flettra_mobile/src/theme/flettra_colors.dart';
+import 'package:flettra_mobile/src/theme/theme_controller.dart';
 
 void main() {
   test('both themes build and carry the colour tokens', () {
@@ -20,6 +21,13 @@ void main() {
       expect(colors.surfaceSunken, isNot(colors.surfaceRaised),
           reason: 'Canvas and raised surfaces must be distinguishable.');
     }
+  });
+
+  test('Flettra is dark by default', () {
+    // Nightshift is a dark-first palette: the lime accent only works against a
+    // near-black ground. Defaulting to system would mean most people never see
+    // the app as designed.
+    expect(ThemeController.defaultMode, ThemeMode.dark);
   });
 
   test('light and dark are actually different', () {

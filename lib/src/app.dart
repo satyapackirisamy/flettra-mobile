@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
@@ -24,11 +25,28 @@ class FlettraApp extends StatelessWidget {
         // Honour the phone's font-size setting, but bound it. Unbounded Dynamic
         // Type overflows every fixed-height row; ignoring it entirely — which is
         // what the app did before — fails anyone who has turned it up.
-        builder: (context, child) => MediaQuery.withClampedTextScaling(
-          minScaleFactor: AppTypography.minScale,
-          maxScaleFactor: AppTypography.maxScale,
-          child: child ?? const SizedBox.shrink(),
-        ),
+        builder: (context, child) {
+          // On a near-black canvas, dark status-bar glyphs are invisible. The
+          // app shipped with no overlay style at all, which was survivable on
+          // white and is not now that dark is the default.
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness:
+                  isDark ? Brightness.light : Brightness.dark,
+              statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+              systemNavigationBarColor: context.c.surfaceSunken,
+              systemNavigationBarIconBrightness:
+                  isDark ? Brightness.light : Brightness.dark,
+            ),
+            child: MediaQuery.withClampedTextScaling(
+              minScaleFactor: AppTypography.minScale,
+              maxScaleFactor: AppTypography.maxScale,
+              child: child ?? const SizedBox.shrink(),
+            ),
+          );
+        },
         home: const AuthCheck(),
       ),
     );

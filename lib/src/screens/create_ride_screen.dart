@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -685,7 +686,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2))],
       ),

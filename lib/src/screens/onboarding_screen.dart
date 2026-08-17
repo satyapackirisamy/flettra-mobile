@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'dart:async';
 import 'login_screen.dart';
@@ -26,25 +27,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       'icon': Icons.directions_car_rounded,
       'title': 'Create & Join Rides',
       'description': 'Share your commute or find travel buddies heading the same way. Save money and make friends!',
-      'color': Color(0xFF4F46E5),
     },
     {
       'icon': Icons.groups_rounded,
       'title': 'Join Travel Circles',
       'description': 'Connect with groups based on your route, workplace, or interests. Plan trips together!',
-      'color': Color(0xFFE11D48),
     },
     {
       'icon': Icons.analytics_rounded,
       'title': 'Track Your Impact',
       'description': 'See your travel stats, earn compass points, and climb the leaderboard. Every ride counts!',
-      'color': Color(0xFF0EA5E9),
     },
     {
       'icon': Icons.star_rounded,
       'title': 'Rate & Review',
       'description': 'Build trust in the community by rating your travel companions after each ride.',
-      'color': Color(0xFFF59E0B),
     },
   ];
 
@@ -53,19 +50,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       'image': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop',
       'smallText': "It's a Big World",
       'bigText': "Out There,\nGo Explore",
-      'color': const Color(0xFF4F46E5), // Indigo (Brand)
     },
     {
       'image': 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?q=80&w=2070&auto=format&fit=crop',
       'smallText': "Find Your Tribe",
       'bigText': "Journey With\nNew Friends",
-     'color': const Color(0xFFE11D48), // Rose/Pink
     },
     {
       'image': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop',
       'smallText': "Share Moments",
       'bigText': "Plan Trips,\nCreate Stories",
-      'color': const Color(0xFF0EA5E9), // Sky Blue
     },
   ];
 
@@ -124,7 +118,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildPostAuthOnboarding() {
     final slide = _tutorialSlides[_currentPage];
-    final color = slide['color'] as Color;
+    // One accent across every slide. The per-slide colours were leftovers
+    // from the retired indigo palette and made the intro look like four
+    // different products.
+    final color = context.c.brand;
     final isLast = _currentPage == _tutorialSlides.length - 1;
 
     return Scaffold(
@@ -307,7 +304,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               fontSize: 56,
                               fontWeight: FontWeight.w800,
                               height: 1.05,
-                              color: Colors.white,
+                              color: context.c.surfaceRaised,
                               letterSpacing: -2.0,
                             ),
                           ),

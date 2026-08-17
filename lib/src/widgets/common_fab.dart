@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'dart:ui';
 import '../screens/create_post_screen.dart';
@@ -24,8 +25,8 @@ class CommonFab extends StatelessWidget {
       isScrollControlled: true,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
@@ -167,7 +168,7 @@ class CommonFab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.grey[100]!),
         ),

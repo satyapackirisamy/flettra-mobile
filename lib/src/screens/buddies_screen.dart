@@ -180,7 +180,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.c.surfaceRaised,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: TextField(
@@ -524,7 +524,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
 
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surfaceRaised,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
