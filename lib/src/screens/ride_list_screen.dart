@@ -849,7 +849,7 @@ class RideListScreenState extends State<RideListScreen> {
                       child: Row(children: [
                         const Icon(Icons.event_seat_rounded, size: 10, color: Colors.white),
                         const SizedBox(width: 3),
-                        Text('$seats', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                        Text('$seats', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
                       ]),
                     ),
                   ),
@@ -975,7 +975,7 @@ class RideListScreenState extends State<RideListScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(place['name']!,
-                    style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, height: 1.2),
+                    style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white, height: 1.2),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
                   Row(children: [

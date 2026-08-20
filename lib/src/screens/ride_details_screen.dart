@@ -429,7 +429,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFEDED),
+                        color: context.c.badWash,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFFE53935).withOpacity(0.35)),
                       ),
@@ -825,7 +825,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                               child: Center(
                                                 child: Text(
                                                   name.isNotEmpty ? name[0].toUpperCase() : '?',
-                                                  style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: context.c.surfaceRaised),
+                                                  style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: context.c.onBrand),
                                                 ),
                                               ),
                                             ),
@@ -925,7 +925,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                     decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(6)),
-                                    child: Text('${_requests.where((r) => r['status'] == 'pending').length}', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
+                                    child: Text('${_requests.where((r) => r['status'] == 'pending').length}', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                                   ),
                                 ],
                               ),
@@ -1060,7 +1060,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                       leading: Container(
                                         width: 36, height: 36,
                                         decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle),
-                                        child: Center(child: Text('${day['day']}', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.surfaceRaised, fontSize: 13))),
+                                        child: Center(child: Text('${day['day']}', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.onBrand, fontSize: 13))),
                                       ),
                                       title: Text(
                                         'Day ${day['day']}${day['title'] != null ? ' · ${day['title']}' : ''}',
@@ -1967,7 +1967,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                       children: [
                         Text('Total Trip Expense', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.7), fontSize: 13, fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
-                        Text('₹${(total is num ? total : double.tryParse('$total') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 36, fontWeight: FontWeight.w800)),
+                        Text('₹${(total is num ? total : double.tryParse('$total') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: context.c.onBrand, fontSize: 36, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 16),
                         Container(height: 1, color: context.c.onBrand.withValues(alpha: 0.24)),
                         const SizedBox(height: 16),
@@ -1979,7 +1979,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                                 children: [
                                   Text('YOUR SHARE', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                                   const SizedBox(height: 4),
-                                  Text('₹${(perPerson is num ? perPerson : double.tryParse('$perPerson') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 20, fontWeight: FontWeight.w800)),
+                                  Text('₹${(perPerson is num ? perPerson : double.tryParse('$perPerson') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: context.c.onBrand, fontSize: 20, fontWeight: FontWeight.w800)),
                                 ],
                               ),
                             ),
@@ -1989,7 +1989,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                                 children: [
                                   Text('EXPENSES', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                                   const SizedBox(height: 4),
-                                  Text('${_expenses.length}', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 20, fontWeight: FontWeight.w800)),
+                                  Text('${_expenses.length}', style: AppTypography.dmSans(color: context.c.onBrand, fontSize: 20, fontWeight: FontWeight.w800)),
                                 ],
                               ),
                             ),

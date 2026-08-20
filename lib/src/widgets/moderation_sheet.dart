@@ -82,7 +82,7 @@ class _ModerationSheetState extends State<_ModerationSheet> {
             Container(
               width: 40, height: 4,
               margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(color: const Color(0xFFE4E4E7), borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(color: context.c.rule, borderRadius: BorderRadius.circular(2)),
             ),
 
             if (_loading)

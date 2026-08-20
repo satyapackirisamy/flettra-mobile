@@ -161,7 +161,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
+          color: context.c.surfaceSunken,
           borderRadius: BorderRadius.circular(16),
         ),
         child: TextField(
@@ -207,7 +207,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                   gradient: isActive
                       ? null
                       : null,
-                  color: isActive ? null : const Color(0xFFF5F5F5),
+                  color: isActive ? null : context.c.surfaceSunken,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Text(
@@ -362,7 +362,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       color: context.c.brand,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text('MY RIDE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, letterSpacing: 0.8)),
+                          child: Text('MY RIDE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.onBrand, letterSpacing: 0.8)),
                         ),
                       if (status == 'ongoing' || status == 'in_progress') ...[
                         if (isOwner) const SizedBox(width: 6),
@@ -377,7 +377,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                             children: [
                               Container(width: 6, height: 6, decoration: BoxDecoration(color: context.c.surfaceRaised, shape: BoxShape.circle)),
                               const SizedBox(width: 5),
-                              Text('LIVE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                              Text('LIVE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.onBrand)),
                             ],
                           ),
                         ),
@@ -398,7 +398,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       ),
                       child: Text(
                         '~₹$price',
-                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.surfaceRaised),
+                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
                       ),
                     ),
                   ),
@@ -409,7 +409,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                   right: 14,
                   child: Text(
                     name,
-                    style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, shadows: [const Shadow(color: Colors.black45, blurRadius: 8)]),
+                    style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, shadows: [const Shadow(color: Colors.black45, blurRadius: 8)]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -465,7 +465,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                         ),
                         child: Text(
                           isOwner ? 'View' : 'Book Spot',
-                          style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.surfaceRaised),
+                          style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.onBrand),
                         ),
                       ),
                     ],
@@ -483,7 +483,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                           child: Center(
                             child: Text(
                               driverName.isNotEmpty ? driverName[0].toUpperCase() : 'D',
-                              style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.surfaceRaised),
+                              style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.onBrand),
                             ),
                           ),
                         ),

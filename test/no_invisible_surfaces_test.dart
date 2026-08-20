@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,11 +35,13 @@ void main() {
       final lines = file.readAsLinesSync();
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i];
-        // Text and icons over photographs are legitimately white.
-        if (line.contains('TextStyle') ||
-            line.contains('Icon(') ||
-            line.contains('withOpacity') ||
-            line.contains('withValues')) {
+        // Text and icons over photographs are legitimately white. A style can
+        // span several lines, so look back as well as at this one — checking
+        // only the current line missed both cases.
+        final window =
+            lines.sublist(i - 10 < 0 ? 0 : i - 10, i + 1).join('\n');
+        if (RegExp(r'TextStyle\(|AppTypography\.|Icon\(|withOpacity|withValues')
+            .hasMatch(window)) {
           continue;
         }
         if (surfaceWhite.hasMatch(line)) {
@@ -80,5 +83,77 @@ void main() {
         reason: 'A BoxDecoration with no color/gradient/image paints nothing. '
             'Give it a fill, or use a plain Container:\n'
             '${offenders.join('\n')}');
+  });
+
+  test('no surface token is used as a text or icon colour', () {
+    // The bug that shipped repeatedly: a white *foreground* (text on a photo, a
+    // label on a filled button) was swept onto a surface token. surfaceRaised is
+    // near-black in Nightshift, so the text vanished. Foregrounds must use ink*,
+    // onBrand, or a literal white when they sit on media.
+    final offenders = <String>[];
+    for (final file in dartFiles) {
+      if (isPaletteFile(file.path)) continue;
+      final lines = file.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        final match = RegExp(
+                r'color:\s*context\.c\.(surface|surfaceRaised|surfaceSunken)\b')
+            .firstMatch(line);
+        if (match == null) continue;
+
+        // Only a hit when a text/icon constructor opens before this colour and
+        // no container decoration intervenes. Without the position check, a
+        // Container whose child is an Icon on the same line reads as a false
+        // positive.
+        final before = line.substring(0, match.start);
+        final opensForeground =
+            RegExp(r'AppTypography\.|TextStyle\(|Icon\(').hasMatch(before);
+        final opensContainer =
+            RegExp(r'BoxDecoration\(|Container\(|decoration:').hasMatch(before);
+        if (opensForeground && !opensContainer) {
+          offenders.add('${file.path}:${i + 1}');
+        }
+      }
+    }
+    expect(offenders, isEmpty,
+        reason: 'Surface tokens are backgrounds. Use ink/ink2/ink3, onBrand, or '
+            'Colors.white over media:\n${offenders.join('\n')}');
+  });
+
+  test('no near-black colour literal survives outside the palette', () {
+    // Any hand-written near-black is invisible on the Nightshift canvas. This is
+    // what left the login inputs and the onboarding headline unreadable.
+    double luminance(String hex) {
+      double channel(int v) {
+        final c = v / 255;
+        return c <= 0.03928 ? c / 12.92 : math.pow((c + 0.055) / 1.055, 2.4) as double;
+      }
+      // 0xAARRGGBB — RGB begins at index 4.
+      return 0.2126 * channel(int.parse(hex.substring(4, 6), radix: 16)) +
+          0.7152 * channel(int.parse(hex.substring(6, 8), radix: 16)) +
+          0.0722 * channel(int.parse(hex.substring(8, 10), radix: 16));
+    }
+
+    final offenders = <String>[];
+    final literal = RegExp(r'Color\((0x[0-9A-Fa-f]{8})\)');
+    for (final file in dartFiles) {
+      if (isPaletteFile(file.path)) continue;
+      final lines = file.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        // Scrims and shadows are deliberately dark and semi-transparent.
+        if (RegExp(r'Shadow|scrim|withOpacity|withValues|barrier|colors: \[')
+            .hasMatch(lines[i])) continue;
+        for (final m in literal.allMatches(lines[i])) {
+          final hex = m.group(1)!;
+          if (hex.substring(2, 4).toUpperCase() != 'FF') continue; // translucent
+          if (luminance(hex) < 0.02) {
+            offenders.add('${file.path}:${i + 1}  $hex');
+          }
+        }
+      }
+    }
+    expect(offenders, isEmpty,
+        reason: 'Near-black literals are invisible on the dark canvas; use '
+            'context.c.ink*:\n${offenders.join('\n')}');
   });
 }

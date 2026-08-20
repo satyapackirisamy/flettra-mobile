@@ -259,7 +259,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
           onTap: () => Navigator.pop(context),
           child: Container(
             margin: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(10)),
             child: Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: context.c.ink),
           ),
         ),
@@ -294,7 +294,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     ? SizedBox(width: 16, height: 16,
                         child: CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2))
                     : Text('Save',
-                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
+                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
               ),
             ),
           ),
@@ -462,7 +462,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                         : Row(mainAxisSize: MainAxisSize.min, children: [
                             Icon(Icons.check_circle_rounded, color: context.c.onBrand, size: 18),
                             const SizedBox(width: 10),
-                            Text('Apply Changes', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                            Text('Apply Changes', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.onBrand)),
                           ]),
                   ),
                 ),
@@ -526,7 +526,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     children: [
                       CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2.5),
                       const SizedBox(height: 12),
-                      Text('Uploading…', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontWeight: FontWeight.w700)),
+                      Text('Uploading…', style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
@@ -544,7 +544,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       const Icon(Icons.photo_camera_rounded, color: Colors.white, size: 14),
                       const SizedBox(width: 5),
-                      Text('Change Photo', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                      Text('Change Photo', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
                     ]),
                   ),
                 ),

@@ -49,7 +49,7 @@ class CommonFab extends StatelessWidget {
               "Share an update", 
               Icons.edit_note_rounded, 
               context.c.brand,
-              const Color(0xFFEFF6FF),
+              context.c.routeWash,
               () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen()))

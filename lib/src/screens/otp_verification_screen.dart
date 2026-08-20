@@ -91,7 +91,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             const SizedBox(height: 20),
             Text(
               'Verify Identity',
-              style: AppTypography.dmSans(fontSize: 32, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
+              style: AppTypography.dmSans(fontSize: 32, fontWeight: FontWeight.w800, color: context.c.ink),
             ),
              const SizedBox(height: 8),
             Text(

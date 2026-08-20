@@ -304,7 +304,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               fontSize: 56,
                               fontWeight: FontWeight.w800,
                               height: 1.05,
-                              color: context.c.surfaceRaised,
+                              // Fixed white, not a token. This sits on a
+                              // photograph, so its contrast comes from the
+                              // image scrim rather than the theme — a surface
+                              // token here turns the headline near-black in
+                              // Nightshift.
+                              color: Colors.white,
                               letterSpacing: -2.0,
                             ),
                           ),

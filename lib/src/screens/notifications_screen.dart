@@ -114,9 +114,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: isUnread ? const Color(0xFFFFF7ED) : context.c.surfaceSunken,
+                            color: isUnread ? context.c.brandWash : context.c.surfaceSunken,
                             borderRadius: BorderRadius.circular(16),
-                            border: isUnread ? Border.all(color: const Color(0xFFFFEDD5)) : null,
+                            border: isUnread ? Border.all(color: context.c.brandWash) : null,
                           ),
                           child: Row(
                             children: [
@@ -171,16 +171,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     // Group notifications
     if (title.contains('group') || title.contains('join') && !title.contains('ride')) {
-      return _NotifIcon(Icons.groups_rounded, const Color(0xFF7C3AED), const Color(0xFFF3E8FF));
+      return _NotifIcon(Icons.groups_rounded, const Color(0xFF7C3AED), context.c.routeWash);
     }
 
     switch (type) {
       case 'buddy_request':
-        return _NotifIcon(Icons.person_add_rounded, const Color(0xFF2563EB), const Color(0xFFEFF6FF));
+        return _NotifIcon(Icons.person_add_rounded, const Color(0xFF2563EB), context.c.routeWash);
       case 'buddy_accepted':
         return _NotifIcon(Icons.people_rounded, context.c.ok, context.c.okWash);
       case 'ride_request':
-        return _NotifIcon(Icons.front_hand_rounded, context.c.brand, const Color(0xFFFFF3E0));
+        return _NotifIcon(Icons.front_hand_rounded, context.c.brand, context.c.warnWash);
       case 'ride_joined':
         return _NotifIcon(Icons.person_add_alt_1_rounded, context.c.ok, context.c.okWash);
       case 'ride_accepted':
@@ -188,13 +188,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'ride_cancelled':
         return _NotifIcon(Icons.cancel_rounded, context.c.bad, context.c.badWash);
       case 'ride_completed':
-        return _NotifIcon(Icons.flag_rounded, context.c.brand, const Color(0xFFFFF3E0));
+        return _NotifIcon(Icons.flag_rounded, context.c.brand, context.c.warnWash);
       case 'ride_started':
         return _NotifIcon(Icons.play_circle_rounded, context.c.ok, context.c.okWash);
       case 'rating_received':
-        return _NotifIcon(Icons.star_rounded, const Color(0xFFFBBF24), const Color(0xFFFFFBEB));
+        return _NotifIcon(Icons.star_rounded, const Color(0xFFFBBF24), context.c.warnWash);
       case 'payment':
-        return _NotifIcon(Icons.payment_rounded, const Color(0xFF2563EB), const Color(0xFFEFF6FF));
+        return _NotifIcon(Icons.payment_rounded, const Color(0xFF2563EB), context.c.routeWash);
       default:
         return _NotifIcon(Icons.notifications_rounded, context.c.ink3, context.c.surfaceSunken);
     }

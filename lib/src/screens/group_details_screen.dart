@@ -126,9 +126,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             margin: const EdgeInsets.only(bottom: 8),
                             decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                            child: Text('PRIVATE', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                            child: Text('PRIVATE', style: AppTypography.dmSans(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                           ),
-                        Text(_group!['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 26, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
+                        Text(_group!['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 26, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                         const SizedBox(height: 4),
                         Row(
                           children: [
@@ -198,7 +198,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                           const Spacer(),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(color: const Color(0xFFFFF3E0), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.c.warnWash, borderRadius: BorderRadius.circular(8)),
                             child: Text('Admin', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
                           ),
                         ],
@@ -238,7 +238,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     ...pendingRequests.map((req) => Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(14)),
+                      decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(14)),
                       child: Row(
                         children: [
                           Expanded(child: Text(_displayName(req['user']), style: AppTypography.dmSans(fontWeight: FontWeight.w700))),
@@ -285,7 +285,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: const Color(0xFFFFF3E0), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: context.c.warnWash, borderRadius: BorderRadius.circular(12)),
               child: Icon(icon, size: 20, color: context.c.brand),
             ),
             const SizedBox(width: 14),

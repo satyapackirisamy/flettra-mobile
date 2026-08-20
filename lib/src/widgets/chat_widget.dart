@@ -263,7 +263,7 @@ class _ChatWidgetState extends State<ChatWidget> {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(24)),
+              decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(24)),
               child: TextField(
                 controller: _msgCtrl,
                 style: AppTypography.dmSans(fontSize: 14, color: context.c.ink),

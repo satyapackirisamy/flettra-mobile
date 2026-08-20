@@ -487,8 +487,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.white, Color(0xFFFFE8E0)],
+        gradient: LinearGradient(
+          colors: [Colors.white, context.c.brandWash],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -553,7 +553,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                             border: Border.all(color: context.c.surfaceRaised, width: 2),
                           ),
                           child: Center(
-                            child: Text('$rank', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                            child: Text('$rank', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.onBrand)),
                           ),
                         ),
                       ),

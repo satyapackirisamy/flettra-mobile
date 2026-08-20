@@ -354,13 +354,13 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                   children: [
                                     const Icon(Icons.lock_rounded, size: 10, color: Colors.white),
                                     const SizedBox(width: 4),
-                                    Text('PRIVATE', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 9, fontWeight: FontWeight.w800)),
+                                    Text('PRIVATE', style: AppTypography.dmSans(color: context.c.onBrand, fontSize: 9, fontWeight: FontWeight.w800)),
                                   ],
                                 ),
                               ),
                           ],
                         ),
-                        Text(g['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.surfaceRaised), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(g['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.onBrand), maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -372,7 +372,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                                 children: [
                                   const Icon(Icons.people_rounded, size: 14, color: Colors.white),
                                   const SizedBox(width: 6),
-                                  Text('${_memberCount(g)} members', style: AppTypography.dmSans(color: context.c.surfaceRaised, fontWeight: FontWeight.w600, fontSize: 12)),
+                                  Text('${_memberCount(g)} members', style: AppTypography.dmSans(color: context.c.onBrand, fontWeight: FontWeight.w600, fontSize: 12)),
                                 ],
                               ),
                             ),
@@ -556,7 +556,7 @@ class _GroupsScreenState extends State<GroupsScreen> {
                       child: Center(
                         child: Text(
                           (g['name'] as String? ?? 'G').substring(0, 1).toUpperCase(),
-                          style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: context.c.surfaceRaised),
+                          style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: context.c.onBrand),
                         ),
                       ),
                     ),

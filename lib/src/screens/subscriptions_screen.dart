@@ -120,7 +120,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                     children: [
                       Icon(Icons.check_circle_rounded, color: context.c.ok, size: 18),
                       const SizedBox(width: 12),
-                      Expanded(child: Text(f, style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF334155), fontSize: 13))),
+                      Expanded(child: Text(f, style: TextStyle(fontWeight: FontWeight.w700, color: context.c.ink2, fontSize: 13))),
                     ],
                   ),
                 )).toList(),

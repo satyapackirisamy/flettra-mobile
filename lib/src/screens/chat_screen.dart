@@ -533,7 +533,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             end: Alignment.bottomRight,
                           )
                         : null,
-                    color: isMe ? null : const Color(0xFFF2F2F2),
+                    color: isMe ? null : context.c.surfaceSunken,
                     borderRadius: BorderRadius.only(
                       topLeft:     const Radius.circular(18),
                       topRight:    const Radius.circular(18),
@@ -609,7 +609,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
+                    color: context.c.surfaceSunken,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: TextField(

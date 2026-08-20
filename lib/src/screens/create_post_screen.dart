@@ -124,7 +124,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text('Post',
-                          style: AppTypography.dmSans(color: context.c.surfaceRaised, fontWeight: FontWeight.w800, fontSize: 14),
+                          style: AppTypography.dmSans(color: context.c.onBrand, fontWeight: FontWeight.w800, fontSize: 14),
                         ),
                       ),
                     ),
@@ -296,7 +296,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               child: Container(
                 color: Colors.black.withOpacity(0.5),
                 child: Center(child: Text('+${count - 3}',
-                  style: AppTypography.dmSans(color: context.c.surfaceRaised, fontSize: 20, fontWeight: FontWeight.w800),
+                  style: AppTypography.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
                 )),
               ),
             )),

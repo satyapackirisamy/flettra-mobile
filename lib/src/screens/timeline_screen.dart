@@ -101,7 +101,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
           Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F2F2),
+              color: context.c.surfaceSunken,
               borderRadius: BorderRadius.circular(30),
             ),
             child: Row(
@@ -193,12 +193,12 @@ class _TimelineScreenState extends State<TimelineScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(6)),
-                      child: Text('FEATURED JOURNEY', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, letterSpacing: 1.2)),
+                      child: Text('FEATURED JOURNEY', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.onBrand, letterSpacing: 1.2)),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       _postTitle(post),
-                      style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, letterSpacing: -0.5, height: 1.15),
+                      style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.onBrand, letterSpacing: -0.5, height: 1.15),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -357,7 +357,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
           const SizedBox(height: 8),
           Text(
             content,
-            style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: context.c.surfaceRaised, height: 1.35, letterSpacing: -0.3),
+            style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: context.c.onBrand, height: 1.35, letterSpacing: -0.3),
           ),
           const SizedBox(height: 20),
           Row(
@@ -365,14 +365,14 @@ class _TimelineScreenState extends State<TimelineScreen> {
               Container(
                 width: 36, height: 36,
                 decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), shape: BoxShape.circle),
-                child: Center(child: Text(name[0], style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.surfaceRaised, fontSize: 16))),
+                child: Center(child: Text(name[0], style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.onBrand, fontSize: 16))),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
+                    Text(name, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                     Text('THOUGHT LEADER', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white70, letterSpacing: 1.0)),
                   ],
                 ),

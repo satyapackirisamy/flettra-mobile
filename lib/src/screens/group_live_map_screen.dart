@@ -560,7 +560,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(
                         'Next fuel: ${_nextOnRoute!.distanceKm != null ? _formatDist(_nextOnRoute!.distanceKm!) : "ahead"}',
-                        style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: context.c.surfaceRaised),
+                        style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: context.c.onBrand),
                       ),
                       Text(
                         _nextOnRoute!.name,
@@ -575,7 +575,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
-                      child: Text('Go', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
+                      child: Text('Go', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                     ),
                   ),
                 ]),
@@ -589,7 +589,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
+                  color: context.c.warnWash,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFFFDE68A)),
                 ),
@@ -658,7 +658,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
-                  color: isActive ? catColor : const Color(0xFFF4F4F4),
+                  color: isActive ? catColor : context.c.surfaceSunken,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: isActive
                       ? [BoxShadow(color: catColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))]
@@ -676,7 +676,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     style: AppTypography.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: isActive ? context.c.onBrand : const Color(0xFF555555),
+                      color: isActive ? context.c.onBrand : context.c.ink2,
                     ),
                   ),
                   if (isActive && _pois.isNotEmpty) ...[
@@ -686,7 +686,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                       decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
                       child: Text(
                         '${_pois.length}',
-                        style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: context.c.surfaceRaised),
+                        style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: context.c.onBrand),
                       ),
                     ),
                   ],
@@ -763,7 +763,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
         margin: const EdgeInsets.only(bottom: 6),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isNext ? catColor.withOpacity(0.07) : const Color(0xFFFAFAFA),
+          color: isNext ? catColor.withOpacity(0.07) : context.c.surfaceSunken,
           borderRadius: BorderRadius.circular(14),
           border: isNext ? Border.all(color: catColor.withOpacity(0.25)) : null,
         ),
@@ -784,7 +784,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                   margin: const EdgeInsets.only(left: 6),
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(color: catColor, borderRadius: BorderRadius.circular(6)),
-                  child: Text('NEXT', style: AppTypography.dmSans(fontSize: 8, fontWeight: FontWeight.w800, color: context.c.surfaceRaised, letterSpacing: 0.5)),
+                  child: Text('NEXT', style: AppTypography.dmSans(fontSize: 8, fontWeight: FontWeight.w800, color: context.c.onBrand, letterSpacing: 0.5)),
                 ),
             ]),
             const SizedBox(height: 2),

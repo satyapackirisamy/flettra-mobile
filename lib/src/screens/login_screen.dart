@@ -34,14 +34,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   // Brand Colors — Flettra orange palette
   // TODO(theme): these statics predate the token system; read context.c.* at
   // the call site instead of holding colours in static fields.
-  static const Color primaryIndigo = Color(0xFFB9F227);
-  static const Color primaryIndigoDark = Color(0xFFCC3300);
-  static const Color accentOrange = Color(0xFFB9F227);
-  static const Color surfaceLight = Colors.white;    // warm peach background
-  static const Color inputFill = Color(0xFF161915);
-  static const Color textDark = Color(0xFF18181B);
-  static const Color textGray = Color(0xFF71717A);
-  static const Color borderColor = Color(0xFFE4E4E7);
 
   @override
   void initState() {
@@ -201,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w600)),
-        backgroundColor: textDark,
+        backgroundColor: context.c.ink,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -212,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: surfaceLight,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnim,
@@ -263,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       style: AppTypography.dmSans(
                                         fontSize: 22,
                                         fontWeight: FontWeight.w800,
-                                        color: textDark,
+                                        color: context.c.ink,
                                         height: 1.1,
                                       ),
                                     ),
@@ -275,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       style: AppTypography.dmSans(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
-                                        color: textGray,
+                                        color: context.c.ink3,
                                       ),
                                     ),
                                   ],
@@ -323,7 +315,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     'Forgot password?',
                                     style: AppTypography.dmSans(
                                       fontSize: 12,
-                                      color: accentOrange,
+                                      color: context.c.brand,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -341,7 +333,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             // Divider
                             Row(
                               children: [
-                                const Expanded(child: Divider(color: Color(0xFFE4E4E7))),
+                                Expanded(child: Divider(color: context.c.rule)),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 12),
                                   child: Text(
@@ -349,12 +341,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     style: AppTypography.dmSans(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
-                                      color: const Color(0xFFA1A1AA),
+                                      color: context.c.ink3,
                                       letterSpacing: 1.0,
                                     ),
                                   ),
                                 ),
-                                const Expanded(child: Divider(color: Color(0xFFE4E4E7))),
+                                Expanded(child: Divider(color: context.c.rule)),
                               ],
                             ),
 
@@ -376,7 +368,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     text: 'New to Flettra? ',
                                     style: AppTypography.dmSans(
                                       fontSize: 13,
-                                      color: textGray,
+                                      color: context.c.ink3,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     children: [
@@ -384,7 +376,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                         text: 'Create account',
                                         style: AppTypography.dmSans(
                                           fontSize: 13,
-                                          color: primaryIndigo,
+                                          color: context.c.brand,
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),
@@ -425,12 +417,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [primaryIndigo, Color(0xFFFF7733)],
+                    colors: [context.c.brand, Color(0xFFFF7733)],
                   ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: primaryIndigo.withOpacity(0.30),
+                      color: context.c.brand.withOpacity(0.30),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -472,7 +464,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     style: AppTypography.dmSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: textDark,
+                      color: context.c.ink,
                       letterSpacing: 2.0,
                       height: 1.0,
                     ),
@@ -482,7 +474,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     style: AppTypography.dmSans(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: textGray,
+                      color: context.c.ink3,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -494,12 +486,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: accentOrange.withOpacity(0.10),
+                  color: context.c.brand.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   Icons.two_wheeler_rounded,
-                  color: accentOrange,
+                  color: context.c.brand,
                   size: 20,
                 ),
               ),
@@ -514,7 +506,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             style: AppTypography.dmSans(
               fontSize: 34,
               fontWeight: FontWeight.w700,
-              color: textDark,
+              color: context.c.ink,
               height: 1.1,
               letterSpacing: -0.5,
             ),
@@ -527,13 +519,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 style: AppTypography.dmSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: textGray,
+                  color: context.c.ink3,
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: primaryIndigo.withOpacity(0.08),
+                  color: context.c.brand.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -541,7 +533,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   style: AppTypography.dmSans(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: primaryIndigo,
+                    color: context.c.brand,
                   ),
                 ),
               ),
@@ -559,16 +551,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: primaryIndigo.withOpacity(0.08),
+          color: context.c.brand.withOpacity(0.08),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: primaryIndigo.withOpacity(0.15)),
+          border: Border.all(color: context.c.brand.withOpacity(0.15)),
         ),
         child: Text(
           _isPasswordLogin ? 'Use OTP' : 'Use Password',
           style: AppTypography.dmSans(
             fontSize: 11,
             fontWeight: FontWeight.w800,
-            color: primaryIndigo,
+            color: context.c.brand,
             letterSpacing: 0.3,
           ),
         ),
@@ -583,7 +575,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       style: AppTypography.dmSans(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: textDark,
+        color: context.c.ink,
         letterSpacing: 0.2,
       ),
     );
@@ -606,25 +598,25 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       style: AppTypography.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: textDark,
+        color: context.c.ink,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: AppTypography.dmSans(
           fontSize: 14,
-          color: const Color(0xFFA1A1AA),
+          color: context.c.ink3,
           fontWeight: FontWeight.w400,
         ),
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 14, right: 10),
-          child: Icon(icon, color: const Color(0xFFA1A1AA), size: 19),
+          child: Icon(icon, color: context.c.ink3, size: 19),
         ),
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
                   isObscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  color: const Color(0xFFA1A1AA),
+                  color: context.c.ink3,
                   size: 19,
                 ),
                 onPressed: onToggleObscure,
@@ -632,19 +624,19 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               )
             : null,
         filled: true,
-        fillColor: inputFill,
+        fillColor: context.c.surfaceSunken,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: borderColor, width: 1.0),
+          borderSide: BorderSide(color: context.c.rule, width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: primaryIndigo, width: 1.5),
+          borderSide: BorderSide(color: context.c.brand, width: 1.5),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: context.c.rule),
         ),
       ),
     );
@@ -666,8 +658,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           ),
         ),
         style: OutlinedButton.styleFrom(
-          foregroundColor: primaryIndigo,
-          side: BorderSide(color: primaryIndigo, width: 1.5),
+          foregroundColor: context.c.brand,
+          side: BorderSide(color: context.c.brand, width: 1.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
@@ -686,7 +678,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               : LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
-                  colors: [primaryIndigo, Color(0xFFFF7733)],
+                  colors: [context.c.brand, Color(0xFFFF7733)],
                 ),
           color: _isLoading ? const Color(0xFFE0E0E0) : null,
           borderRadius: BorderRadius.circular(16),
@@ -694,7 +686,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               ? []
               : [
                   BoxShadow(
-                    color: primaryIndigo.withOpacity(0.35),
+                    color: context.c.brand.withOpacity(0.35),
                     blurRadius: 18,
                     offset: const Offset(0, 6),
                   ),

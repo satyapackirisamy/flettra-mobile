@@ -313,7 +313,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 11),
                               decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(24)),
-                              child: Text('Edit Profile', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
+                              child: Text('Edit Profile', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -582,7 +582,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFFF5E6DC),
+                    color: context.c.brandWash,
                     boxShadow: [BoxShadow(color: context.c.brand.withOpacity(0.15), blurRadius: 12, offset: const Offset(0, 4))],
                   ),
                   padding: const EdgeInsets.all(4),
@@ -592,7 +592,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     backgroundImage: avatarUrl.startsWith('http') ? NetworkImage(avatarUrl) : null,
                     child: !avatarUrl.startsWith('http')
                         ? Text(name.isNotEmpty ? name[0].toUpperCase() : '?',
-                            style: AppTypography.dmSans(fontSize: 24, fontWeight: FontWeight.w700, color: context.c.surfaceRaised))
+                            style: AppTypography.dmSans(fontSize: 24, fontWeight: FontWeight.w700, color: context.c.onBrand))
                         : null,
                   ),
                 ),
@@ -641,7 +641,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 margin: const EdgeInsets.symmetric(horizontal: 14),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(30)),
-                child: Center(child: Text('View Profile', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.surfaceRaised))),
+                child: Center(child: Text('View Profile', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand))),
               ),
             ),
             const SizedBox(height: 14),
@@ -714,8 +714,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         children: [
           if (isRejected)
             Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFEDED),
+              decoration: BoxDecoration(
+                color: context.c.badWash,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -732,7 +732,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: isRejected ? const Color(0xFFF9F9F9) : Colors.white,
+        color: isRejected ? context.c.surfaceSunken : Colors.white,
         borderRadius: isRejected
             ? const BorderRadius.vertical(bottom: Radius.circular(20))
             : BorderRadius.circular(20),
@@ -859,7 +859,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               children: [
                 Text('MEMBER LEVEL', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.brand, letterSpacing: 1.5)),
                 const SizedBox(height: 4),
-                Text(levelInfo['name'] as String, style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, fontStyle: FontStyle.italic)),
+                Text(levelInfo['name'] as String, style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.onBrand, fontStyle: FontStyle.italic)),
                 Text(levelInfo['desc'] as String, style: AppTypography.dmSans(fontSize: 11, color: context.c.onBrand.withValues(alpha: 0.54), fontWeight: FontWeight.w500)),
               ],
             ),
@@ -876,7 +876,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-            child: Text('VIP', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+            child: Text('VIP', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.onBrand)),
           ),
         ],
       ),

@@ -81,7 +81,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       style: AppTypography.dmSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
+                        color: context.c.ink,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -137,7 +137,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       style: AppTypography.dmSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
+                        color: context.c.ink,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -219,7 +219,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 style: AppTypography.dmSans(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
+                  color: context.c.ink,
                 ),
               ),
               Text(

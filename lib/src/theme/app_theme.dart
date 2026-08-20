@@ -251,6 +251,14 @@ abstract final class AppTheme {
         minVerticalPadding: AppSpacing.sm,
       ),
 
+      // A text field's caret and selection are invisible if left to defaults on
+      // a near-black ground, which made typed input look like nothing had been
+      // entered even once the text colour was right.
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: c.brand,
+        selectionColor: c.brand.withValues(alpha: 0.30),
+        selectionHandleColor: c.brand,
+      ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: c.brand),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(

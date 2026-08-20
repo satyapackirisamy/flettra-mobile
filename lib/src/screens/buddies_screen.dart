@@ -233,7 +233,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(20)),
-                child: Text('${_requests.length} PENDING', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                child: Text('${_requests.length} PENDING', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.onBrand)),
               ),
             ],
           ),
@@ -305,7 +305,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
               decoration: BoxDecoration(color: context.c.ink, borderRadius: BorderRadius.circular(24)),
-              child: Text('Accept', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
+              child: Text('Accept', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
             ),
           ),
           const SizedBox(width: 8),
@@ -338,7 +338,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(color: context.c.ink, borderRadius: BorderRadius.circular(20)),
-                child: Text('${_buddies.length} CONNECTED', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                child: Text('${_buddies.length} CONNECTED', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.onBrand)),
               ),
             ],
           ),
@@ -564,7 +564,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(color: isBuddy ? context.c.ok : context.c.brand, borderRadius: BorderRadius.circular(30)),
                     child: Center(
-                      child: Text(isBuddy ? 'Connected ✓' : 'Connect', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.surfaceRaised)),
+                      child: Text(isBuddy ? 'Connected ✓' : 'Connect', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                     ),
                   ),
                 ),

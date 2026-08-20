@@ -274,7 +274,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                 child: Center(
                   child: _isLoading
                       ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2))
-                      : Text('Publish', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                      : Text('Publish', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.onBrand)),
                 ),
               ),
             ),
@@ -341,7 +341,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                                     alignment: Alignment.center,
                                     child: Text(
                                       entry.key,
-                                      style: AppTypography.dmSans(color: context.c.surfaceRaised, fontWeight: FontWeight.w700, fontSize: 12),
+                                      style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
                                     ),
                                   ),
                                   if (isSelected)
@@ -379,7 +379,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                               child: Row(mainAxisSize: MainAxisSize.min, children: [
                                 const Icon(Icons.photo_camera_rounded, color: Colors.white, size: 12),
                                 const SizedBox(width: 4),
-                                Text('Change', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.surfaceRaised)),
+                                Text('Change', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
                               ]),
                             ),
                           ),
@@ -406,7 +406,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                           child: Center(
                             child: Text(
                               (member['name'] as String).isNotEmpty ? member['name'][0].toUpperCase() : '?',
-                              style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.surfaceRaised, fontSize: 14),
+                              style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.onBrand, fontSize: 14),
                             ),
                           ),
                         ),
@@ -535,7 +535,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                             children: [
                               Text(mode.emoji, style: const TextStyle(fontSize: 16)),
                               const SizedBox(width: 6),
-                              Text(mode.label, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: selected ? context.c.onBrand : const Color(0xFF374151))),
+                              Text(mode.label, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: selected ? context.c.onBrand : context.c.ink2)),
                             ],
                           ),
                         ),
@@ -662,7 +662,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
                             children: [
                               const Icon(Icons.rocket_launch_rounded, color: Colors.white, size: 18),
                               const SizedBox(width: 10),
-                              Text('Publish Ride', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.surfaceRaised, letterSpacing: -0.2)),
+                              Text('Publish Ride', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.onBrand, letterSpacing: -0.2)),
                             ],
                           ),
                   ),

@@ -227,7 +227,7 @@ class _AdminDestinationFormScreenState extends State<AdminDestinationFormScreen>
       onChanged: (v) {
         if (controller == _imageUrlController) setState(() {});
       },
-      style: AppTypography.dmSans(fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+      style: AppTypography.dmSans(fontWeight: FontWeight.w600, color: context.c.ink),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: AppTypography.dmSans(color: const Color(0xFF94A3B8)),
