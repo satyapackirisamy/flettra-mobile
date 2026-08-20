@@ -297,7 +297,11 @@ class _ChatWidgetState extends State<ChatWidget> {
       children: [
         if (newDay && sentAt != null) _buildDaySeparator(sentAt),
         Padding(
-          padding: EdgeInsets.only(bottom: isFirstFromSender ? 2 : 3, top: isFirstFromSender ? 6 : 0),
+          // 6pt inside a run, 18pt when a new speaker or a new day starts.
+          padding: EdgeInsets.only(
+            top: isFirstFromSender ? AppSpacing.sm : 0,
+            bottom: AppSpacing.xxs + 2,
+          ),
           child: Row(
             mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -390,6 +394,8 @@ class _ChatWidgetState extends State<ChatWidget> {
                   controller: _msgCtrl,
                   minLines: 1,
                   maxLines: 4,
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.send,
                   textCapitalization: TextCapitalization.sentences,
                   style: AppTypography.body.copyWith(color: c.ink),
                   decoration: InputDecoration(

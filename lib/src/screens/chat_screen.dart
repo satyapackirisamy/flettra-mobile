@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/flettra_colors.dart';
+import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -489,7 +490,10 @@ class _ChatScreenState extends State<ChatScreen> {
     final isFirstFromSender = prevSenderId != senderId;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: EdgeInsets.only(
+        top: isFirstFromSender ? AppSpacing.sm : 0,
+        bottom: AppSpacing.xxs + 2,
+      ),
       child: Row(
         mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -612,6 +616,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   child: TextField(
                     controller: _msgCtrl,
+                    minLines: 1,
+                    maxLines: 4,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.send,
+                    textCapitalization: TextCapitalization.sentences,
                     style: AppTypography.dmSans(fontSize: 14, color: context.c.ink),
                     decoration: InputDecoration(
                       hintText: 'Message...',
