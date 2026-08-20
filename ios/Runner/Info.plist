@@ -9,7 +9,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Flettra Mobile</string>
+	<string>Flettra</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -30,14 +30,12 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Flettra needs your location to show nearby rides and personalize your feed.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-<string>This app needs location access to show nearby places.</string>
 
 <key>NSCameraUsageDescription</key>
-<string>This app needs camera access to upload photos.</string>
+<string>Flettra uses the camera so you can add photos of a trip to your ride journal and posts.</string>
 
 <key>NSPhotoLibraryUsageDescription</key>
-<string>This app needs photo library access to upload images.</string>
+<string>Flettra needs your photo library so you can attach existing photos to a ride, a post or your profile.</string>
 
 <key>NSFaceIDUsageDescription</key>
 <string>Use Face ID to sign in to Flettra quickly and securely.</string>
@@ -65,5 +63,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

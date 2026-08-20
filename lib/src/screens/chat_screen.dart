@@ -517,7 +517,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Text(
                       senderName,
                       style: AppTypography.dmSans(
-                        fontSize: 11, fontWeight: FontWeight.w800, color: context.c.brand,
+                        fontSize: 12, fontWeight: FontWeight.w500, color: context.c.ink3,
                       ),
                     ),
                   ),
@@ -526,26 +526,24 @@ class _ChatScreenState extends State<ChatScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    gradient: isMe
-                        ? LinearGradient(
-                            colors: [context.c.brand, context.c.brand],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          )
-                        : null,
-                    color: isMe ? null : context.c.surfaceSunken,
+                    color: context.c.surfaceRaised,
                     borderRadius: BorderRadius.only(
-                      topLeft:     const Radius.circular(18),
-                      topRight:    const Radius.circular(18),
-                      bottomLeft:  Radius.circular(isMe ? 18 : 4),
-                      bottomRight: Radius.circular(isMe ? 4 : 18),
+                      topLeft: const Radius.circular(16),
+                      topRight: const Radius.circular(16),
+                      bottomLeft: Radius.circular(isMe ? 16 : 5),
+                      bottomRight: Radius.circular(isMe ? 5 : 16),
+                    ),
+                    border: Border.all(
+                      color: isMe
+                          ? context.c.brand.withValues(alpha: 0.55)
+                          : context.c.rule,
                     ),
                   ),
                   child: Text(
                     content,
                     style: AppTypography.dmSans(
                       fontSize: 14,
-                      color: isMe ? context.c.onBrand : context.c.ink,
+                      color: context.c.ink,
                       height: 1.45,
                     ),
                   ),
@@ -565,7 +563,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       if (isMe) ...[
                         const SizedBox(width: 4),
-                        Icon(Icons.done_all_rounded, size: 12, color: context.c.brand.withOpacity(0.7)),
+                        Icon(Icons.done_all_rounded, size: 12, color: context.c.brand),
                       ],
                     ],
                   ),

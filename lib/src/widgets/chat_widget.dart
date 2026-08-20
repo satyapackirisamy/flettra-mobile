@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_spacing.dart';
 import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -149,147 +150,302 @@ class _ChatWidgetState extends State<ChatWidget> {
 
     return ListView.builder(
       controller: _scrollCtrl,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.xs, AppSpacing.sm, AppSpacing.xs),
       physics: const BouncingScrollPhysics(),
       itemCount: _messages.length,
       itemBuilder: (context, i) => _buildBubble(_messages[i], i),
     );
   }
 
-  Widget _buildBubble(dynamic msg, int index) {
-    final sender     = msg['sender'];
-    final senderId   = sender is Map ? sender['id']?.toString() : msg['senderId']?.toString();
-    final senderName = sender is Map ? (sender['name'] ?? sender['firstName'] ?? 'User').toString() : 'User';
-    final isMe       = senderId == _userId;
-    final content    = msg['content']?.toString() ?? '';
-    String timeStr   = '';
-    try {
-      timeStr = DateFormat('HH:mm').format(DateTime.parse(msg['createdAt'].toString()).toLocal());
-    } catch (_) {}
+  /// True when this message starts a new calendar day relative to the previous.
+  bool _startsNewDay(int index) {
+    DateTime? at(int i) {
+      if (i < 0 || i >= _messages.length) return null;
+      try {
+        return DateTime.parse(_messages[i]['createdAt'].toString()).toLocal();
+      } catch (_) {
+        return null;
+      }
+    }
 
-    final prevSenderId = index > 0
-        ? ((_messages[index - 1]['sender'] is Map
-              ? _messages[index - 1]['sender']['id']
-              : _messages[index - 1]['senderId'])?.toString())
-        : null;
-    final isFirstFromSender = prevSenderId != senderId;
+    final current = at(index);
+    if (current == null) return false;
+    if (index == 0) return true;
+    final previous = at(index - 1);
+    if (previous == null) return true;
+    return current.year != previous.year ||
+        current.month != previous.month ||
+        current.day != previous.day;
+  }
+
+  /// A dated pill between days, so a long thread stays readable without every
+  /// bubble carrying a full date.
+  Widget _buildDaySeparator(DateTime day) {
+    final c = context.c;
+    final now = DateTime.now();
+    final isToday = day.year == now.year && day.month == now.month && day.day == now.day;
+    final yesterday = now.subtract(const Duration(days: 1));
+    final isYesterday = day.year == yesterday.year &&
+        day.month == yesterday.month &&
+        day.day == yesterday.day;
+    final label = isToday
+        ? 'Today'
+        : isYesterday
+            ? 'Yesterday'
+            : DateFormat('d MMM yyyy').format(day);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Other user avatar
-          if (!isMe)
-            isFirstFromSender
-                ? Container(
-                    width: 30, height: 30,
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      color: context.c.brandWash,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        senderName.isNotEmpty ? senderName[0].toUpperCase() : 'U',
-                        style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand),
-                      ),
-                    ),
-                  )
-                : const SizedBox(width: 38),
-
-          // Bubble
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
-            child: Column(
-              crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-              children: [
-                if (!isMe && isFirstFromSender)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 4),
-                    child: Text(senderName,
-                        style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.brand)),
-                  ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: isMe ? context.c.brand : context.c.surfaceRaised,
-                    borderRadius: BorderRadius.only(
-                      topLeft:     const Radius.circular(18),
-                      topRight:    const Radius.circular(18),
-                      bottomLeft:  Radius.circular(isMe ? 18 : 4),
-                      bottomRight: Radius.circular(isMe ? 4 : 18),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(content,
-                          style: AppTypography.dmSans(
-                            fontSize: 14,
-                            color: isMe ? context.c.onBrand : context.c.ink,
-                            height: 1.4,
-                          )),
-                      const SizedBox(height: 3),
-                      Text(timeStr,
-                          style: AppTypography.dmSans(
-                            fontSize: 9,
-                            color: isMe
-                                ? context.c.onBrand.withValues(alpha: 0.6)
-                                : context.c.ink3,
-                          )),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+      padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.sm),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm, vertical: AppSpacing.xxs + 1),
+          decoration: BoxDecoration(
+            color: c.brandWash,
+            borderRadius: AppRadius.pillR,
+            border: Border.all(color: c.brand.withValues(alpha: 0.35)),
           ),
-
-          if (isMe) const SizedBox(width: 4),
-        ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.calendar_today_rounded, size: 11, color: c.brand),
+              const SizedBox(width: AppSpacing.xxs + 2),
+              Text(label,
+                  style: AppTypography.caption.copyWith(color: c.brand)),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildInputBar() {
-    return Container(
+  Widget _buildBubble(dynamic msg, int index) {
+    final c          = context.c;
+    final sender     = msg['sender'];
+    final senderId   = sender is Map ? sender['id']?.toString() : msg['senderId']?.toString();
+    final senderName = sender is Map
+        ? (sender['name'] ?? sender['firstName'] ?? 'User').toString()
+        : 'User';
+    final isMe       = senderId == _userId;
+    final content    = msg['content']?.toString() ?? '';
+    final pending    = msg['_pending'] == true;
+
+    String timeStr = '';
+    DateTime? sentAt;
+    try {
+      sentAt = DateTime.parse(msg['createdAt'].toString()).toLocal();
+      timeStr = DateFormat('HH:mm').format(sentAt);
+    } catch (_) {}
+
+    final prevSenderId = index > 0
+        ? ((_messages[index - 1]['sender'] is Map
+                ? _messages[index - 1]['sender']['id']
+                : _messages[index - 1]['senderId'])
+            ?.toString())
+        : null;
+    final newDay = _startsNewDay(index);
+    // A run of messages from one person shows their name and avatar once.
+    final isFirstFromSender = prevSenderId != senderId || newDay;
+
+    // Own messages are outlined rather than filled. A solid lime bubble on every
+    // line is the accent shouting; an outline still reads as "mine" and lets the
+    // message text stay ink, which is easier to read at length.
+    final bubble = Container(
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.sm + 1, AppSpacing.xs + 1, AppSpacing.sm + 1, AppSpacing.xs),
       decoration: BoxDecoration(
-        color: context.c.surfaceRaised,
-        border: Border(top: BorderSide(color: Colors.grey[100]!)),
+        color: c.surfaceRaised,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(16),
+          topRight: const Radius.circular(16),
+          bottomLeft: Radius.circular(isMe ? 16 : 5),
+          bottomRight: Radius.circular(isMe ? 5 : 16),
+        ),
+        border: Border.all(
+          color: isMe ? c.brand.withValues(alpha: 0.55) : c.rule,
+        ),
       ),
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(24)),
-              child: TextField(
-                controller: _msgCtrl,
-                style: AppTypography.dmSans(fontSize: 14, color: context.c.ink),
-                decoration: InputDecoration(
-                  hintText: 'Type a message...',
-                  hintStyle: AppTypography.dmSans(color: context.c.ink3, fontSize: 14),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          Text(content,
+              style: AppTypography.body.copyWith(color: c.ink, height: 1.35)),
+          const SizedBox(height: 2),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                pending ? 'Sending…' : timeStr,
+                style: AppTypography.caption.copyWith(
+                  color: pending ? c.ink3 : (isMe ? c.brand : c.ink3),
+                  fontWeight: FontWeight.w500,
                 ),
-                onSubmitted: (_) => _sendMessage(),
               ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: _sendMessage,
-            child: Container(
-              width: 44, height: 44,
-              decoration: BoxDecoration(
-                      color: context.c.brand,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.arrow_forward_ios_rounded, color: context.c.onBrand, size: 18),
-            ),
+              if (isMe && !pending) ...[
+                const SizedBox(width: AppSpacing.xxs),
+                Icon(Icons.done_all_rounded, size: 12, color: c.brand),
+              ],
+            ],
           ),
         ],
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (newDay && sentAt != null) _buildDaySeparator(sentAt),
+        Padding(
+          padding: EdgeInsets.only(bottom: isFirstFromSender ? 2 : 3, top: isFirstFromSender ? 6 : 0),
+          child: Row(
+            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (!isMe)
+                isFirstFromSender
+                    ? Container(
+                        width: 30,
+                        height: 30,
+                        margin: const EdgeInsets.only(right: AppSpacing.xs),
+                        decoration: BoxDecoration(
+                          color: c.brandWash,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.brand.withValues(alpha: 0.4)),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          senderName.isNotEmpty
+                              ? senderName.characters.first.toUpperCase()
+                              : 'U',
+                          style: AppTypography.caption.copyWith(color: c.brand),
+                        ),
+                      )
+                    : const SizedBox(width: 38),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.72),
+                child: Column(
+                  crossAxisAlignment:
+                      isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  children: [
+                    if (!isMe && isFirstFromSender)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: AppSpacing.xxs, bottom: 3),
+                        child: Text(senderName,
+                            style:
+                                AppTypography.footnote.copyWith(color: c.ink3)),
+                      ),
+                    Opacity(opacity: pending ? 0.6 : 1, child: bubble),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInputBar() {
+    final c = context.c;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.surfaceRaised,
+        border: Border(top: BorderSide(color: c.rule, width: 0.5)),
+      ),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.sm, AppSpacing.xs, AppSpacing.sm, AppSpacing.xs),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: c.surfaceSunken,
+                shape: BoxShape.circle,
+                border: Border.all(color: c.rule),
+              ),
+              child: IconButton(
+                onPressed: _showAttachSheet,
+                tooltip: 'Attach',
+                iconSize: 18,
+                color: c.ink2,
+                padding: EdgeInsets.zero,
+                icon: const Icon(Icons.attach_file_rounded),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: c.surfaceSunken,
+                  borderRadius: AppRadius.pillR,
+                  border: Border.all(color: c.rule),
+                ),
+                child: TextField(
+                  controller: _msgCtrl,
+                  minLines: 1,
+                  maxLines: 4,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: AppTypography.body.copyWith(color: c.ink),
+                  decoration: InputDecoration(
+                    hintText: 'Type a message…',
+                    hintStyle: AppTypography.body.copyWith(color: c.ink3),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    filled: false,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md, vertical: AppSpacing.xs + 2),
+                  ),
+                  onSubmitted: (_) => _sendMessage(),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            GestureDetector(
+              onTap: _sendMessage,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(color: c.brand, shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: Icon(Icons.arrow_forward_rounded,
+                    color: c.onBrand, size: 20),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Attachment options. The paperclip previously did nothing.
+  void _showAttachSheet() {
+    final c = context.c;
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.photo_outlined, color: c.brand),
+              title: const Text('Photo'),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: Icon(Icons.location_on_outlined, color: c.route),
+              title: const Text('Share live location'),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
     );
   }
