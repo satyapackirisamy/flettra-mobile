@@ -39,10 +39,22 @@
 
 <key>NSFaceIDUsageDescription</key>
 <string>Use Face ID to sign in to Flettra quickly and securely.</string>
+	<!-- ATS stays on. The blanket NSAllowsArbitraryLoads that was here disabled
+	     transport security for every host, which App Review asks you to justify.
+	     Production is HTTPS; only the local dev server needs an exception, and
+	     that mirrors how android/res/xml/network_security_config.xml is scoped. -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoads</key>
+		<key>NSAllowsLocalNetworking</key>
 		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
