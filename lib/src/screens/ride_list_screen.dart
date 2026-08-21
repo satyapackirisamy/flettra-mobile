@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../utils/money.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -676,7 +677,7 @@ class RideListScreenState extends State<RideListScreen> {
                     children: [
                       Text(
                         price != null && price != 0
-                            ? '₹${_money(price)}'
+                            ? '₹${formatRupees(price)}'
                             : 'TBD',
                         style: AppTypography.bodyStrong.copyWith(
                             color: price != null && price != 0
@@ -695,20 +696,6 @@ class RideListScreenState extends State<RideListScreen> {
         ],
       ),
     );
-  }
-
-  /// Trims the trailing ".00" the API sends on whole-rupee amounts, and groups
-  /// thousands. "~₹30000.00" is four characters of noise on a 52 pt row.
-  static String _money(dynamic raw) {
-    final value = double.tryParse(raw.toString()) ?? 0;
-    final whole = value.truncate();
-    final digits = whole.toString();
-    final buffer = StringBuffer();
-    for (var i = 0; i < digits.length; i++) {
-      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
-      buffer.write(digits[i]);
-    }
-    return buffer.toString();
   }
 
   // ─── Nearby Rides section ────────────────────────────────────────────────────
@@ -888,7 +875,18 @@ class RideListScreenState extends State<RideListScreen> {
                     Text(dateStr, style: AppTypography.dmSans(fontSize: 9, color: context.c.ink3, fontWeight: FontWeight.w600)),
                   ],
                   const SizedBox(height: 6),
-                  Text(price != null && price != 0 ? '~₹$price' : 'Budget TBD', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: price != null && price != 0 ? context.c.brand : context.c.ink3)),
+                  // Same formatting as the list row above it. These sat side by
+                  // side reading "₹20,000" and "~₹20000.00" for the same ride.
+                  Text(
+                    price != null && price != 0
+                        ? '₹${formatRupees(price)}'
+                        : 'Budget TBD',
+                    style: AppTypography.bodyStrong.copyWith(
+                      color: price != null && price != 0
+                          ? context.c.ink
+                          : context.c.ink3,
+                    ),
+                  ),
                 ],
               ),
             ),

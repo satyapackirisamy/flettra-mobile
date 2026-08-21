@@ -170,7 +170,7 @@ class ApiService {
   Future<Response> completeRideWithGps(String id, {double? lat, double? lng}) => _dio.post('/rides/$id/complete', data: {if (lat != null) 'lat': lat, if (lng != null) 'lng': lng});
 
   static const String _placeholderImage = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800';
-  static const String _placeholderAvatar = 'https://ui-avatars.com/api/?background=FF5500&color=fff&size=128&name=U';
+  static const String _placeholderAvatar = 'https://ui-avatars.com/api/?background=B9F227&color=0F1405&size=128&name=U';
 
   // Helper for all network images — always returns an absolute URL
   static String getFullImageUrl(String? path) {
@@ -187,7 +187,15 @@ class ApiService {
   static String getAvatarUrl(String? path, {String name = 'U'}) {
     if (path == null || path.isEmpty) {
       final encoded = Uri.encodeComponent(name.isNotEmpty ? name : 'U');
-      return 'https://ui-avatars.com/api/?background=FF5500&color=fff&size=128&name=$encoded';
+      // Nightshift lime with dark initials. The colour was hard-coded orange
+      // inside this URL, which is why the palette sweep never found it — it is a
+      // query string, not a Color literal.
+      //
+      // TODO(privacy): this sends the person's name to ui-avatars.com on every
+      // render. Initials on a tinted circle should be drawn locally instead —
+      // chat_widget already does exactly that — and until it is, this is
+      // third-party data sharing that PrivacyInfo.xcprivacy does not declare.
+      return 'https://ui-avatars.com/api/?background=B9F227&color=0F1405&size=128&name=\$encoded';
     }
     if (path.startsWith('http')) return path;
     final cleanPath = path.startsWith('/') ? path : '/$path';

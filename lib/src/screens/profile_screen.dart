@@ -214,19 +214,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     Container(
                       height: 180,
                       width: double.infinity,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF0E7090), Color(0xFF1DA1C2), Color(0xFF48C9B0)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
+                      decoration: BoxDecoration(color: context.c.brandWash),
                       child: Stack(
                         children: [
                           // Geometric shapes for visual interest
-                          Positioned(top: 20, right: 40, child: _geoShape(80, const Color(0xFF0A5F75), 20)),
-                          Positioned(top: 60, right: 80, child: _geoShape(50, const Color(0xFF156A82), 14)),
-                          Positioned(top: 10, right: 20, child: _geoShape(30, const Color(0xFF0C6B87).withOpacity(0.6), 8)),
+                          Positioned(top: 20, right: 40, child: _geoShape(80, context.c.brand.withValues(alpha: 0.10), 20)),
+                          Positioned(top: 60, right: 80, child: _geoShape(50, context.c.brand.withValues(alpha: 0.07), 14)),
+                          Positioned(top: 10, right: 20, child: _geoShape(30, context.c.brand.withValues(alpha: 0.05), 8)),
                           // Settings icon top-left
                           SafeArea(
                             child: Padding(
@@ -842,13 +836,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFF2A1A14), levelInfo['color'] as Color],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 20, offset: const Offset(0, 6))],
+        border: Border.all(color: context.c.rule),
       ),
       child: Row(
         children: [
@@ -859,7 +849,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               children: [
                 Text('MEMBER LEVEL', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.brand, letterSpacing: 1.5)),
                 const SizedBox(height: 4),
-                Text(levelInfo['name'] as String, style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.onBrand, fontStyle: FontStyle.italic)),
+                Text(levelInfo['name'] as String, style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.ink, fontStyle: FontStyle.italic)),
                 Text(levelInfo['desc'] as String, style: AppTypography.dmSans(fontSize: 11, color: context.c.onBrand.withValues(alpha: 0.54), fontWeight: FontWeight.w500)),
               ],
             ),
@@ -875,8 +865,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           const SizedBox(width: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-            child: Text('VIP', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.onBrand)),
+            decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(8)),
+            child: Text('VIP', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
           ),
         ],
       ),

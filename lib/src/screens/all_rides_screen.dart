@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/money.dart';
 import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import 'package:intl/intl.dart';
@@ -397,7 +398,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '~₹$price',
+                        '₹${formatRupees(price)}',
                         style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
                       ),
                     ),

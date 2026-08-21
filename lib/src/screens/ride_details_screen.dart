@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/money.dart';
 import '../theme/app_typography.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart' show Options;
@@ -613,7 +614,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  '₹${_ride!["pricePerSeat"]}',
+                                  '₹${formatRupees(_ride!["pricePerSeat"])}',
                                   style: AppTypography.title
                                       .copyWith(color: context.c.ink),
                                 ),
@@ -1178,7 +1179,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                               decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))]),
                               child: Column(
                                 children: [
-                                  _costRow('Est. Budget/seat', '~₹${_ride!["pricePerSeat"]}'),
+                                  _costRow('Est. Budget/seat', '₹${formatRupees(_ride!["pricePerSeat"])}'),
                                   const Divider(height: 20),
                                   _costRow('Seats Available', '${_ride!['seatsAvailable']}'),
                                   const Divider(height: 20),

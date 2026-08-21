@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/money.dart';
 import '../theme/app_typography.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
@@ -468,7 +469,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(price != null && price != 0 ? '~₹$price' : 'Free',
+                    Text(rupeesOr(price, 'Free'),
                         style: AppTypography.dmSans(
                             fontWeight: FontWeight.w800, fontSize: 13,
                             color: context.c.brand)),
