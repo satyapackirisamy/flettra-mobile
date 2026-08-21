@@ -28,6 +28,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Flettra only uses your location while the app is open — to rank rides departing near you and to share your position with fellow travellers during an active ride. It does not track you in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Flettra needs your location to show nearby rides and personalize your feed.</string>
 
