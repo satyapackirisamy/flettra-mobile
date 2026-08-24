@@ -7,6 +7,7 @@ import '../screens/create_ride_screen.dart';
 import '../screens/buddies_screen.dart';
 import '../services/api_service.dart';
 import '../utils/snackbar_helper.dart';
+import 'motion.dart';
 
 class CommonFab extends StatelessWidget {
   final VoidCallback? onPostCreated;
@@ -163,14 +164,16 @@ class CommonFab extends StatelessWidget {
   }
 
   Widget _buildOptionTile(BuildContext context, String title, String subtitle, IconData icon, Color color, Color bgColor, VoidCallback onTap) {
-    return GestureDetector(
+    return Pressable(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey[100]!),
+          // Was Colors.grey[100] — an all-but-white hairline, invisible on the
+          // dark sheet this now sits on.
+          border: Border.all(color: context.c.rule),
         ),
         child: Row(
           children: [
@@ -202,16 +205,24 @@ class CommonFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Pressable(
       onTap: () => _showCreateOptions(context),
+      scale: 0.92,
       child: Container(
         width: 64,
         height: 64,
         decoration: BoxDecoration(
           color: context.c.brand,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: context.c.brand.withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
-          border: Border.all(color: context.c.surfaceRaised, width: 4),
+          // Was 0.4 at 15pt blur, which on the dark canvas spread into a halo
+          // rather than reading as a shadow.
+          boxShadow: [
+            BoxShadow(
+                color: context.c.brand.withValues(alpha: 0.24),
+                blurRadius: 14,
+                offset: const Offset(0, 6)),
+          ],
+          border: Border.all(color: context.c.surface, width: 3),
         ),
         child: Icon(Icons.add_rounded, color: context.c.onBrand, size: 32),
       ),

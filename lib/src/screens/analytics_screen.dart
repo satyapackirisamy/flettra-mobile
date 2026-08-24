@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/flettra_colors.dart';
 import '../theme/app_typography.dart';
 import '../services/api_service.dart';
-import '../widgets/network_image_widget.dart';
+import '../widgets/avatar.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -417,7 +417,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                       decoration: BoxDecoration(
                         color: active ? context.c.brand : Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: active ? context.c.brand : context.c.ink3!),
+                        border: Border.all(color: active ? context.c.brand : context.c.ink3),
                       ),
                       child: Text(s, style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: active ? context.c.onBrand : context.c.ink2)),
                     ),
@@ -532,9 +532,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                           ),
                           border: Border.all(color: context.c.surfaceRaised, width: 3),
                         ),
-                        child: WebCircleAvatar(
-                          radius: isFirst ? 36 : 29,
-                          url: ApiService.getAvatarUrl(user['profilePicture'], name: name),
+                        child: Avatar(
+                          size: isFirst ? 72 : 58,
+                          imageUrl: user['profilePicture']?.toString(),
+                          name: name,
                         ),
                       ),
                       Positioned(
@@ -669,7 +670,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             child: Center(child: Text('$rank', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.brand, fontSize: 13))),
           ),
           const SizedBox(width: 12),
-          WebCircleAvatar(radius: 18, url: ApiService.getAvatarUrl(user['profilePicture'], name: name)),
+          Avatar(size: 36, imageUrl: user['profilePicture']?.toString(), name: name),
           const SizedBox(width: 12),
           Expanded(
             child: Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: context.c.ink)),

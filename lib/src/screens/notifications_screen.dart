@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import 'ride_details_screen.dart';
 import 'buddies_screen.dart';
 import 'group_details_screen.dart';
+import '../widgets/skeleton.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -85,7 +86,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: context.c.brand))
+          ? const ListSkeleton(count: 6, avatarSize: 38)
           : _notifications.isEmpty
               ? Center(
                   child: Column(

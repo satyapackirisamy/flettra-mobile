@@ -7,6 +7,7 @@ import '../utils/snackbar_helper.dart';
 import '../widgets/network_image_widget.dart';
 import 'group_details_screen.dart';
 import 'notifications_screen.dart';
+import '../widgets/skeleton.dart';
 
 class GroupsScreen extends StatefulWidget {
   const GroupsScreen({super.key});
@@ -36,8 +37,8 @@ class _GroupsScreenState extends State<GroupsScreen> {
     _loadGroups();
   }
 
-  Future<void> _loadGroups() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadGroups({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
     try {
       final results = await Future.wait([_api.getMyGroups(), _api.getGroups()]);
       if (mounted) {
@@ -179,10 +180,11 @@ class _GroupsScreenState extends State<GroupsScreen> {
       backgroundColor: context.c.surface,
       body: SafeArea(
         child: _isLoading
-            ? Center(child: CircularProgressIndicator(color: context.c.brand))
+            ? const ListSkeleton(count: 6)
             : RefreshIndicator(
-                onRefresh: _loadGroups,
+                onRefresh: () => _loadGroups(showSkeleton: false),
                 color: context.c.brand,
+                backgroundColor: context.c.surfaceRaised,
                 child: CustomScrollView(
                   physics: const BouncingScrollPhysics(),
                   slivers: [

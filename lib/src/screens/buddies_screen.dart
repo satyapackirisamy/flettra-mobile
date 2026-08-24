@@ -6,9 +6,10 @@ import '../services/api_service.dart';
 import '../theme/app_spacing.dart';
 import '../theme/flettra_colors.dart';
 import '../services/auth_service.dart';
-import '../widgets/network_image_widget.dart';
 import 'chat_screen.dart';
 import 'rider_profile_screen.dart';
+import '../widgets/avatar.dart';
+import '../widgets/skeleton.dart';
 
 class BuddiesScreen extends StatefulWidget {
   const BuddiesScreen({super.key});
@@ -44,8 +45,8 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
     if (mounted) setState(() => _userId = user?['id']);
   }
 
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadData({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
     try {
       final results = await Future.wait([
         _apiService.getBuddies(),
@@ -123,7 +124,9 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
     try {
       if (accept) await _apiService.acceptBuddyRequest(requestId);
       else        await _apiService.rejectBuddyRequest(requestId);
-      _loadData();
+      // Reload without the skeleton: the list is on screen and only one row is
+      // changing, so tearing the whole thing down reads as a glitch.
+      _loadData(showSkeleton: false);
     } catch (_) {}
   }
 
@@ -143,7 +146,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
     if (confirm == true) {
       try {
         await _apiService.client.delete('/users/buddies/$buddyId');
-        _loadData();
+        _loadData(showSkeleton: false);
       } catch (_) {}
     }
   }
@@ -197,19 +200,26 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
 
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator(color: context.c.brand))
+                ? const ListSkeleton(count: 7)
                 : _isSearching
                     ? _buildSearchResults()
-                    : SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 120),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_requests.isNotEmpty) _buildRequestsSection(),
-                            if (_buddies.isNotEmpty)  _buildMyBuddiesSection(),
-                            _buildSuggestedSection(),
-                          ],
+                    : RefreshIndicator(
+                        onRefresh: () => _loadData(showSkeleton: false),
+                        color: context.c.brand,
+                        backgroundColor: context.c.surfaceRaised,
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics(),
+                          ),
+                          padding: const EdgeInsets.only(bottom: 120),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_requests.isNotEmpty) _buildRequestsSection(),
+                              if (_buddies.isNotEmpty)  _buildMyBuddiesSection(),
+                              _buildSuggestedSection(),
+                            ],
+                          ),
                         ),
                       ),
           ),
@@ -261,32 +271,15 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
   }
 
   Widget _buildRequestRow(dynamic req, dynamic sender, String name) {
-    final avatarUrl = ApiService.getAvatarUrl(sender['profilePicture'], name: name);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          // Avatar — rounded-square with orange border (matching reference)
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: context.c.brand, width: 2.5),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                width: 48, height: 48,
-                child: Image(
-                  image: ApiService.networkImageProvider(avatarUrl),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: context.c.brand.withOpacity(0.12),
-                    child: Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                        style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: context.c.brand))),
-                  ),
-                ),
-              ),
-            ),
+          Avatar(
+            imageUrl: sender['profilePicture']?.toString(),
+            name: name,
+            size: 48,
+            showRing: true,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -416,7 +409,6 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
     final c         = context.c;
     final name      = _getName(buddy);
     final location  = (buddy['location'] ?? 'Explorer').toString();
-    final avatarUrl = ApiService.getAvatarUrl(buddy['profilePicture'], name: name);
     final userId    = buddy['id']?.toString() ?? '';
 
     return InkWell(
@@ -435,7 +427,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
         ),
         child: Row(
           children: [
-            WebCircleAvatar(url: avatarUrl, radius: 21),
+            Avatar(imageUrl: buddy['profilePicture']?.toString(), name: name, size: 42),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Column(
@@ -515,7 +507,6 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
         final name = _getName(user);
         final isBuddy = _buddies.any((b) => b['id'] == user['id']);
         final isSelf  = user['id'] == _userId;
-        final avatarUrl = ApiService.getAvatarUrl(user['profilePicture'], name: name);
         final location = user['location'] ?? 'Explorer';
         final interests = _getInterests(user);
 
@@ -528,7 +519,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              WebCircleAvatar(url: avatarUrl, radius: 34),
+              Avatar(imageUrl: user['profilePicture']?.toString(), name: name, size: 68),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),

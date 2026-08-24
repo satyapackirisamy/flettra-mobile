@@ -243,7 +243,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
           Container(
             decoration: BoxDecoration(
               color: context.c.surfaceRaised,
-              border: Border(top: BorderSide(color: context.c.ink3!)),
+              border: Border(top: BorderSide(color: context.c.ink3)),
             ),
             padding: EdgeInsets.only(
               left: 12, right: 12, top: 8,

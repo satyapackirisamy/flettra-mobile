@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -67,6 +68,11 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       backgroundColor: c.surface,
+      // Deliberately a plain IndexedStack. Wrapping it in an AnimatedSwitcher
+      // to cross-fade tab changes requires giving the subtree a new key per
+      // index, which throws away every tab's State — scroll position and
+      // already-loaded data included — so each tab switch would re-fetch. The
+      // motion lives in the tab bar and in each screen's own entrance instead.
       body: IndexedStack(index: _currentIndex, children: _pages),
       floatingActionButton: showFab
           ? CommonFab(
@@ -104,6 +110,12 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  /// A tab button.
+  ///
+  /// The icon lifts and scales as it becomes active and the colour animates
+  /// rather than cutting, so a tab change reads as a movement between two
+  /// places instead of an instant repaint. The whole bar previously changed
+  /// with no transition at all.
   Widget _buildNavBtn(int index, _Tab tab, FlettraColors c) {
     final selected = _currentIndex == index;
     final color = selected ? c.brand : c.ink3;
@@ -113,19 +125,36 @@ class _MainScreenState extends State<MainScreen> {
       button: true,
       label: tab.label,
       child: InkResponse(
-        onTap: () => setState(() => _currentIndex = index),
+        onTap: () {
+          if (_currentIndex == index) return;
+          HapticFeedback.selectionClick();
+          setState(() => _currentIndex = index);
+        },
         radius: 36,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(selected ? tab.activeIcon : tab.icon, color: color, size: 23),
+            AnimatedScale(
+              scale: selected ? 1.12 : 1.0,
+              duration: AppDuration.base,
+              curve: Curves.easeOutBack,
+              child: AnimatedSlide(
+                offset: Offset(0, selected ? -0.06 : 0),
+                duration: AppDuration.base,
+                curve: Curves.easeOut,
+                child: Icon(selected ? tab.activeIcon : tab.icon,
+                    color: color, size: 23),
+              ),
+            ),
             const SizedBox(height: AppSpacing.xxs - 1),
-            Text(
-              tab.label,
+            AnimatedDefaultTextStyle(
+              duration: AppDuration.base,
+              curve: Curves.easeOut,
               style: AppTypography.caption.copyWith(
                 color: color,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
+              child: Text(tab.label),
             ),
           ],
         ),

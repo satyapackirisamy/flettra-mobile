@@ -7,6 +7,9 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/network_image_widget.dart';
 import 'ride_details_screen.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/skeleton.dart';
+import '../widgets/motion.dart';
 
 class AllRidesScreen extends StatefulWidget {
   const AllRidesScreen({super.key});
@@ -43,8 +46,8 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
     super.dispose();
   }
 
-  Future<void> _fetch() async {
-    setState(() => _isLoading = true);
+  Future<void> _fetch({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
 
     // Fetch each source independently so a failure in one (e.g. /rides/my-rides)
     // doesn't wipe out the others — previously a single throw left every list empty.
@@ -205,11 +208,15 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
                 decoration: BoxDecoration(
-                  gradient: isActive
+                  // Same defect as the Publish button: the gradient sweep left
+                  // `? null : null`, and `color` was null for the active case —
+                  // so the *selected* filter pill painted nothing and its
+                  // onBrand label was near-black on the page background.
+                  color: isActive ? context.c.brand : context.c.surfaceSunken,
+                  borderRadius: AppRadius.pillR,
+                  border: isActive
                       ? null
-                      : null,
-                  color: isActive ? null : context.c.surfaceSunken,
-                  borderRadius: BorderRadius.circular(24),
+                      : Border.all(color: context.c.rule),
                 ),
                 child: Text(
                   filter,
@@ -232,7 +239,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildList() {
     if (_isLoading) {
-      return Center(child: CircularProgressIndicator(color: context.c.brand));
+      return const ListSkeleton(count: 6, avatarSize: 52);
     }
 
     final rides = _filteredRides;
@@ -266,13 +273,19 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
     }
 
     return RefreshIndicator(
-      onRefresh: _fetch,
+      onRefresh: () => _fetch(showSkeleton: false),
       color: context.c.brand,
+      backgroundColor: context.c.surfaceRaised,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-        physics: const BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         itemCount: rides.length,
-        itemBuilder: (context, i) => _buildCard(rides[i]),
+        itemBuilder: (context, i) => FadeSlideIn(
+          index: i.clamp(0, 8),
+          child: _buildCard(rides[i]),
+        ),
       ),
     );
   }

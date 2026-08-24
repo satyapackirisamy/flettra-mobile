@@ -9,7 +9,10 @@ import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../utils/snackbar_helper.dart';
 import '../services/auth_service.dart';
-import '../widgets/network_image_widget.dart';
+import '../utils/user_display.dart';
+import '../widgets/avatar.dart';
+import '../widgets/moderation_sheet.dart';
+import '../widgets/motion.dart';
 
 class ChatScreen extends StatefulWidget {
   final Map<String, dynamic> buddy;
@@ -238,24 +241,13 @@ class _ChatScreenState extends State<ChatScreen> {
     return _buddyName;
   }
 
-  String get _buddyName {
-    final b = widget.buddy;
-    final n = b['name']?.toString() ?? '';
-    if (n.isNotEmpty) return n;
-    final first = b['firstName']?.toString() ?? '';
-    final last  = b['lastName']?.toString()  ?? '';
-    final full  = '$first $last'.trim();
-    return full.isNotEmpty ? full : 'Chat';
-  }
+  String get _buddyName => userName(widget.buddy, fallback: 'Chat');
 
   String get _chatSubtitle {
     if (widget.rideId != null)  return '${_messages.length} messages • Ride';
     if (widget.groupId != null) return '${_messages.length} messages • Group';
     return _isConnected ? 'Online now' : 'Offline';
   }
-
-  String get _buddyAvatarUrl =>
-      ApiService.getAvatarUrl(widget.buddy['profilePicture'], name: _buddyName);
 
   bool _isDifferentDay(dynamic a, dynamic b) {
     try {
@@ -285,90 +277,118 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // ─── Header ───────────────────────────────────────────────────────────────────
 
+  /// The lime header.
+  ///
+  /// Every element on it was drawn in white: the back chevron, the overflow
+  /// glyph, and `Colors.white70` for the subtitle. White on `#B9F227` is about
+  /// 1.3:1 — which is why the name and "Online now" read as one smudged block.
+  /// Everything now uses `onBrand` (the near-black the palette defines as the
+  /// foreground for brand fills), so the header holds its contrast in both
+  /// themes, and the two lines are separated by weight and opacity rather than
+  /// by colour alone.
   Widget _buildHeader() {
+    final c = context.c;
+    final onBrand = c.onBrand;
+
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [context.c.brand, context.c.brand],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      color: c.brand,
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 16, 18),
+          padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xs, AppSpacing.xs, AppSpacing.md, AppSpacing.sm),
           child: Row(
             children: [
               // Back
-              GestureDetector(
+              Pressable(
                 onTap: () => Navigator.pop(context),
+                scale: 0.9,
                 child: Container(
-                  width: 40, height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
+                  width: AppTouch.iosMin,
+                  height: AppTouch.iosMin,
+                  alignment: Alignment.center,
+                  child: Icon(Icons.arrow_back_ios_new_rounded,
+                      color: onBrand, size: 18),
                 ),
               ),
-              const SizedBox(width: 12),
-              // Avatar + online dot
+              const SizedBox(width: AppSpacing.xxs),
+
+              // Avatar + presence dot
               Stack(
                 children: [
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: context.c.surfaceRaised, width: 2),
+                      border: Border.all(
+                          color: onBrand.withValues(alpha: 0.18), width: 2),
                     ),
-                    child: WebCircleAvatar(url: _buddyAvatarUrl, radius: 20),
+                    child: Avatar(
+                      size: 40,
+                      imageUrl: userPicture(widget.buddy),
+                      name: _buddyName,
+                    ),
                   ),
                   if (_isConnected)
                     Positioned(
-                      bottom: 1, right: 1,
+                      bottom: 0,
+                      right: 0,
                       child: Container(
-                        width: 11, height: 11,
+                        width: 12,
+                        height: 12,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4ADE80),
+                          color: c.ok,
                           shape: BoxShape.circle,
-                          border: Border.all(color: context.c.surfaceRaised, width: 2),
+                          border: Border.all(color: c.brand, width: 2),
                         ),
                       ),
                     ),
                 ],
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.sm),
+
               // Title + subtitle
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       _chatTitle,
-                      style: AppTypography.dmSans(
-                        fontSize: 16, fontWeight: FontWeight.w800, color: context.c.surfaceRaised,
+                      style: AppTypography.heading.copyWith(
+                        color: onBrand,
+                        fontWeight: FontWeight.w700,
                       ),
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 1),
                     Text(
                       _chatSubtitle,
-                      style: AppTypography.dmSans(
-                        fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w500,
+                      style: AppTypography.caption.copyWith(
+                        // 0.7 alpha over lime still clears 4.5:1, unlike white.
+                        color: onBrand.withValues(alpha: 0.7),
+                        letterSpacing: 0,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-              // More options
-              GestureDetector(
-                onTap: () {},
+
+              // Overflow
+              Pressable(
+                onTap: () => showModerationSheet(
+                  context,
+                  targetUserId: widget.buddy['id']?.toString() ?? '',
+                  targetName: _buddyName,
+                ),
+                scale: 0.9,
                 child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.more_horiz_rounded, color: Colors.white, size: 20),
+                  width: AppTouch.iosMin,
+                  height: AppTouch.iosMin,
+                  alignment: Alignment.center,
+                  child: Icon(Icons.more_horiz_rounded, color: onBrand, size: 22),
                 ),
               ),
             ],
@@ -393,7 +413,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: context.c.brand.withOpacity(0.08),
+                color: context.c.brand.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.chat_bubble_outline_rounded, size: 48, color: context.c.brand),
@@ -465,12 +485,9 @@ class _ChatScreenState extends State<ChatScreen> {
     final senderId   = sender is Map
         ? sender['id']?.toString()
         : msg['senderId']?.toString();
-    final senderName = sender is Map
-        ? (sender['name'] ?? sender['firstName'] ?? 'User').toString()
-        : 'User';
-    final senderAvatar = sender is Map
-        ? ApiService.getAvatarUrl(sender['profilePicture'], name: senderName)
-        : ApiService.getAvatarUrl(null, name: senderName);
+    // userName() ignores a value that is still AES ciphertext, so a response
+    // from an older server never puts a hex blob above the bubble.
+    final displayName = userName(sender, fallback: _buddyName);
 
     final isMe       = senderId == _userId;
     final content    = msg['content']?.toString() ?? '';
@@ -503,7 +520,11 @@ class _ChatScreenState extends State<ChatScreen> {
             isFirstFromSender
                 ? Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: WebCircleAvatar(url: senderAvatar, radius: 16),
+                    child: Avatar(
+                      size: 32,
+                      imageUrl: userPicture(sender),
+                      name: displayName,
+                    ),
                   )
                 : const SizedBox(width: 40),
           ],
@@ -519,7 +540,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 4),
                     child: Text(
-                      senderName,
+                      displayName,
                       style: AppTypography.dmSans(
                         fontSize: 12, fontWeight: FontWeight.w500, color: context.c.ink3,
                       ),
@@ -600,7 +621,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Container(
                 width: 38, height: 38,
                 decoration: BoxDecoration(
-                  border: Border.all(color: context.c.ink3!),
+                  border: Border.all(color: context.c.ink3),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.add_rounded, color: context.c.ink2, size: 20),

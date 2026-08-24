@@ -8,6 +8,9 @@ import 'package:intl/intl.dart';
 import 'edit_post_screen.dart';
 import '../widgets/network_image_widget.dart';
 import '../widgets/moderation_sheet.dart';
+import '../widgets/avatar.dart';
+import '../widgets/motion.dart';
+import '../widgets/skeleton.dart';
 
 class TimelineScreen extends StatefulWidget {
   const TimelineScreen({super.key});
@@ -36,8 +39,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
   /// Called externally (e.g. from MainScreen after a new post is created).
   void refresh() => _loadData();
 
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+  /// A pull-to-refresh passes showSkeleton: false so the feed you are looking
+  /// at stays on screen while the new one loads. Blanking it to a spinner is
+  /// what made a refresh feel like a cold start.
+  Future<void> _loadData({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
     await _fetchPosts();
     if (mounted) setState(() => _isLoading = false);
   }
@@ -64,18 +70,27 @@ class _TimelineScreenState extends State<TimelineScreen> {
             _buildHeader(),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: _loadData,
+                onRefresh: () => _loadData(showSkeleton: false),
                 color: context.c.brand,
-                child: _isLoading
-                    ? Center(child: CircularProgressIndicator(color: context.c.brand))
-                    : _posts.isEmpty
-                        ? _buildEmpty()
-                        : ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            padding: const EdgeInsets.only(bottom: 120),
-                            itemCount: _posts.length,
-                            itemBuilder: (context, i) => _buildCard(_posts[i], i),
-                          ),
+                backgroundColor: context.c.surfaceRaised,
+                child: StateSwitcher(
+                  child: _isLoading
+                      ? const SingleChildScrollView(
+                          physics: NeverScrollableScrollPhysics(),
+                          child: FeedSkeleton(),
+                        )
+                      : _posts.isEmpty
+                          ? _buildEmpty()
+                          : ListView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.only(bottom: 120),
+                              itemCount: _posts.length,
+                              itemBuilder: (context, i) => FadeSlideIn(
+                                index: i.clamp(0, 6),
+                                child: _buildCard(_posts[i], i),
+                              ),
+                            ),
+                ),
               ),
             ),
           ],
@@ -148,7 +163,6 @@ class _TimelineScreenState extends State<TimelineScreen> {
     final imageUrl = _getImageUrl(post);
     final name = _authorName(post);
     final content = (post['content'] ?? '').toString();
-    final avatarUrl = ApiService.getAvatarUrl(post['author']?['profilePicture'], name: name);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 20),
@@ -220,7 +234,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    WebCircleAvatar(url: avatarUrl, radius: 16),
+                    Avatar(imageUrl: post['author']?['profilePicture']?.toString(), name: name, size: 32),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -248,7 +262,6 @@ class _TimelineScreenState extends State<TimelineScreen> {
     final imageUrl = _getImageUrl(post);
     final name = _authorName(post);
     final content = (post['content'] ?? '').toString();
-    final avatarUrl = ApiService.getAvatarUrl(post['author']?['profilePicture'], name: name);
     final likes = (post['likes'] as List?)?.length ?? 0;
     final comments = (post['commentsCount'] ?? 0);
 
@@ -266,7 +279,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
             padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
             child: Row(
               children: [
-                WebCircleAvatar(url: avatarUrl, radius: 18),
+                Avatar(imageUrl: post['author']?['profilePicture']?.toString(), name: name, size: 36),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -397,7 +410,6 @@ class _TimelineScreenState extends State<TimelineScreen> {
   Widget _buildJournalCard(dynamic post) {
     final name = _authorName(post);
     final content = (post['content'] ?? '').toString();
-    final avatarUrl = ApiService.getAvatarUrl(post['author']?['profilePicture'], name: name);
     final likes = (post['likes'] as List?)?.length ?? 0;
 
     return Container(
@@ -412,7 +424,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
         children: [
           Row(
             children: [
-              WebCircleAvatar(url: avatarUrl, radius: 16),
+              Avatar(imageUrl: post['author']?['profilePicture']?.toString(), name: name, size: 32),
               const SizedBox(width: 8),
               Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: context.c.ink)),
               const Spacer(),

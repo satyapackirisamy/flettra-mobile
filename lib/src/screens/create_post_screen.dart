@@ -4,6 +4,7 @@ import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
+import '../widgets/avatar.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final Map<String, dynamic>? currentUser;
@@ -83,7 +84,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     final name = _profile?['name'] as String? ?? '';
-    final avatarUrl = ApiService.getAvatarUrl(_profile?['profilePicture'] as String?, name: name.isNotEmpty ? name : 'U');
     final charCount = _contentController.text.length;
     const maxChars = 500;
 
@@ -148,14 +148,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   // Avatar column
                   Column(
                     children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundImage: name.isNotEmpty ? NetworkImage(avatarUrl) : null,
-                        backgroundColor: name.isNotEmpty ? null : context.c.ink3,
-                        child: name.isEmpty
-                            ? SizedBox(width: 18, height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: context.c.brand))
-                            : null,
+                      // While the profile is still loading `name` is empty, so
+                      // Avatar shows its person glyph rather than a spinner
+                      // inside a 44pt circle.
+                      Avatar(
+                        size: 44,
+                        imageUrl: _profile?['profilePicture'] as String?,
+                        name: name,
                       ),
                       if (_canPost) ...[
                         const SizedBox(height: 8),

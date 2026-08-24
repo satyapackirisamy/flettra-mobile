@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/money.dart';
 import '../theme/app_typography.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:dio/dio.dart' show Options;
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
@@ -14,10 +15,15 @@ import '../widgets/network_image_widget.dart';
 import 'package:intl/intl.dart';
 import '../utils/snackbar_helper.dart';
 import 'edit_ride_screen.dart';
-import 'create_ride_screen.dart' show TransportMode;
 import 'rider_profile_screen.dart';
 import 'group_live_map_screen.dart';
 import '../widgets/moderation_sheet.dart';
+import '../widgets/avatar.dart';
+import '../widgets/motion.dart';
+import '../widgets/skeleton.dart';
+import '../utils/user_display.dart';
+import '../utils/deep_links.dart';
+import 'chat_screen.dart';
 
 class RideDetailsScreen extends StatefulWidget {
   final String rideId;
@@ -40,18 +46,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
   bool _isFavorite = false;
   String? _userId;
 
-  String _displayName(Map<String, dynamic>? user, [String fallback = 'User']) {
-    if (user == null) return fallback;
-    final name = user['name'] as String?;
-    if (name != null && name.trim().isNotEmpty) return name;
-    final first = user['firstName'] as String? ?? '';
-    final last = user['lastName'] as String? ?? '';
-    final full = '$first $last'.trim();
-    if (full.isNotEmpty) return full;
-    final email = user['email'] as String?;
-    if (email != null && email.contains('@')) return email.split('@')[0];
-    return fallback;
-  }
+  String _displayName(Map<String, dynamic>? user, [String fallback = 'User']) =>
+      userName(user, fallback: fallback);
 
   @override
   void initState() {
@@ -315,9 +311,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
     final isDriver   = _ride!['driver']['id'] == _userId;
     final passengers = (_ride!['passengers'] as List);
     final isPassenger = passengers.any((p) => p['id'] == _userId);
-    final canChat    = isDriver || isPassenger;
     final driverName = _displayName(_ride!['driver']);
-    final driverAvatar = ApiService.getAvatarUrl(_ride!['driver']['profilePicture'], name: driverName);
     final itinerary  = _ride!['itinerary'];
     final dailyPlan  = (itinerary is Map ? itinerary['dailyPlan'] as List? : null) ?? [];
     final description = _ride!['description'] ?? '';
@@ -392,11 +386,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                     if (_ride?['shareToken'] != null)
                       IconButton(
                         icon: Icon(Icons.share_rounded, color: context.c.brand, size: 22),
-                        onPressed: () {
-                          final url = '${ApiService.baseUrl}/rides/share/${_ride!['shareToken']}';
-                          Clipboard.setData(ClipboardData(text: url));
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Share link copied!')));
-                        },
+                        tooltip: 'Share ride',
+                        onPressed: _shareRide,
                       ),
                     if (isDriver)
                       PopupMenuButton<String>(
@@ -480,75 +471,44 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
                         child: Row(
                           children: [
-                            _actionChip(
-                              icon: Icons.chat_bubble_rounded,
-                              label: 'Chat',
-                              enabled: canChat,
-                              onTap: canChat
-                                  ? () {
-                                      // Name the ride rather than the feature —
-                                      // "Ride Chat" tells you nothing you did
-                                      // not already know from tapping Chat.
-                                      final rideName = (_ride!['name'] ??
-                                              _ride!['destination'] ??
-                                              'Ride')
-                                          .toString();
-                                      final route = [
-                                        _ride!['origin'],
-                                        _ride!['destination']
-                                      ].whereType<String>().where((e) => e.isNotEmpty).join(' → ');
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => Scaffold(
-                                            appBar: AppBar(
-                                              titleSpacing: 0,
-                                              title: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text(rideName,
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: AppTypography.heading
-                                                          .copyWith(
-                                                              color: context.c.ink)),
-                                                  if (route.isNotEmpty)
-                                                    Text(route,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: AppTypography
-                                                            .footnote
-                                                            .copyWith(
-                                                                color: context
-                                                                    .c.ink3)),
-                                                ],
-                                              ),
-                                            ),
-                                            body: ChatWidget(
-                                                rideId: widget.rideId,
-                                                title: rideName),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  : null,
-                            ),
-                            const SizedBox(width: 10),
-                            _actionChip(
-                              icon: Icons.receipt_long_rounded,
-                              label: 'Expenses',
-                              enabled: true,
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => _ExpensesPage(ride: _ride!, rideId: widget.rideId, canEdit: isDriver || isPassenger))),
-                            ),
+                            // Chat and Expenses belong to the ride, so they only
+                            // appear once you are in it. The Chat chip used to
+                            // render disabled — grey on grey, still looking
+                            // tappable — and Expenses was always enabled, which
+                            // let a non-member open the ride's money.
+                            if (inRide) ...[
+                              _actionChip(
+                                icon: Icons.chat_bubble_rounded,
+                                label: 'Chat',
+                                onTap: _openRideChat,
+                              ),
+                              const SizedBox(width: AppSpacing.xs + 2),
+                              _actionChip(
+                                icon: Icons.receipt_long_rounded,
+                                label: 'Expenses',
+                                onTap: () => Navigator.push(
+                                  context,
+                                  fadeThroughRoute(_ExpensesPage(
+                                    ride: _ride!,
+                                    rideId: widget.rideId,
+                                    canEdit: inRide,
+                                  )),
+                                ),
+                              ),
+                            ],
                             const Spacer(),
                             // Status badge
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(color: _statusColor.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
-                              child: Text(_statusLabel, style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _statusColor)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm, vertical: 6),
+                              decoration: BoxDecoration(
+                                  color: _statusColor.withValues(alpha: 0.12),
+                                  borderRadius: AppRadius.pillR),
+                              child: Text(_statusLabel,
+                                  style: AppTypography.dmSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: _statusColor)),
                             ),
                           ],
                         ),
@@ -667,7 +627,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                               vertical: AppSpacing.xs),
                           child: Row(
                             children: [
-                              WebCircleAvatar(radius: 19, url: driverAvatar),
+                              Avatar(
+                                size: 38,
+                                imageUrl: _ride!['driver']['profilePicture']
+                                    ?.toString(),
+                                name: driverName,
+                              ),
                               const SizedBox(width: AppSpacing.sm),
                               Expanded(
                                 child: Column(
@@ -696,6 +661,34 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                   ],
                                 ),
                               ),
+                              // Message the host directly. Only for someone
+                              // actually on the ride — a stranger who has not
+                              // been accepted has no business DMing the
+                              // organiser, and the gateway would reject it.
+                              if (isPassenger)
+                                Pressable(
+                                  onTap: _openHostChat,
+                                  scale: 0.9,
+                                  child: Container(
+                                    width: AppTouch.iosMin,
+                                    height: AppTouch.iosMin,
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(7),
+                                      decoration: BoxDecoration(
+                                        color: context.c.brandWash,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                            color: context.c.brand
+                                                .withValues(alpha: 0.4)),
+                                      ),
+                                      child: Icon(
+                                          Icons.chat_bubble_outline_rounded,
+                                          size: 16,
+                                          color: context.c.brand),
+                                    ),
+                                  ),
+                                ),
                               if (!isDriver)
                                 IconButton(
                                   onPressed: () => showModerationSheet(
@@ -1207,23 +1200,126 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
     );
   }
 
+  /// Shares a link that opens the ride *in the app*.
+  ///
+  /// This used to copy `${ApiService.baseUrl}/rides/share/<token>` — the REST
+  /// endpoint. Opening it showed a page of raw JSON, and it could never deep
+  /// link because api.flettra.com is not an associated domain. The link now
+  /// points at the web landing page, which is registered as a Universal Link
+  /// (iOS) and an App Link (Android): with the app installed the tap goes
+  /// straight to this screen, and without it the page offers the store.
+  ///
+  /// It also opens the system share sheet rather than silently writing to the
+  /// clipboard, because "Share" that only copies is not what the icon promises.
+  Future<void> _shareRide() async {
+    final token = _ride?['shareToken']?.toString();
+    if (token == null || token.isEmpty) return;
+
+    final url = rideShareUrl(token);
+    final name = (_ride!['name'] ?? _ride!['destination'] ?? 'a ride').toString();
+    final route = [_ride!['origin'], _ride!['destination']]
+        .whereType<String>()
+        .where((e) => e.isNotEmpty)
+        .join(' → ');
+
+    try {
+      await Share.share(
+        route.isEmpty
+            ? 'Join me on Flettra: $name\n$url'
+            : 'Join me on Flettra — $name ($route)\n$url',
+        subject: 'Join my ride on Flettra',
+      );
+    } catch (_) {
+      // Share sheet unavailable (desktop / web): fall back to the clipboard.
+      await Clipboard.setData(ClipboardData(text: url));
+      if (mounted) showSuccess(context, 'Share link copied');
+    }
+  }
+
+  /// Opens the ride's group chat, titled with the ride rather than the feature.
+  void _openRideChat() {
+    final rideName =
+        (_ride!['name'] ?? _ride!['destination'] ?? 'Ride').toString();
+    final route = [_ride!['origin'], _ride!['destination']]
+        .whereType<String>()
+        .where((e) => e.isNotEmpty)
+        .join(' → ');
+
+    Navigator.push(
+      context,
+      fadeThroughRoute(Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(rideName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.heading.copyWith(color: context.c.ink)),
+              if (route.isNotEmpty)
+                Text(route,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        AppTypography.footnote.copyWith(color: context.c.ink3)),
+            ],
+          ),
+        ),
+        body: ChatWidget(rideId: widget.rideId, title: rideName),
+      )),
+    );
+  }
+
+  /// Opens a one-to-one chat with the ride's host.
+  ///
+  /// Reachable from the host row, and only for someone travelling on the ride —
+  /// the group chat is not the place to ask the organiser a private question,
+  /// and before this there was no way to start one from the ride at all.
+  void _openHostChat() {
+    final driver = _ride!['driver'] as Map<String, dynamic>;
+    Navigator.push(
+      context,
+      fadeThroughRoute(ChatScreen(buddy: {
+        'id': driver['id'],
+        'name': _displayName(driver),
+        'profilePicture': driver['profilePicture'],
+      })),
+    );
+  }
+
   // ─── Section helpers ──────────────────────────────────────────────────────
 
-  Widget _actionChip({required IconData icon, required String label, required bool enabled, VoidCallback? onTap}) {
-    return GestureDetector(
+  /// A brand-filled pill in the actions row.
+  ///
+  /// The `enabled: false` variant is gone. It drew the chip in `ink3` on `ink3`
+  /// — an unreadable grey-on-grey pill that still looked tappable and did
+  /// nothing. A capability you do not have should not occupy a slot at all, so
+  /// the caller omits the chip instead. See the actions row in [build].
+  Widget _actionChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final c = context.c;
+    return Pressable(
       onTap: onTap,
+      scale: 0.94,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.xs + 2),
         decoration: BoxDecoration(
-          color: enabled ? context.c.brand : context.c.ink3,
-          borderRadius: BorderRadius.circular(20),
+          color: c.brand,
+          borderRadius: AppRadius.pillR,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: enabled ? context.c.onBrand : context.c.ink3),
+            Icon(icon, size: 14, color: c.onBrand),
             const SizedBox(width: 6),
-            Text(label, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: enabled ? context.c.onBrand : context.c.ink3)),
+            Text(label,
+                style: AppTypography.dmSans(
+                    fontSize: 12, fontWeight: FontWeight.w800, color: c.onBrand)),
           ],
         ),
       ),
@@ -1435,6 +1531,20 @@ class _ItineraryPageState extends State<_ItineraryPage> {
     }
   }
 
+  /// Absolute URL for a day's image, or null when there is nothing loadable.
+  ///
+  /// The backend now fills `imageUrl` with a destination photo for every day
+  /// (see backend/src/itinerary/day-images.ts), so this mostly passes through.
+  /// It still filters two historical cases: a missing value, and a
+  /// pre-Cloudinary `/uploads/...` path whose file no longer exists.
+  String? _dayImageUrl(String? raw) {
+    final path = (raw ?? '').trim();
+    if (path.isEmpty) return null;
+    if (path.contains('/uploads/')) return null;
+    if (path.startsWith('http')) return path;
+    return ApiService.getFullImageUrl(path);
+  }
+
   Future<void> _pickDayImage(int dayIndex) async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
@@ -1547,7 +1657,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                   Text('Full Itinerary', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.ink3!)),
+                    decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.ink3)),
                     child: Text('AI GENERATED', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 0.5)),
                   ),
                 ],
@@ -1605,11 +1715,27 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                           ),
                       ],
                     ),
-                    if (dayImage != null) ...[
+                    // A day image is only rendered when there is a real URL to
+                    // render. `getFullImageUrl` used to return an Unsplash
+                    // placeholder for a null path and prefix the API host onto a
+                    // `/uploads/...` path — and those files live on a container
+                    // disk that is wiped on every deploy, so the request 404'd
+                    // and the slot became the broken-image box testers reported.
+                    // `_dayImageUrl` returns null for both cases and the block
+                    // is skipped entirely.
+                    if (_dayImageUrl(dayImage) case final url?) ...[
                       const SizedBox(height: 8),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: SafeNetworkImage(url: ApiService.getFullImageUrl(dayImage), height: 160, width: double.infinity, fit: BoxFit.cover),
+                        borderRadius: AppRadius.cardR,
+                        child: SafeNetworkImage(
+                          url: url,
+                          height: 160,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          // Nothing rather than a broken-image glyph: an
+                          // itinerary reads fine without a photo.
+                          errorWidget: const SizedBox.shrink(),
+                        ),
                       ),
                     ],
                     Padding(
@@ -1741,8 +1867,8 @@ class _ExpensesPageState extends State<_ExpensesPage> {
     _loadExpenses();
   }
 
-  Future<void> _loadExpenses() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadExpenses({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
     try {
       final results = await Future.wait([
         _api.getExpenses(widget.rideId),
@@ -1760,16 +1886,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
     }
   }
 
-  String _personName(dynamic p) {
-    if (p == null) return 'Unknown';
-    final name = p['name']?.toString() ?? '';
-    if (name.isNotEmpty && name != 'null') return name;
-    final first = p['firstName']?.toString() ?? '';
-    final last = p['lastName']?.toString() ?? '';
-    final full = '$first $last'.trim();
-    if (full.isNotEmpty) return full;
-    return p['email']?.toString().split('@')[0] ?? 'Unknown';
-  }
+  String _personName(dynamic p) => userName(p, fallback: 'Unknown');
 
   void _addExpense() {
     final descCtrl = TextEditingController();
@@ -1911,14 +2028,15 @@ class _ExpensesPageState extends State<_ExpensesPage> {
     );
   }
 
-  String _displayName(dynamic user) {
-    if (user == null) return 'User';
-    final name = user['name'] as String?;
-    if (name != null && name.trim().isNotEmpty) return name;
-    final first = user['firstName'] as String? ?? '';
-    final last = user['lastName'] as String? ?? '';
-    return '$first $last'.trim().isEmpty ? 'User' : '$first $last'.trim();
-  }
+  /// The payer's name.
+  ///
+  /// This used to read `user['name'] ?? '$firstName $lastName'`, and the
+  /// expenses endpoint returned the raw users row — so `firstName` was AES
+  /// ciphertext and the row rendered as
+  /// "Paid by 1ff1c69de911…:5fb5155c…:d67368add5fc". The server now sends a
+  /// PublicUser with a computed `name`; userName() additionally refuses any
+  /// value that still looks like ciphertext.
+  String _displayName(dynamic user) => userName(user);
 
   IconData _expenseIcon(String desc) {
     final d = desc.toLowerCase();
@@ -1943,16 +2061,37 @@ class _ExpensesPageState extends State<_ExpensesPage> {
         title: Text('Trip Expenses', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
         backgroundColor: context.c.surface, elevation: 0,
       ),
-      floatingActionButton: widget.canEdit ? FloatingActionButton(
-        onPressed: _addExpense,
-        backgroundColor: context.c.brand,
-        child: Icon(Icons.add_rounded, color: context.c.onBrand),
-      ) : null,
+      floatingActionButton: widget.canEdit
+          ? Pressable(
+              onTap: _addExpense,
+              scale: 0.92,
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: context.c.brand,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                        color: context.c.brand.withValues(alpha: 0.28),
+                        blurRadius: 14,
+                        offset: const Offset(0, 5)),
+                  ],
+                ),
+                child:
+                    Icon(Icons.add_rounded, color: context.c.onBrand, size: 26),
+              ),
+            )
+          : null,
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: context.c.brand))
+          ? const Padding(
+              padding: EdgeInsets.only(top: AppSpacing.md),
+              child: ListSkeleton(count: 4),
+            )
           : RefreshIndicator(
-              onRefresh: _loadExpenses,
+              onRefresh: () => _loadExpenses(showSkeleton: false),
               color: context.c.brand,
+              backgroundColor: context.c.surfaceRaised,
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
@@ -1968,7 +2107,16 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                       children: [
                         Text('Total Trip Expense', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.7), fontSize: 13, fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
-                        Text('₹${(total is num ? total : double.tryParse('$total') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: context.c.onBrand, fontSize: 36, fontWeight: FontWeight.w800)),
+                        AnimatedCount(
+                          value: total is num
+                              ? total.toDouble()
+                              : double.tryParse('$total') ?? 0,
+                          builder: (_, v) => Text('₹${v.toStringAsFixed(0)}',
+                              style: AppTypography.dmSans(
+                                  color: context.c.onBrand,
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w800)),
+                        ),
                         const SizedBox(height: 16),
                         Container(height: 1, color: context.c.onBrand.withValues(alpha: 0.24)),
                         const SizedBox(height: 16),
@@ -2006,38 +2154,54 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                   if (_expenses.isNotEmpty) ...[
                     Text('Recent Expenses', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 16),
-                    ..._expenses.map((exp) {
+                    ..._expenses.asMap().entries.map((entry) {
+                      final exp = entry.value;
                       final desc = exp['description'] ?? 'Expense';
                       final amount = double.tryParse('${exp['amount']}') ?? 0;
-                      final payer = exp['payer'];
-                      final payerName = _displayName(payer);
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.c.surfaceSunken,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(12)),
-                              child: Icon(_expenseIcon(desc), color: context.c.brand, size: 20),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(desc, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
-                                  const SizedBox(height: 2),
-                                  Text('Paid by $payerName', style: AppTypography.dmSans(color: context.c.ink2, fontSize: 12, fontWeight: FontWeight.w600)),
-                                ],
+                      final payerName = _displayName(exp['payer']);
+                      return FadeSlideIn(
+                        index: entry.key.clamp(0, 8),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: context.c.surfaceSunken,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    color: context.c.brandWash,
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Icon(_expenseIcon(desc),
+                                    color: context.c.brand, size: 20),
                               ),
-                            ),
-                            Text('₹${amount.toStringAsFixed(0)}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
-                          ],
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(desc,
+                                        style: AppTypography.dmSans(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 15)),
+                                    const SizedBox(height: 2),
+                                    Text('Paid by $payerName',
+                                        style: AppTypography.dmSans(
+                                            color: context.c.ink2,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600)),
+                                  ],
+                                ),
+                              ),
+                              Text('₹${amount.toStringAsFixed(0)}',
+                                  style: AppTypography.dmSans(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16)),
+                            ],
+                          ),
                         ),
                       );
                     }),
@@ -2064,7 +2228,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                       decoration: BoxDecoration(
                         color: context.c.surfaceSunken,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: context.c.ink3!),
+                        border: Border.all(color: context.c.ink3),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2078,11 +2242,12 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               padding: const EdgeInsets.only(bottom: 12),
                               child: Row(
                                 children: [
-                                  CircleAvatar(
-                                    radius: 16,
-                                    backgroundColor: context.c.brandWash,
-                                    child: Text((b['userName'] ?? 'U')[0].toUpperCase(), style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 11, color: context.c.brand)),
-                                  ),
+                                  // Was `(userName ?? 'U')[0]` — the same
+                                  // hazard as the map pin: one character of a
+                                  // ciphertext, and a crash on an empty string.
+                                  Avatar(
+                                      size: 32,
+                                      name: b['userName']?.toString()),
                                   const SizedBox(width: 12),
                                   Expanded(child: Text(b['userName'] ?? 'User', style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14))),
                                   Text(

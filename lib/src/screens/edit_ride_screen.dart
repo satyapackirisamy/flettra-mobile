@@ -449,16 +449,25 @@ class _EditRideScreenState extends State<EditRideScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   decoration: BoxDecoration(
-                    gradient: _isLoading
-                        ? null
-                        : null,
-                    color: _isLoading ? context.c.ink3 : null,
+                    // Was `gradient: _isLoading ? null : null` plus a colour
+                    // that was null unless loading, so the enabled button was
+                    // a lime glow around invisible onBrand text — the same bug
+                    // as Create Ride's Publish button.
+                    color: _isLoading ? context.c.surfaceSunken : context.c.brand,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: _isLoading ? null : [BoxShadow(color: context.c.brand.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))],
+                    border: _isLoading ? Border.all(color: context.c.rule) : null,
+                    boxShadow: _isLoading
+                        ? null
+                        : [
+                            BoxShadow(
+                                color: context.c.brand.withValues(alpha: 0.22),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4)),
+                          ],
                   ),
                   child: Center(
                     child: _isLoading
-                        ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2.5))
+                        ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: context.c.brand, strokeWidth: 2.5))
                         : Row(mainAxisSize: MainAxisSize.min, children: [
                             Icon(Icons.check_circle_rounded, color: context.c.onBrand, size: 18),
                             const SizedBox(width: 10),
@@ -486,7 +495,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
         decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: hasImage ? Colors.transparent : context.c.ink3!),
+          border: Border.all(color: hasImage ? Colors.transparent : context.c.ink3),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/flettra_colors.dart';
 import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
-import '../../widgets/network_image_widget.dart';
+import '../../widgets/avatar.dart';
 
 class AdminUserManagementScreen extends StatefulWidget {
   const AdminUserManagementScreen({super.key});
@@ -185,9 +185,10 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: WebCircleAvatar(
-          radius: 24,
-          url: ApiService.getAvatarUrl(user['profilePicture'], name: user['name'] ?? 'U'),
+        leading: Avatar(
+          size: 48,
+          imageUrl: user['profilePicture']?.toString(),
+          name: user['name']?.toString(),
         ),
         title: Text(
           user['name'] ?? 'No Name',

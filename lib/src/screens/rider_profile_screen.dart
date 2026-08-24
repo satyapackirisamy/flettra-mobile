@@ -8,6 +8,8 @@ import '../widgets/moderation_sheet.dart';
 import '../theme/app_spacing.dart';
 import '../theme/flettra_colors.dart';
 import 'chat_screen.dart';
+import '../widgets/avatar.dart';
+import '../widgets/network_image_widget.dart';
 
 class RiderProfileScreen extends StatefulWidget {
   final String userId;
@@ -158,10 +160,7 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
     final name    = _displayName();
     final handle  = _handle();
     final picPath = _user?['profilePicture']?.toString().trim() ?? '';
-    final isLocalhost = picPath.contains('localhost') || picPath.contains('127.0.0.1');
-    final avatarUrl = (!isLocalhost && picPath.isNotEmpty)
-        ? ApiService.getAvatarUrl(picPath, name: name)
-        : '';
+    final avatarUrl = Avatar.resolveUrl(picPath) ?? '';
 
     return SliverToBoxAdapter(
       child: Column(
@@ -282,30 +281,40 @@ class _RiderProfileScreenState extends State<RiderProfileScreen> {
     );
   }
 
+  /// Rounded-square avatar for the profile header. Shares [Avatar.initialsOf]
+  /// with the circular [Avatar]; the '?' the old version showed for a missing
+  /// name becomes the person glyph.
   Widget _buildAvatar(String url, String name, double size) {
-    final initial = name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : '?';
-    final radius  = BorderRadius.circular(size * 0.2);
+    final initials = Avatar.initialsOf(name);
+    final radius   = BorderRadius.circular(size * 0.2);
 
-    Widget fallback = Container(
-      width: size, height: size,
-      decoration: BoxDecoration(
-                      color: context.c.brand,
-                    ),
-      child: Center(
-        child: Text(initial,
-            style: AppTypography.dmSans(
-                fontSize: size * 0.38, fontWeight: FontWeight.w700,
-                color: context.c.surfaceRaised)),
-      ),
+    final fallback = Container(
+      width: size,
+      height: size,
+      color: context.c.brandWash,
+      alignment: Alignment.center,
+      child: initials == null
+          ? Icon(Icons.person_rounded,
+              size: size * 0.55, color: context.c.brand.withValues(alpha: 0.75))
+          : Text(
+              initials,
+              style: AppTypography.dmSans(
+                fontSize: size * (initials.length > 1 ? 0.34 : 0.4),
+                fontWeight: FontWeight.w700,
+                color: context.c.brand,
+              ),
+            ),
     );
 
     if (url.isEmpty) return ClipRRect(borderRadius: radius, child: fallback);
 
     return ClipRRect(
       borderRadius: radius,
-      child: Image.network(
-        url, width: size, height: size, fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
+      child: SafeNetworkImage(
+        url: url,
+        width: size,
+        height: size,
+        errorWidget: fallback,
       ),
     );
   }

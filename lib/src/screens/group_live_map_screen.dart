@@ -13,6 +13,18 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../services/api_service.dart';
 import '../services/nearby_poi_service.dart';
+import '../widgets/avatar.dart';
+import '../utils/user_display.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/motion.dart';
+
+/// Google Maps JSON style for dark mode.
+///
+/// The app is dark by default and the map was rendering in Google's stock
+/// daylight palette, which is why the live-map screen looked like a bright
+/// rectangle pasted into a black app. Greys and greens are pulled from
+/// [FlettraColors.dark] so the map reads as part of the same surface.
+const String _darkMapStyle = r'''[{"elementType":"geometry","stylers":[{"color":"#1c1f19"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#9aa692"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#0b0d0a"}]},{"featureType":"administrative","elementType":"geometry","stylers":[{"color":"#3a4034"}]},{"featureType":"administrative.country","elementType":"labels.text.fill","stylers":[{"color":"#b4c0aa"}]},{"featureType":"administrative.locality","elementType":"labels.text.fill","stylers":[{"color":"#c9d4bf"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#8d9a85"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#20301a"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#6f8a5e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#2a2e26"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"color":"#1c1f19"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#9aa692"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#3d4436"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#22261d"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#d7e3c9"}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#2a2e26"}]},{"featureType":"transit.station","elementType":"labels.text.fill","stylers":[{"color":"#9aa692"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#0e1417"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#4a5a63"}]}]''';
 
 class GroupLiveMapScreen extends StatefulWidget {
   final String rideId;
@@ -44,6 +56,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
   Set<Marker> _memberMarkers = {};
   String? _selectedMemberId;
   bool _locationDenied = false;
+  bool _mapReady = false;
   Position? _myPosition;
 
   // ── POI overlay ───────────────────────────────────────────────────────────
@@ -74,14 +87,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
     return _memberPalette[(idx < 0 ? 0 : idx) % _memberPalette.length];
   }
 
-  String _participantName(Map<String, dynamic> p) {
-    final name = p['name'] as String?;
-    if (name != null && name.trim().isNotEmpty) return name.trim();
-    final first = (p['firstName'] as String? ?? '').trim();
-    final last  = (p['lastName']  as String? ?? '').trim();
-    final full  = '$first $last'.trim();
-    return full.isNotEmpty ? full : 'User';
-  }
+  String _participantName(Map<String, dynamic> p) => userName(p);
 
   double _haversineKm(double lat1, double lng1, double lat2, double lng2) {
     const R = 6371.0;
@@ -98,6 +104,13 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
 
   // ── Member marker bitmap ──────────────────────────────────────────────────
 
+  /// Draws a member pin.
+  ///
+  /// [initial] used to be `name[0]` at the call site. Two problems: it throws
+  /// on an empty name, and the gateway was sending the encrypted `firstName`,
+  /// so the pin showed the first hex digit of the ciphertext — the lone "5" on
+  /// the map. The gateway is fixed and [Avatar.initialsOf] rejects anything
+  /// that is not a name, so a bad value now falls back to a dot.
   Future<BitmapDescriptor> _buildMemberMarker(
       String initial, Color color, bool isMe) async {
     final size = isMe ? 52.0 : 44.0;
@@ -232,11 +245,12 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
     final Set<Marker> newMarkers = {};
     for (final m in members) {
       final userId = m['userId'] as String;
-      final name = (m['name'] as String?) ?? 'User';
+      final name = userName(m, fallback: 'User');
       final lat = (m['lat'] as num).toDouble();
       final lng = (m['lng'] as num).toDouble();
       final isMe = userId == widget.currentUserId;
-      final icon = await _buildMemberMarker(name[0], _colorFor(userId), isMe);
+      final icon = await _buildMemberMarker(
+          Avatar.initialsOf(name) ?? '•', _colorFor(userId), isMe);
       newMarkers.add(Marker(
         markerId: MarkerId(userId),
         position: LatLng(lat, lng),
@@ -252,6 +266,36 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
       _memberMarkers = newMarkers;
     });
     _fitCamera(members);
+  }
+
+  /// Moves the camera to the device's own position.
+  ///
+  /// Called once when the map is created and again from the recentre control.
+  /// Uses the last GPS fix if there is one, otherwise the position the server
+  /// has for this user.
+  Future<void> _centreOnMe({bool animate = true}) async {
+    final ctrl = _mapController;
+    if (ctrl == null) return;
+
+    LatLng? target;
+    final pos = _myPosition;
+    if (pos != null) {
+      target = LatLng(pos.latitude, pos.longitude);
+    } else {
+      final mine = _members.where((m) => m['userId'] == widget.currentUserId);
+      if (mine.isNotEmpty) {
+        target = LatLng((mine.first['lat'] as num).toDouble(),
+            (mine.first['lng'] as num).toDouble());
+      }
+    }
+    if (target == null) return;
+
+    final update = CameraUpdate.newLatLngZoom(target, 14);
+    if (animate) {
+      await ctrl.animateCamera(update);
+    } else {
+      await ctrl.moveCamera(update);
+    }
   }
 
   void _fitCamera(List<Map<String, dynamic>> members) {
@@ -488,16 +532,60 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
         children: [
           // ── Map ──────────────────────────────────────────────────────────
           GoogleMap(
-            initialCameraPosition: const CameraPosition(target: LatLng(20.5937, 78.9629), zoom: 5),
+            initialCameraPosition: const CameraPosition(
+                target: LatLng(20.5937, 78.9629), zoom: 5),
             markers: allMarkers,
             onMapCreated: (ctrl) {
               _mapController = ctrl;
+              if (mounted) setState(() => _mapReady = true);
               if (_members.isNotEmpty) _updateMemberMarkers(_members);
+              // The camera is parked over the middle of India until something
+              // to look at arrives. Move to the device's own position as soon
+              // as there is one, so the first frame is not an empty ocean of
+              // tiles the person has to pan out of.
+              _centreOnMe(animate: false);
             },
+            // Gestures are on by default, but stating them makes it explicit
+            // that this map is meant to be driven, and rules the plugin out as
+            // a cause if panning ever stops working again.
+            zoomGesturesEnabled: true,
+            scrollGesturesEnabled: true,
+            rotateGesturesEnabled: true,
+            tiltGesturesEnabled: false,
+            myLocationEnabled: !_locationDenied,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
+            compassEnabled: true,
+            // Keep the map out from under the bottom sheet so Google's
+            // attribution stays visible (a Maps ToS requirement) and the
+            // "recentre" control is not covered.
+            padding: const EdgeInsets.only(bottom: 150),
+            style: Theme.of(context).brightness == Brightness.dark
+                ? _darkMapStyle
+                : null,
           ),
+
+          // Until the platform view reports in, the area is a flat blank. A
+          // blank map reads as a broken map, so say which it is.
+          if (!_mapReady)
+            Positioned.fill(
+              child: ColoredBox(
+                color: context.c.surfaceSunken,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: context.c.brand),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text('Loading map…',
+                          style: AppTypography.footnote
+                              .copyWith(color: context.c.ink2)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
           // ── Top HUD ──────────────────────────────────────────────────────
           SafeArea(
@@ -509,9 +597,10 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.95),
-                      borderRadius: BorderRadius.circular(22),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 12, offset: const Offset(0, 2))],
+                      color: context.c.surfaceRaised.withValues(alpha: 0.96),
+                      borderRadius: AppRadius.pillR,
+                      border: Border.all(color: context.c.rule),
+                      boxShadow: [BoxShadow(color: context.c.scrim.withValues(alpha: 0.18), blurRadius: 12, offset: const Offset(0, 2))],
                     ),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       const _PulseDot(),
@@ -529,9 +618,10 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.95),
+                        color: context.c.surfaceRaised.withValues(alpha: 0.96),
                         shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 12)],
+                        border: Border.all(color: context.c.rule),
+                        boxShadow: [BoxShadow(color: context.c.scrim.withValues(alpha: 0.18), blurRadius: 12)],
                       ),
                       child: Icon(Icons.close_rounded, size: 18, color: context.c.ink),
                     ),
@@ -564,7 +654,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                       ),
                       Text(
                         _nextOnRoute!.name,
-                        style: AppTypography.dmSans(fontSize: 11, color: Colors.white.withOpacity(0.85)),
+                        style: AppTypography.dmSans(fontSize: 11, color: context.c.onBrand.withValues(alpha: 0.8)),
                         maxLines: 1, overflow: TextOverflow.ellipsis,
                       ),
                     ]),
@@ -591,18 +681,47 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                 decoration: BoxDecoration(
                   color: context.c.warnWash,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFFDE68A)),
+                  border: Border.all(color: context.c.warn.withValues(alpha: 0.45)),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.warning_amber_rounded, size: 15, color: Color(0xFFD97706)),
+                  Icon(Icons.warning_amber_rounded, size: 15, color: context.c.warn),
                   const SizedBox(width: 8),
                   Expanded(child: Text(
                     'Location access denied — others can\'t see you',
-                    style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFF92400E)),
+                    style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: context.c.warn),
                   )),
                 ]),
               ),
             ),
+
+          // ── Recentre ──────────────────────────────────────────────────────
+          // There was no way back to your own position once you had panned
+          // away, which is a large part of why the map felt unresponsive: it
+          // moved, and then nothing brought it back.
+          Positioned(
+            right: AppSpacing.md,
+            bottom: 168,
+            child: Pressable(
+              onTap: _centreOnMe,
+              scale: 0.9,
+              child: Container(
+                width: AppTouch.min,
+                height: AppTouch.min,
+                decoration: BoxDecoration(
+                  color: context.c.surfaceRaised.withValues(alpha: 0.96),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: context.c.rule),
+                  boxShadow: [
+                    BoxShadow(
+                        color: context.c.scrim.withValues(alpha: 0.18),
+                        blurRadius: 12),
+                  ],
+                ),
+                child: Icon(Icons.my_location_rounded,
+                    size: 20, color: context.c.route),
+              ),
+            ),
+          ),
 
           // ── Bottom panel ──────────────────────────────────────────────────
           Positioned(
@@ -610,9 +729,10 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
             child: Container(
               margin: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.97),
+                color: context.c.surfaceRaised.withValues(alpha: 0.97),
                 borderRadius: BorderRadius.circular(26),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.13), blurRadius: 24, offset: const Offset(0, -4))],
+                border: Border.all(color: context.c.rule),
+                boxShadow: [BoxShadow(color: context.c.scrim.withValues(alpha: 0.22), blurRadius: 24, offset: const Offset(0, -4))],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -668,7 +788,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                   isLoading
                       ? SizedBox(
                           width: 14, height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white.withOpacity(0.8)))
+                          child: CircularProgressIndicator(strokeWidth: 2, color: context.c.onBrand.withValues(alpha: 0.8)))
                       : Text(cat.emoji, style: const TextStyle(fontSize: 14)),
                   const SizedBox(width: 5),
                   Text(
@@ -815,7 +935,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
           child: Row(children: [
-            const Icon(Icons.people_rounded, size: 14, color: Color(0xFF6366F1)),
+            Icon(Icons.people_rounded, size: 14, color: context.c.route),
             const SizedBox(width: 6),
             Text('GROUP MEMBERS',
                 style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.ink2, letterSpacing: 1.2)),
@@ -892,7 +1012,7 @@ class _GroupLiveMapScreenState extends State<GroupLiveMapScreen> {
                     const SizedBox(height: 2),
                     if (dist != null)
                       Text(_formatDist(dist),
-                          style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF6366F1)))
+                          style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.route))
                     else if (isMe && hasLoc)
                       Text('Here', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.ok))
                     else

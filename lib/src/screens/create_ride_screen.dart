@@ -8,6 +8,8 @@ import '../services/cloudinary_service.dart';
 import '../utils/snackbar_helper.dart';
 import '../widgets/network_image_widget.dart';
 import '../widgets/places_autocomplete_field.dart';
+import '../widgets/motion.dart';
+import '../theme/app_spacing.dart';
 
 // Values mirror backend ride.enums.ts
 enum TransportMode {
@@ -639,30 +641,54 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
 
               // ── Submit ────────────────────────────────────────────────
               const SizedBox(height: 24),
-              GestureDetector(
+              // The button had no fill at all: `gradient: _isLoading ? null :
+              // null` and `color: _isLoading ? grey : null` left the enabled
+              // state transparent, so all that rendered was a 16pt lime glow
+              // behind near-black label text on a near-black page. That is the
+              // "blurred and weird" button — it was, quite literally, only a
+              // blur. It is now a solid brand fill with a tight shadow.
+              Pressable(
                 onTap: _isLoading ? null : _submitRide,
+                scale: 0.985,
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
+                  duration: AppDuration.base,
+                  curve: Curves.easeOut,
                   height: 56,
                   decoration: BoxDecoration(
-                    gradient: _isLoading
-                        ? null
-                        : null,
-                    color: _isLoading ? const Color(0xFFE2E8F0) : null,
+                    color: _isLoading ? context.c.surfaceSunken : context.c.brand,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: _isLoading ? null : [
-                      BoxShadow(color: context.c.brand.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 6)),
-                    ],
+                    border: _isLoading
+                        ? Border.all(color: context.c.rule)
+                        : null,
+                    boxShadow: _isLoading
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: context.c.brand.withValues(alpha: 0.22),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                   ),
                   child: Center(
                     child: _isLoading
-                        ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2.5))
+                        ? SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                                color: context.c.brand, strokeWidth: 2.5))
                         : Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.rocket_launch_rounded, color: Colors.white, size: 18),
+                              Icon(Icons.rocket_launch_rounded,
+                                  color: context.c.onBrand, size: 18),
                               const SizedBox(width: 10),
-                              Text('Publish Ride', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.onBrand, letterSpacing: -0.2)),
+                              Text('Publish Ride',
+                                  style: AppTypography.dmSans(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: context.c.onBrand,
+                                      letterSpacing: -0.2)),
                             ],
                           ),
                   ),

@@ -10,6 +10,7 @@ import 'onboarding_screen.dart';
 import 'analytics_screen.dart';
 import 'all_rides_screen.dart';
 import 'rider_profile_screen.dart';
+import '../widgets/avatar.dart';
 
 class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   const _StickyTabBarDelegate(this.tabBar);
@@ -191,8 +192,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     // so _buildAvatarImage immediately renders the initials fallback (avoids localhost calls)
     String avatarUrl = '';
     if (picPath.isNotEmpty) {
-      final raw = ApiService.getAvatarUrl(picPath, name: rawFirst.isNotEmpty ? rawFirst : 'U');
-      avatarUrl = raw.contains('?') ? '$raw&v=$cacheBust' : '$raw?v=$cacheBust';
+      final raw = Avatar.resolveUrl(picPath) ?? '';
+      if (raw.isNotEmpty) {
+        avatarUrl = raw.contains('?') ? '$raw&v=$cacheBust' : '$raw?v=$cacheBust';
+      }
     }
 
     return Scaffold(
@@ -313,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           const SizedBox(width: 10),
                           Container(
                             padding: const EdgeInsets.all(11),
-                            decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.c.ink3!)),
+                            decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.c.ink3)),
                             child: Icon(Icons.share_outlined, size: 18, color: context.c.ink),
                           ),
                         ],
@@ -420,7 +423,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget _buildTimelinePost(dynamic post) {
     final firstName = (_user?['firstName'] ?? '').toString().trim();
     final picPath   = (_user?['profilePicture'] ?? '').toString().trim();
-    final avatarUrl = picPath.isNotEmpty ? ApiService.getAvatarUrl(picPath, name: firstName) : '';
+    final avatarUrl = Avatar.resolveUrl(picPath) ?? '';
     final content   = (post['content'] ?? '').toString();
     final imageUrl  = post['imageUrl'] != null ? ApiService.getFullImageUrl(post['imageUrl']) : null;
     final likes     = (post['likes'] as List?)?.length ?? 0;
@@ -549,7 +552,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     final name   = '$first $last'.trim().isNotEmpty ? '$first $last'.trim() : (buddy['name'] ?? 'Buddy').toString().trim();
     final location = (buddy['location'] ?? '').toString().trim();
     final picField = buddy['profilePicture'] ?? buddy['profile_picture'] ?? buddy['avatar'];
-    final avatarUrl = ApiService.getAvatarUrl(picField?.toString(), name: name);
     final userId = (buddy['id'] ?? buddy['_id'] ?? '').toString();
 
     final rawInterests = buddy['interests'];
@@ -580,14 +582,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     boxShadow: [BoxShadow(color: context.c.brand.withOpacity(0.15), blurRadius: 12, offset: const Offset(0, 4))],
                   ),
                   padding: const EdgeInsets.all(4),
-                  child: CircleAvatar(
-                    radius: 34,
-                    backgroundColor: context.c.brand,
-                    backgroundImage: avatarUrl.startsWith('http') ? NetworkImage(avatarUrl) : null,
-                    child: !avatarUrl.startsWith('http')
-                        ? Text(name.isNotEmpty ? name[0].toUpperCase() : '?',
-                            style: AppTypography.dmSans(fontSize: 24, fontWeight: FontWeight.w700, color: context.c.onBrand))
-                        : null,
+                  child: Avatar(
+                    size: 68,
+                    imageUrl: picField?.toString(),
+                    name: name,
                   ),
                 ),
                 Positioned(
@@ -781,49 +779,46 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   // ─── Avatar with initials fallback ───────────────────────────────────────────
 
-  /// Tries to load [url] as a network image. On any error, renders an orange
-  /// gradient initials tile (or a person icon if no name) — never the blue generic icon.
+  /// The rounded-square variant of [Avatar], for the profile header and the
+  /// user's own post rows.
+  ///
+  /// [Avatar] is a circle, and this shape is deliberate here, so the two share
+  /// [Avatar.initialsOf] rather than the widget. That matters: the old inline
+  /// version took `nameOrInitial[0]`, which turns any non-name value into a
+  /// single meaningless character.
   Widget _buildAvatarImage(String url, String nameOrInitial, double size) {
-    final letter   = nameOrInitial.trim();
-    final initial  = letter.isNotEmpty ? letter[0].toUpperCase() : '';
-    final fontSize = size * 0.38;
+    final initials = Avatar.initialsOf(nameOrInitial);
     final radius   = BorderRadius.circular(size * 0.2);
 
-    Widget fallback = Container(
+    final fallback = Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-                      color: context.c.brand,
-                    ),
-      child: Center(
-        child: initial.isNotEmpty
-            ? Text(
-                initial,
-                style: AppTypography.dmSans(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.w700,
-                  color: context.c.surfaceRaised,
-                ),
-              )
-            : Icon(Icons.person_rounded, size: size * 0.55, color: Colors.white),
-      ),
+      color: context.c.brandWash,
+      alignment: Alignment.center,
+      child: initials == null
+          ? Icon(Icons.person_rounded,
+              size: size * 0.55, color: context.c.brand.withValues(alpha: 0.75))
+          : Text(
+              initials,
+              style: AppTypography.dmSans(
+                fontSize: size * (initials.length > 1 ? 0.34 : 0.4),
+                fontWeight: FontWeight.w700,
+                color: context.c.brand,
+              ),
+            ),
     );
 
-    // Only skip localhost/127 relative paths — full https URLs (e.g. Cloudinary) load fine.
-    final isLocalhost = !url.startsWith('https://') &&
-        (url.contains('localhost') || url.contains('127.0.0.1'));
-    if (url.isEmpty || isLocalhost) {
-      return ClipRRect(borderRadius: radius, child: fallback);
-    }
+    if (url.isEmpty) return ClipRRect(borderRadius: radius, child: fallback);
 
     return ClipRRect(
       borderRadius: radius,
-      child: Image.network(
-        url,
+      // SafeNetworkImage rather than Image.network: it caches to disk, so the
+      // header avatar does not re-download on every rebuild.
+      child: SafeNetworkImage(
+        url: url,
         width: size,
         height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
+        errorWidget: fallback,
       ),
     );
   }

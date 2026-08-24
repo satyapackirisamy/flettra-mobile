@@ -15,115 +15,8 @@ import '../widgets/network_image_widget.dart';
 import 'ride_details_screen.dart';
 import 'notifications_screen.dart';
 import 'all_rides_screen.dart';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Pulse loader
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _PulseLoader extends StatefulWidget {
-  const _PulseLoader();
-
-  @override
-  State<_PulseLoader> createState() => _PulseLoaderState();
-}
-
-class _PulseLoaderState extends State<_PulseLoader> with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  late final Animation<double> _anim;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
-      ..repeat(reverse: true);
-    _anim = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 340,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedBuilder(
-              animation: _anim,
-              builder: (_, child) => Opacity(opacity: _anim.value, child: child),
-              child: Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [context.c.brand, context.c.brand],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.directions_car_rounded, color: Colors.white, size: 30),
-              ),
-            ),
-            const SizedBox(height: 20),
-            AnimatedBuilder(
-              animation: _anim,
-              builder: (_, child) => Opacity(opacity: _anim.value, child: child),
-              child: Text(
-                'Finding rides...',
-                style: AppTypography.dmSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: context.c.brand,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Pressable card wrapper — scales down on tap for haptic feel
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _PressableCard extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-  const _PressableCard({required this.child, required this.onTap});
-
-  @override
-  State<_PressableCard> createState() => _PressableCardState();
-}
-
-class _PressableCardState extends State<_PressableCard> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        widget.onTap();
-      },
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_)   => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedScale(
-        scale: _pressed ? 0.965 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
-        child: widget.child,
-      ),
-    );
-  }
-}
+import '../widgets/motion.dart';
+import '../widgets/skeleton.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main screen
@@ -171,8 +64,13 @@ class RideListScreenState extends State<RideListScreen> {
   ///
   /// Now the rides request alone gates the first paint. Everything else lands
   /// when it lands, and location — by far the slowest — never blocks anything.
-  Future<void> _fetchRides() async {
-    setState(() => _isLoading = true);
+  Future<void> _fetchRides({bool showSkeleton = true}) async {
+    // A pull-to-refresh passes showSkeleton: false. Flipping _isLoading on
+    // every refresh tore the whole list down and rebuilt it from a skeleton,
+    // which is why a refresh of already-visible content "took time to load" —
+    // the content was being thrown away and re-fetched from scratch. The
+    // RefreshIndicator's own spinner is the feedback a refresh needs.
+    if (showSkeleton) setState(() => _isLoading = true);
 
     // Kick all of these off together; await them separately.
     final ridesFuture = _apiService.client.get('/rides').catchError(
@@ -312,8 +210,9 @@ class RideListScreenState extends State<RideListScreen> {
             _buildTopBar(),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: _fetchRides,
+                onRefresh: () => _fetchRides(showSkeleton: false),
                 color: context.c.brand,
+                backgroundColor: context.c.surfaceRaised,
                 child: ListView(
                   physics: const BouncingScrollPhysics(
                     parent: AlwaysScrollableScrollPhysics(),
@@ -322,9 +221,11 @@ class RideListScreenState extends State<RideListScreen> {
                   children: [
                     _buildSearchBar(),
                     _buildFilterPills(),
-                    _buildNearbyRidesSection(),
-                    _buildTrendingSection(),
-                    _buildFeaturedPlacesSection(),
+                    // Sections fade up in sequence so the screen assembles
+                    // rather than appearing all at once mid-scroll-position.
+                    FadeSlideIn(index: 0, child: _buildNearbyRidesSection()),
+                    FadeSlideIn(index: 1, child: _buildTrendingSection()),
+                    FadeSlideIn(index: 2, child: _buildFeaturedPlacesSection()),
                     const SizedBox(height: 8),
                   ],
                 ),
@@ -586,7 +487,7 @@ class RideListScreenState extends State<RideListScreen> {
           // image and a 20 pt margin fit two and a half rides on a phone, while
           // the text inside ran at 9-12 pt. This is ~76 pt, and the type inside
           // it went up rather than down.
-          _PressableCard(
+          Pressable(scale: 0.965, 
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -715,8 +616,11 @@ class RideListScreenState extends State<RideListScreen> {
               ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllRidesScreen()))
               : null,
         ),
+        // A skeleton in the shape of the rows, rather than a centred spinner
+        // in a 340pt void. The layout is already correct when the data lands,
+        // so the same wait reads as much shorter.
         if (_isLoading)
-          const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: _PulseLoader())
+          const ListSkeleton(count: 3, avatarSize: 52)
         else if (rides.isEmpty)
           _buildEmpty()
         else ...[
