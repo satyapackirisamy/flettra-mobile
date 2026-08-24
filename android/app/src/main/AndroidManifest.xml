@@ -55,6 +55,36 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- Deep links. See mobile/lib/src/utils/deep_links.dart.
+
+                 App Links (verified): https://flettra.com/ride/<token>.
+                 android:autoVerify makes Android fetch
+                 https://flettra.com/.well-known/assetlinks.json at install time
+                 and, if this package's signing fingerprint is listed there,
+                 open the link here instead of in a browser. That file currently
+                 holds a placeholder fingerprint — see
+                 frontend/public/.well-known/README.md — so until it is filled
+                 in with the Play App Signing SHA-256 these links open the web
+                 landing page, which then hands off via the scheme below. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="flettra.com" android:pathPrefix="/ride"/>
+                <data android:scheme="https" android:host="flettra.com" android:pathPrefix="/r"/>
+                <data android:scheme="https" android:host="www.flettra.com" android:pathPrefix="/ride"/>
+                <data android:scheme="https" android:host="www.flettra.com" android:pathPrefix="/r"/>
+            </intent-filter>
+
+            <!-- Custom scheme: flettra://ride/<token>. Requires no domain
+                 verification, so it works today. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="flettra"/>
+            </intent-filter>
         </activity>
 
         <!-- Flutter embedding -->

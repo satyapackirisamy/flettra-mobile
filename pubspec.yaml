@@ -31,6 +31,10 @@ dependencies:
   # which is most of the scroll stutter testers reported.
   cached_network_image: ^3.4.1
   shared_preferences: ^2.3.0
+  # Incoming Universal Links / App Links / flettra:// URLs. Needed for
+  # "Share ride" to open the app instead of a web page — see
+  # lib/src/utils/deep_links.dart.
+  app_links: ^7.0.0
 
 dev_dependencies:
   flutter_test:

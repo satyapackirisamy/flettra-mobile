@@ -4,13 +4,37 @@ import 'screens/onboarding_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'services/auth_service.dart';
+import 'services/deep_link_service.dart';
 import 'theme/app_theme.dart';
 import 'theme/app_typography.dart';
 import 'theme/flettra_colors.dart';
 import 'theme/theme_controller.dart';
 
-class FlettraApp extends StatelessWidget {
+class FlettraApp extends StatefulWidget {
   const FlettraApp({super.key});
+
+  @override
+  State<FlettraApp> createState() => _FlettraAppState();
+}
+
+class _FlettraAppState extends State<FlettraApp> {
+  /// Deep links arrive before any screen exists, so navigation for them has to
+  /// go through a key rather than a BuildContext.
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    DeepLinkService.instance
+      ..attach(_navigatorKey)
+      ..start();
+  }
+
+  @override
+  void dispose() {
+    DeepLinkService.instance.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +42,7 @@ class FlettraApp extends StatelessWidget {
       valueListenable: themeController,
       builder: (context, mode, _) => MaterialApp(
         title: 'Flettra',
+        navigatorKey: _navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
