@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import '../services/auth_service.dart';
-import 'ride_list_screen.dart';
+import '../widgets/places_autocomplete_field.dart';
+import '../app.dart';
 import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -27,14 +29,8 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   late Animation<double> _fadeAnim;
 
   // Brand Colors
-  static const Color primaryIndigo = Color(0xFF4F46E5);
-  static const Color primaryIndigoDark = Color(0xFF3730A3);
-  static const Color accentOrange = Color(0xFFFF530A);
-  static const Color surfaceLight = Color(0xFFF8F7FF);
-  static const Color inputFill = Color(0xFFF5F5F7);
-  static const Color textDark = Color(0xFF18181B);
-  static const Color textGray = Color(0xFF71717A);
-  static const Color borderColor = Color(0xFFE4E4E7);
+  // TODO(theme): a static field cannot read context; resolve at the call
+  // site with context.c.brand when this screen is migrated.
 
   @override
   void initState() {
@@ -81,8 +77,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>
       });
 
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const RideListScreen()),
+        // Clear the entire auth stack (onboarding/login/register) and hand off
+        // to AuthCheck — the single source of truth for post-auth routing.
+        // A freshly-registered user (onboardingCompleted == false) is routed
+        // to the post-auth onboarding tour, then MainScreen.
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthCheck()),
+          (route) => false,
         );
       }
     } catch (e) {
@@ -99,10 +100,10 @@ class _RegistrationScreenState extends State<RegistrationScreen>
       SnackBar(
         content: Text(
           message,
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
               fontSize: 13, fontWeight: FontWeight.w600),
         ),
-        backgroundColor: textDark,
+        backgroundColor: context.c.ink,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -113,7 +114,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: surfaceLight,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnim,
@@ -130,11 +131,11 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surfaceRaised,
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4F46E5).withOpacity(0.06),
+                        color: context.c.brand.withOpacity(0.06),
                         blurRadius: 32,
                         offset: const Offset(0, 8),
                       ),
@@ -148,20 +149,20 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                         // Form Header
                         Text(
                           'Create Account',
-                          style: GoogleFonts.dmSans(
+                          style: AppTypography.dmSans(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
-                            color: textDark,
+                            color: context.c.ink,
                             height: 1.1,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Join the adventure — it\'s free to start.',
-                          style: GoogleFonts.dmSans(
+                          style: AppTypography.dmSans(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: textGray,
+                            color: context.c.ink3,
                           ),
                         ),
 
@@ -211,13 +212,20 @@ class _RegistrationScreenState extends State<RegistrationScreen>
 
                         const SizedBox(height: 14),
 
-                        // Location
+                        // Location — Google Places autocomplete
                         _buildInputLabel('Location'),
                         const SizedBox(height: 6),
-                        _buildFormField(
+                        PlacesAutocompleteField(
                           controller: _locationController,
                           hint: 'Mumbai, India',
                           icon: Icons.location_on_outlined,
+                          textStyle: AppTypography.dmSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: context.c.ink,
+                          ),
+                          decorationBuilder: (hint, icon) => _buildFieldDecoration(hint, icon),
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Location is required' : null,
                         ),
 
                         const SizedBox(height: 18),
@@ -235,23 +243,23 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                         // Divider
                         Row(
                           children: [
-                            const Expanded(
-                                child: Divider(color: Color(0xFFE4E4E7))),
+                            Expanded(
+                                child: Divider(color: context.c.rule)),
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 12),
                               child: Text(
                                 'OR',
-                                style: GoogleFonts.dmSans(
+                                style: AppTypography.dmSans(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: const Color(0xFFA1A1AA),
+                                  color: context.c.ink3,
                                   letterSpacing: 1.0,
                                 ),
                               ),
                             ),
-                            const Expanded(
-                                child: Divider(color: Color(0xFFE4E4E7))),
+                            Expanded(
+                                child: Divider(color: context.c.rule)),
                           ],
                         ),
 
@@ -267,17 +275,17 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                             child: Text.rich(
                               TextSpan(
                                 text: 'Already have an account? ',
-                                style: GoogleFonts.dmSans(
+                                style: AppTypography.dmSans(
                                   fontSize: 13,
-                                  color: textGray,
+                                  color: context.c.ink3,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 children: [
                                   TextSpan(
                                     text: 'Sign in',
-                                    style: GoogleFonts.dmSans(
+                                    style: AppTypography.dmSans(
                                       fontSize: 13,
-                                      color: primaryIndigo,
+                                      color: context.c.brand,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
@@ -313,15 +321,15 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [primaryIndigo, Color(0xFF7C3AED)],
+                    colors: [context.c.brand, Color(0xFF7C3AED)],
                   ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: primaryIndigo.withOpacity(0.30),
+                      color: context.c.brand.withOpacity(0.30),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -330,10 +338,10 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 child: Center(
                   child: Text(
                     'F',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: context.c.surfaceRaised,
                       height: 1,
                     ),
                   ),
@@ -345,20 +353,20 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 children: [
                   Text(
                     'FLETTRA',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: textDark,
+                      color: context.c.ink,
                       letterSpacing: 2.0,
                       height: 1.0,
                     ),
                   ),
                   Text(
                     'Social Travel',
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: textGray,
+                      color: context.c.ink3,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -372,13 +380,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surfaceRaised,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: borderColor),
+                    border: Border.all(color: context.c.rule),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_rounded,
-                    color: textDark,
+                    color: context.c.ink,
                     size: 18,
                   ),
                 ),
@@ -391,10 +399,10 @@ class _RegistrationScreenState extends State<RegistrationScreen>
           // Hero headline
           Text(
             'Start your\njourney.',
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
               fontSize: 32,
               fontWeight: FontWeight.w700,
-              color: textDark,
+              color: context.c.ink,
               height: 1.1,
               letterSpacing: -0.5,
             ),
@@ -404,25 +412,25 @@ class _RegistrationScreenState extends State<RegistrationScreen>
             children: [
               Text(
                 'Connect with riders worldwide  ',
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: textGray,
+                  color: context.c.ink3,
                 ),
               ),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: accentOrange.withOpacity(0.10),
+                  color: context.c.brand.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '✦ Free',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: accentOrange,
+                    color: context.c.brand,
                   ),
                 ),
               ),
@@ -444,10 +452,10 @@ class _RegistrationScreenState extends State<RegistrationScreen>
           child: Checkbox(
             value: _agreedToTerms,
             onChanged: (v) => setState(() => _agreedToTerms = v!),
-            activeColor: primaryIndigo,
+            activeColor: context.c.brand,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5)),
-            side: const BorderSide(color: borderColor, width: 1.5),
+            side: BorderSide(color: context.c.rule, width: 1.5),
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ),
@@ -456,27 +464,27 @@ class _RegistrationScreenState extends State<RegistrationScreen>
           child: Text.rich(
             TextSpan(
               text: 'I agree to the ',
-              style: GoogleFonts.dmSans(
-                  fontSize: 12, color: textGray, fontWeight: FontWeight.w500),
+              style: AppTypography.dmSans(
+                  fontSize: 12, color: context.c.ink3, fontWeight: FontWeight.w500),
               children: [
                 TextSpan(
                   text: 'Terms of Service',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: primaryIndigo),
+                      color: context.c.brand),
                 ),
                 TextSpan(
                   text: ' and ',
-                  style: GoogleFonts.dmSans(
-                      fontSize: 12, color: textGray),
+                  style: AppTypography.dmSans(
+                      fontSize: 12, color: context.c.ink3),
                 ),
                 TextSpan(
                   text: 'Privacy Policy',
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: primaryIndigo),
+                      color: context.c.brand),
                 ),
               ],
             ),
@@ -490,11 +498,56 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   Widget _buildInputLabel(String label) {
     return Text(
       label,
-      style: GoogleFonts.dmSans(
+      style: AppTypography.dmSans(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: textDark,
+        color: context.c.ink,
         letterSpacing: 0.2,
+      ),
+    );
+  }
+
+  // ─── Shared InputDecoration (used by both plain fields and autocomplete) ─────
+  InputDecoration _buildFieldDecoration(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: AppTypography.dmSans(
+        fontSize: 14,
+        color: context.c.ink3,
+        fontWeight: FontWeight.w400,
+      ),
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 14, right: 10),
+        child: Icon(icon, color: context.c.ink3, size: 19),
+      ),
+      prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+      filled: true,
+      fillColor: context.c.surfaceSunken,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: context.c.rule, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: context.c.brand, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.0),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+      ),
+      errorStyle: AppTypography.dmSans(
+        fontSize: 11,
+        color: const Color(0xFFEF4444),
+        fontWeight: FontWeight.w600,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: context.c.rule),
       ),
     );
   }
@@ -514,21 +567,21 @@ class _RegistrationScreenState extends State<RegistrationScreen>
       controller: controller,
       obscureText: isObscure,
       keyboardType: keyboardType,
-      style: GoogleFonts.dmSans(
+      style: AppTypography.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: textDark,
+        color: context.c.ink,
       ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.dmSans(
+        hintStyle: AppTypography.dmSans(
           fontSize: 14,
-          color: const Color(0xFFA1A1AA),
+          color: context.c.ink3,
           fontWeight: FontWeight.w400,
         ),
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 14, right: 10),
-          child: Icon(icon, color: const Color(0xFFA1A1AA), size: 19),
+          child: Icon(icon, color: context.c.ink3, size: 19),
         ),
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: isPassword
@@ -537,7 +590,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   isObscure
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: const Color(0xFFA1A1AA),
+                  color: context.c.ink3,
                   size: 19,
                 ),
                 onPressed: onToggleObscure,
@@ -545,16 +598,16 @@ class _RegistrationScreenState extends State<RegistrationScreen>
               )
             : null,
         filled: true,
-        fillColor: inputFill,
+        fillColor: context.c.surfaceSunken,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: borderColor, width: 1.0),
+          borderSide: BorderSide(color: context.c.rule, width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: primaryIndigo, width: 1.5),
+          borderSide: BorderSide(color: context.c.brand, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -564,14 +617,14 @@ class _RegistrationScreenState extends State<RegistrationScreen>
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
         ),
-        errorStyle: GoogleFonts.dmSans(
+        errorStyle: AppTypography.dmSans(
           fontSize: 11,
           color: const Color(0xFFEF4444),
           fontWeight: FontWeight.w600,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: borderColor),
+          borderSide: BorderSide(color: context.c.rule),
         ),
       ),
       validator: validator,
@@ -587,10 +640,10 @@ class _RegistrationScreenState extends State<RegistrationScreen>
         decoration: BoxDecoration(
           gradient: _isLoading
               ? null
-              : const LinearGradient(
+              : LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
-                  colors: [primaryIndigo, Color(0xFF7C3AED)],
+                  colors: [context.c.brand, Color(0xFF7C3AED)],
                 ),
           color: _isLoading ? const Color(0xFFE0E0E0) : null,
           borderRadius: BorderRadius.circular(16),
@@ -598,7 +651,7 @@ class _RegistrationScreenState extends State<RegistrationScreen>
               ? []
               : [
                   BoxShadow(
-                    color: primaryIndigo.withOpacity(0.35),
+                    color: context.c.brand.withOpacity(0.35),
                     blurRadius: 18,
                     offset: const Offset(0, 6),
                   ),
@@ -614,11 +667,11 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
           child: _isLoading
-              ? const SizedBox(
+              ? SizedBox(
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: context.c.surfaceRaised,
                     strokeWidth: 2.5,
                   ),
                 )
@@ -627,17 +680,17 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                   children: [
                     Text(
                       'Join Flettra',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                        color: context.c.surfaceRaised,
                         letterSpacing: 0.2,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_rounded,
-                      color: Colors.white,
+                      color: context.c.surfaceRaised,
                       size: 18,
                     ),
                   ],

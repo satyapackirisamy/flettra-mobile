@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../theme/flettra_colors.dart';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class CloudinaryService {
       builder: (_) => Container(
         margin: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(24),
         ),
         child: SafeArea(
@@ -44,10 +45,10 @@ class CloudinaryService {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF6B2C).withOpacity(0.08),
+                    color: context.c.brand.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.photo_library_rounded, color: Color(0xFFFF6B2C)),
+                  child: Icon(Icons.photo_library_rounded, color: context.c.brand),
                 ),
                 title: const Text('Choose from Gallery',
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
@@ -58,10 +59,10 @@ class CloudinaryService {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF6B2C).withOpacity(0.08),
+                    color: context.c.brand.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.camera_alt_rounded, color: Color(0xFFFF6B2C)),
+                  child: Icon(Icons.camera_alt_rounded, color: context.c.brand),
                 ),
                 title: const Text('Take a Photo',
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),

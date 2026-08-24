@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import 'package:pinput/pinput.dart';
 import '../services/auth_service.dart';
 import 'ride_list_screen.dart';
@@ -67,16 +68,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 60,
-      textStyle: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B)),
+      textStyle: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.ink),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: context.c.surfaceSunken,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.transparent),
       ),
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
         leading: const BackButton(),
         elevation: 0,
@@ -90,12 +91,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             const SizedBox(height: 20),
             Text(
               'Verify Identity',
-              style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
+              style: AppTypography.dmSans(fontSize: 32, fontWeight: FontWeight.w800, color: context.c.ink),
             ),
              const SizedBox(height: 8),
             Text(
               'Enter the 6-digit code sent to ${widget.identifier}',
-              style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
+              style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w500, color: const Color(0xFF64748B)),
             ),
             const SizedBox(height: 48),
 
@@ -105,8 +106,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 controller: _pinController,
                 defaultPinTheme: defaultPinTheme,
                 focusedPinTheme: defaultPinTheme.copyDecorationWith(
-                   border: Border.all(color: const Color(0xFF4F46E5), width: 2),
-                   color: Colors.white,
+                   border: Border.all(color: context.c.brand, width: 2),
+                   color: context.c.surfaceRaised,
                 ),
                 onCompleted: (pin) => _handleVerify(),
               ),
@@ -119,7 +120,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _handleVerify,
                 child: _isLoading
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: context.c.surfaceRaised))
                     : const Text('VERIFY & ENTER'),
               ),
             ),

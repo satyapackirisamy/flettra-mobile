@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/flettra_colors.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../login_screen.dart';
@@ -47,7 +48,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
         title: const Text('Admin Console'),
         actions: [
@@ -77,16 +78,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   children: [
                     Text(
                       'Platform Overview',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
+                        color: context.c.ink,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Real-time metrics for Flettra',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 16,
                         color: const Color(0xFF64748B),
                         fontWeight: FontWeight.w500,
@@ -107,13 +108,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           'Users',
                           _stats?['users']?.toString() ?? '0',
                           Icons.people_alt_rounded,
-                          const Color(0xFF4F46E5),
+                          context.c.brand,
                         ),
                         _buildStatCard(
                           'Vendors',
                           _stats?['vendors']?.toString() ?? '0',
                           Icons.storefront_rounded,
-                          const Color(0xFF10B981),
+                          context.c.ok,
                         ),
                         _buildStatCard(
                           'Rides',
@@ -133,10 +134,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(height: 40),
                     Text(
                       'Management Modules',
-                      style: GoogleFonts.dmSans(
+                      style: AppTypography.dmSans(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
+                        color: context.c.ink,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -145,7 +146,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       'Vendor Management',
                       'Approve and manage travel partners',
                       Icons.business_rounded,
-                      const Color(0xFF10B981),
+                      context.c.ok,
                       () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminVendorManagementScreen()));
                       },
@@ -163,7 +164,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       'User Management',
                       'Platform users and subscriptions',
                       Icons.person_search_rounded,
-                      const Color(0xFF4F46E5),
+                      context.c.brand,
                       () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminUserManagementScreen()));
                       },
@@ -188,7 +189,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -215,15 +216,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             children: [
               Text(
                 value,
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
+                  color: context.c.ink,
                 ),
               ),
               Text(
                 label,
-                style: GoogleFonts.dmSans(
+                style: AppTypography.dmSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF64748B),
@@ -240,9 +241,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: context.c.surfaceSunken),
       ),
       child: ListTile(
         onTap: onTap,
@@ -257,15 +258,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         title: Text(
           title,
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1E293B),
+            color: context.c.ink,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: const Color(0xFF64748B),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/cloudinary_service.dart';
 import '../services/auth_service.dart';
@@ -8,7 +10,7 @@ import 'onboarding_screen.dart';
 import 'analytics_screen.dart';
 import 'all_rides_screen.dart';
 import 'rider_profile_screen.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../widgets/avatar.dart';
 
 class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   const _StickyTabBarDelegate(this.tabBar);
@@ -22,7 +24,7 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: Colors.white,
+      color: context.c.surfaceRaised,
       child: tabBar,
     );
   }
@@ -54,9 +56,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   final ScrollController _buddiesScrollCtrl  = ScrollController();
   final ScrollController _journalScrollCtrl  = ScrollController();
 
-  static const Color _orange = Color(0xFFFF6B2C);
-  static const Color _bg     = Colors.white;
-  static const Color _dark   = Color(0xFF1A0A08);
 
   @override
   void initState() {
@@ -144,8 +143,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           _isUploading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Profile picture updated!', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
-          backgroundColor: _orange, behavior: SnackBarBehavior.floating,
+          content: Text('Profile picture updated!', style: AppTypography.dmSans(fontWeight: FontWeight.w600)),
+          backgroundColor: context.c.brand, behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ));
       }
@@ -153,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       if (mounted) {
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Upload failed: $e', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)),
+          content: Text('Upload failed: $e', style: AppTypography.dmSans(fontWeight: FontWeight.w600)),
           backgroundColor: Colors.red, behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ));
@@ -165,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B2C)));
+    if (_isLoading) return Center(child: CircularProgressIndicator(color: context.c.brand));
 
     // Safely extract name fields — the server may return empty strings instead of null
     final rawFirst  = (_user?['firstName'] ?? '').toString().trim();
@@ -193,12 +192,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     // so _buildAvatarImage immediately renders the initials fallback (avoids localhost calls)
     String avatarUrl = '';
     if (picPath.isNotEmpty) {
-      final raw = ApiService.getAvatarUrl(picPath, name: rawFirst.isNotEmpty ? rawFirst : 'U');
-      avatarUrl = raw.contains('?') ? '$raw&v=$cacheBust' : '$raw?v=$cacheBust';
+      final raw = Avatar.resolveUrl(picPath) ?? '';
+      if (raw.isNotEmpty) {
+        avatarUrl = raw.contains('?') ? '$raw&v=$cacheBust' : '$raw?v=$cacheBust';
+      }
     }
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: context.c.surface,
       body: Column(
         children: [
           Expanded(
@@ -216,19 +217,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     Container(
                       height: 180,
                       width: double.infinity,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF0E7090), Color(0xFF1DA1C2), Color(0xFF48C9B0)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
+                      decoration: BoxDecoration(color: context.c.brandWash),
                       child: Stack(
                         children: [
                           // Geometric shapes for visual interest
-                          Positioned(top: 20, right: 40, child: _geoShape(80, const Color(0xFF0A5F75), 20)),
-                          Positioned(top: 60, right: 80, child: _geoShape(50, const Color(0xFF156A82), 14)),
-                          Positioned(top: 10, right: 20, child: _geoShape(30, const Color(0xFF0C6B87).withOpacity(0.6), 8)),
+                          Positioned(top: 20, right: 40, child: _geoShape(80, context.c.brand.withValues(alpha: 0.10), 20)),
+                          Positioned(top: 60, right: 80, child: _geoShape(50, context.c.brand.withValues(alpha: 0.07), 14)),
+                          Positioned(top: 10, right: 20, child: _geoShape(30, context.c.brand.withValues(alpha: 0.05), 8)),
                           // Settings icon top-left
                           SafeArea(
                             child: Padding(
@@ -267,13 +262,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         onTap: _pickAndUploadAvatar,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.c.surfaceRaised,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 16, offset: const Offset(0, 4))],
                           ),
                           padding: const EdgeInsets.all(3),
                           child: _isUploading
-                              ? const SizedBox(width: 84, height: 84, child: Center(child: CircularProgressIndicator(color: _orange)))
+                              ? SizedBox(width: 84, height: 84, child: Center(child: CircularProgressIndicator(color: context.c.brand)))
                               : ClipRRect(
                                   borderRadius: BorderRadius.circular(17),
                                   child: _buildAvatarImage(avatarUrl, firstName, 84),
@@ -299,8 +294,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(fullName, style: GoogleFonts.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: _dark, letterSpacing: -0.3)),
-                                Text(handle, style: GoogleFonts.dmSans(fontSize: 13, color: _orange, fontWeight: FontWeight.w600)),
+                                Text(fullName, style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.ink, letterSpacing: -0.3)),
+                                Text(handle, style: AppTypography.dmSans(fontSize: 13, color: context.c.brand, fontWeight: FontWeight.w600)),
                               ],
                             ),
                           ),
@@ -314,22 +309,22 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                             onTap: _showEditProfile,
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 11),
-                              decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(24)),
-                              child: Text('Edit Profile', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                              decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(24)),
+                              child: Text('Edit Profile', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                             ),
                           ),
                           const SizedBox(width: 10),
                           Container(
                             padding: const EdgeInsets.all(11),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.grey[200]!)),
-                            child: const Icon(Icons.share_outlined, size: 18, color: _dark),
+                            decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.c.ink3)),
+                            child: Icon(Icons.share_outlined, size: 18, color: context.c.ink),
                           ),
                         ],
                       ),
                       // Bio
                       if (bio.isNotEmpty) ...[
                         const SizedBox(height: 14),
-                        Text(bio, style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[600], height: 1.55, fontStyle: FontStyle.italic)),
+                        Text(bio, style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, height: 1.55, fontStyle: FontStyle.italic)),
                       ],
                       const SizedBox(height: 20),
 
@@ -337,9 +332,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surfaceRaised,
                           borderRadius: BorderRadius.circular(18),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
                         ),
                         child: Row(
                           children: [
@@ -368,11 +362,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             delegate: _StickyTabBarDelegate(
               TabBar(
                 controller: _tabController,
-                labelStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: 0.8),
-                unselectedLabelStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 12, letterSpacing: 0.8),
-                labelColor: _orange,
-                unselectedLabelColor: Colors.grey[400],
-                indicatorColor: _orange,
+                labelStyle: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: 0.8),
+                unselectedLabelStyle: AppTypography.dmSans(fontWeight: FontWeight.w600, fontSize: 12, letterSpacing: 0.8),
+                labelColor: context.c.brand,
+                unselectedLabelColor: context.c.ink3,
+                indicatorColor: context.c.brand,
                 indicatorWeight: 3,
                 dividerColor: Colors.grey[100],
                 tabs: const [Tab(text: 'TIMELINE'), Tab(text: 'BUDDIES'), Tab(text: 'JOURNAL')],
@@ -404,11 +398,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.photo_library_outlined, size: 52, color: Colors.grey[300]),
+              Icon(Icons.photo_library_outlined, size: 52, color: context.c.ink3),
               const SizedBox(height: 14),
-              Text('No posts yet', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[400])),
+              Text('No posts yet', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink3)),
               const SizedBox(height: 6),
-              Text('Share your travel moments', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
+              Text('Share your travel moments', style: AppTypography.dmSans(fontSize: 12, color: context.c.ink3)),
             ],
           ),
         ),
@@ -429,7 +423,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget _buildTimelinePost(dynamic post) {
     final firstName = (_user?['firstName'] ?? '').toString().trim();
     final picPath   = (_user?['profilePicture'] ?? '').toString().trim();
-    final avatarUrl = picPath.isNotEmpty ? ApiService.getAvatarUrl(picPath, name: firstName) : '';
+    final avatarUrl = Avatar.resolveUrl(picPath) ?? '';
     final content   = (post['content'] ?? '').toString();
     final imageUrl  = post['imageUrl'] != null ? ApiService.getFullImageUrl(post['imageUrl']) : null;
     final likes     = (post['likes'] as List?)?.length ?? 0;
@@ -445,9 +439,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -469,14 +462,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(firstName, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark)),
+                      Text(firstName, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: context.c.ink)),
                       Row(
                         children: [
-                          Text(timeAgo, style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400])),
+                          Text(timeAgo, style: AppTypography.dmSans(fontSize: 10, color: context.c.ink3)),
                           if (location.isNotEmpty) ...[
-                            Text(' • ', style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400])),
-                            const Icon(Icons.location_on_rounded, size: 10, color: _orange),
-                            Flexible(child: Text(location, style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400]), overflow: TextOverflow.ellipsis)),
+                            Text(' • ', style: AppTypography.dmSans(fontSize: 10, color: context.c.ink3)),
+                            Icon(Icons.location_on_rounded, size: 10, color: context.c.brand),
+                            Flexible(child: Text(location, style: AppTypography.dmSans(fontSize: 10, color: context.c.ink3), overflow: TextOverflow.ellipsis)),
                           ],
                         ],
                       ),
@@ -489,7 +482,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           // Content
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
-            child: Text(content, style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[700], height: 1.55), maxLines: 4, overflow: TextOverflow.ellipsis),
+            child: Text(content, style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, height: 1.55), maxLines: 4, overflow: TextOverflow.ellipsis),
           ),
           // Image
           if (imageUrl != null)
@@ -505,13 +498,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 children: [
                   const Icon(Icons.favorite_border_rounded, size: 18, color: Color(0xFFE53935)),
                   const SizedBox(width: 4),
-                  Text('$likes', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w700)),
+                  Text('$likes', style: AppTypography.dmSans(fontSize: 12, color: context.c.ink2, fontWeight: FontWeight.w700)),
                   const SizedBox(width: 12),
-                  const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: Colors.grey),
+                  Icon(Icons.chat_bubble_outline_rounded, size: 16, color: context.c.ink3),
                   const SizedBox(width: 4),
-                  Text('$comments', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w700)),
+                  Text('$comments', style: AppTypography.dmSans(fontSize: 12, color: context.c.ink2, fontWeight: FontWeight.w700)),
                   const Spacer(),
-                  const Icon(Icons.ios_share_rounded, size: 16, color: Colors.grey),
+                  Icon(Icons.ios_share_rounded, size: 16, color: context.c.ink3),
                 ],
               ),
             ),
@@ -528,11 +521,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: _orange.withOpacity(0.10), shape: BoxShape.circle), child: const Icon(Icons.people_outline_rounded, size: 48, color: _orange)),
+              Container(padding: EdgeInsets.all(20), decoration: BoxDecoration(color: context.c.brand.withOpacity(0.10), shape: BoxShape.circle), child: Icon(Icons.people_outline_rounded, size: 48, color: context.c.brand)),
               const SizedBox(height: 16),
-              Text('Your Travel Circle', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: _dark)),
+              Text('Your Travel Circle', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: context.c.ink)),
               const SizedBox(height: 8),
-              Text('Connect with fellow adventurers to build your circle', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400]), textAlign: TextAlign.center),
+              Text('Connect with fellow adventurers to build your circle', style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3), textAlign: TextAlign.center),
             ],
           ),
         ),
@@ -559,7 +552,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     final name   = '$first $last'.trim().isNotEmpty ? '$first $last'.trim() : (buddy['name'] ?? 'Buddy').toString().trim();
     final location = (buddy['location'] ?? '').toString().trim();
     final picField = buddy['profilePicture'] ?? buddy['profile_picture'] ?? buddy['avatar'];
-    final avatarUrl = ApiService.getAvatarUrl(picField?.toString(), name: name);
     final userId = (buddy['id'] ?? buddy['_id'] ?? '').toString();
 
     final rawInterests = buddy['interests'];
@@ -574,9 +566,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           : null,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -587,26 +578,22 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFFF5E6DC),
-                    boxShadow: [BoxShadow(color: _orange.withOpacity(0.15), blurRadius: 12, offset: const Offset(0, 4))],
+                    color: context.c.brandWash,
+                    boxShadow: [BoxShadow(color: context.c.brand.withOpacity(0.15), blurRadius: 12, offset: const Offset(0, 4))],
                   ),
                   padding: const EdgeInsets.all(4),
-                  child: CircleAvatar(
-                    radius: 34,
-                    backgroundColor: _orange,
-                    backgroundImage: avatarUrl.startsWith('http') ? NetworkImage(avatarUrl) : null,
-                    child: !avatarUrl.startsWith('http')
-                        ? Text(name.isNotEmpty ? name[0].toUpperCase() : '?',
-                            style: GoogleFonts.dmSans(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white))
-                        : null,
+                  child: Avatar(
+                    size: 68,
+                    imageUrl: picField?.toString(),
+                    name: name,
                   ),
                 ),
                 Positioned(
                   bottom: 2, right: 2,
                   child: Container(
                     width: 20, height: 20,
-                    decoration: BoxDecoration(color: _orange, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
-                    child: const Icon(Icons.check_rounded, color: Colors.white, size: 11),
+                    decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle, border: Border.all(color: context.c.surfaceRaised, width: 2)),
+                    child: Icon(Icons.check_rounded, color: context.c.onBrand, size: 11),
                   ),
                 ),
               ],
@@ -614,15 +601,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(name, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+              child: Text(name, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: context.c.ink), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
             if (location.isNotEmpty)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.location_on_rounded, size: 11, color: Colors.grey[400]),
+                  Icon(Icons.location_on_rounded, size: 11, color: context.c.ink3),
                   const SizedBox(width: 2),
-                  Flexible(child: Text(location, style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
+                  Flexible(child: Text(location, style: AppTypography.dmSans(fontSize: 11, color: context.c.ink3, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
                 ],
               ),
             const SizedBox(height: 8),
@@ -634,7 +621,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   children: interests.take(2).map((tag) => Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-                    child: Text(tag, style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.grey[600], letterSpacing: 0.5)),
+                    child: Text(tag, style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 0.5)),
                   )).toList(),
                 ),
               ),
@@ -645,8 +632,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 14),
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(30)),
-                child: Center(child: Text('View Profile', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white))),
+                decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(30)),
+                child: Center(child: Text('View Profile', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand))),
               ),
             ),
             const SizedBox(height: 14),
@@ -664,11 +651,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(padding: const EdgeInsets.all(20), decoration: BoxDecoration(color: _orange.withOpacity(0.10), shape: BoxShape.circle), child: const Icon(Icons.luggage_rounded, size: 48, color: _orange)),
+              Container(padding: EdgeInsets.all(20), decoration: BoxDecoration(color: context.c.brand.withOpacity(0.10), shape: BoxShape.circle), child: Icon(Icons.luggage_rounded, size: 48, color: context.c.brand)),
               const SizedBox(height: 16),
-              Text('No trips yet', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: _dark)),
+              Text('No trips yet', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: context.c.ink)),
               const SizedBox(height: 8),
-              Text('Your travel history will appear here', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400]), textAlign: TextAlign.center),
+              Text('Your travel history will appear here', style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3), textAlign: TextAlign.center),
             ],
           ),
         ),
@@ -687,10 +674,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Widget _buildJournalRideCard(dynamic ride) {
+    final isRejected = (ride['adminStatus']?.toString() ?? 'active') == 'rejected';
+    final rejectionReason = ride['adminRejectionReason']?.toString() ?? '';
     final name   = ride['name'] ?? ride['title'] ?? 'Trip';
     final origin = ride['origin'] ?? '';
     final dest   = ride['destination'] ?? '';
-    final status = (ride['status'] ?? 'pending').toString().toLowerCase();
+    final status = isRejected ? 'rejected' : (ride['status'] ?? 'pending').toString().toLowerCase();
     final date   = ride['departureDate'] ?? ride['createdAt'] ?? '';
     String dateStr = '';
     try {
@@ -703,18 +692,42 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
     Color statusColor;
     switch (status) {
-      case 'completed': statusColor = const Color(0xFF10B981); break;
+      case 'completed': statusColor = context.c.ok; break;
       case 'ongoing':
-      case 'in_progress': statusColor = _orange; break;
-      default: statusColor = Colors.grey;
+      case 'in_progress': statusColor = context.c.brand; break;
+      case 'rejected': statusColor = const Color(0xFFE53935); break;
+      default: statusColor = context.c.ink3;
     }
 
-    return Container(
+    return Opacity(
+      opacity: isRejected ? 0.6 : 1.0,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isRejected)
+            Container(
+              decoration: BoxDecoration(
+                color: context.c.badWash,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Row(children: [
+                const Icon(Icons.block_rounded, size: 12, color: Color(0xFFE53935)),
+                const SizedBox(width: 6),
+                const Text('Removed by admin', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFFE53935))),
+                if (rejectionReason.isNotEmpty) ...[
+                  const Text('  ·  ', style: TextStyle(color: Color(0xFFE57373))),
+                  Expanded(child: Text(rejectionReason, style: const TextStyle(fontSize: 11, color: Color(0xFFE57373)), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                ],
+              ]),
+            ),
+      Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
+        color: isRejected ? context.c.surfaceSunken : Colors.white,
+        borderRadius: isRejected
+            ? const BorderRadius.vertical(bottom: Radius.circular(20))
+            : BorderRadius.circular(20),
       ),
       child: Row(
         children: [
@@ -732,23 +745,23 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text(name, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark), overflow: TextOverflow.ellipsis)),
+                      Expanded(child: Text(name, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: context.c.ink), overflow: TextOverflow.ellipsis)),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(color: statusColor.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-                        child: Text(status.toUpperCase(), style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: statusColor)),
+                        child: Text(status.toUpperCase(), style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: statusColor)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   if (origin.isNotEmpty)
-                    Text('$origin → $dest', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+                    Text('$origin → $dest', style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today_rounded, size: 10, color: Colors.grey[400]),
+                      Icon(Icons.calendar_today_rounded, size: 10, color: context.c.ink3),
                       const SizedBox(width: 4),
-                      Text(dateStr, style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400], fontWeight: FontWeight.w600)),
+                      Text(dateStr, style: AppTypography.dmSans(fontSize: 10, color: context.c.ink3, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ],
@@ -758,54 +771,54 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           const SizedBox(width: 12),
         ],
       ),
+    ),
+        ],
+      ),
     );
   }
 
   // ─── Avatar with initials fallback ───────────────────────────────────────────
 
-  /// Tries to load [url] as a network image. On any error, renders an orange
-  /// gradient initials tile (or a person icon if no name) — never the blue generic icon.
+  /// The rounded-square variant of [Avatar], for the profile header and the
+  /// user's own post rows.
+  ///
+  /// [Avatar] is a circle, and this shape is deliberate here, so the two share
+  /// [Avatar.initialsOf] rather than the widget. That matters: the old inline
+  /// version took `nameOrInitial[0]`, which turns any non-name value into a
+  /// single meaningless character.
   Widget _buildAvatarImage(String url, String nameOrInitial, double size) {
-    final letter   = nameOrInitial.trim();
-    final initial  = letter.isNotEmpty ? letter[0].toUpperCase() : '';
-    final fontSize = size * 0.38;
+    final initials = Avatar.initialsOf(nameOrInitial);
     final radius   = BorderRadius.circular(size * 0.2);
 
-    Widget fallback = Container(
+    final fallback = Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [Color(0xFFFF6B2C), Color(0xFFFF8C5A)]),
-      ),
-      child: Center(
-        child: initial.isNotEmpty
-            ? Text(
-                initial,
-                style: GoogleFonts.dmSans(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              )
-            : Icon(Icons.person_rounded, size: size * 0.55, color: Colors.white),
-      ),
+      color: context.c.brandWash,
+      alignment: Alignment.center,
+      child: initials == null
+          ? Icon(Icons.person_rounded,
+              size: size * 0.55, color: context.c.brand.withValues(alpha: 0.75))
+          : Text(
+              initials,
+              style: AppTypography.dmSans(
+                fontSize: size * (initials.length > 1 ? 0.34 : 0.4),
+                fontWeight: FontWeight.w700,
+                color: context.c.brand,
+              ),
+            ),
     );
 
-    // Only skip localhost/127 relative paths — full https URLs (e.g. Cloudinary) load fine.
-    final isLocalhost = !url.startsWith('https://') &&
-        (url.contains('localhost') || url.contains('127.0.0.1'));
-    if (url.isEmpty || isLocalhost) {
-      return ClipRRect(borderRadius: radius, child: fallback);
-    }
+    if (url.isEmpty) return ClipRRect(borderRadius: radius, child: fallback);
 
     return ClipRRect(
       borderRadius: radius,
-      child: Image.network(
-        url,
+      // SafeNetworkImage rather than Image.network: it caches to disk, so the
+      // header avatar does not re-download on every rebuild.
+      child: SafeNetworkImage(
+        url: url,
         width: size,
         height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
+        errorWidget: fallback,
       ),
     );
   }
@@ -818,13 +831,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFF2A1A14), levelInfo['color'] as Color],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 20, offset: const Offset(0, 6))],
+        border: Border.all(color: context.c.rule),
       ),
       child: Row(
         children: [
@@ -833,10 +842,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('MEMBER LEVEL', style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: _orange, letterSpacing: 1.5)),
+                Text('MEMBER LEVEL', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.brand, letterSpacing: 1.5)),
                 const SizedBox(height: 4),
-                Text(levelInfo['name'] as String, style: GoogleFonts.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white, fontStyle: FontStyle.italic)),
-                Text(levelInfo['desc'] as String, style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white54, fontWeight: FontWeight.w500)),
+                Text(levelInfo['name'] as String, style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.ink, fontStyle: FontStyle.italic)),
+                Text(levelInfo['desc'] as String, style: AppTypography.dmSans(fontSize: 11, color: context.c.onBrand.withValues(alpha: 0.54), fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -844,15 +853,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           Stack(
             alignment: Alignment.center,
             children: [
-              Container(width: 52, height: 52, decoration: const BoxDecoration(color: _orange, shape: BoxShape.circle)),
-              const Icon(Icons.star_rounded, color: Colors.white, size: 28),
+              Container(width: 52, height: 52, decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle)),
+              Icon(Icons.star_rounded, color: context.c.onBrand, size: 28),
             ],
           ),
           const SizedBox(width: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-            child: Text('VIP', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+            decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(8)),
+            child: Text('VIP', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
           ),
         ],
       ),
@@ -877,21 +886,21 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       isScrollControlled: true,
       builder: (_) => Container(
         margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(28)),
+        decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(28)),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(2))),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.settings_rounded, color: _orange, size: 20)),
+                    Container(padding: EdgeInsets.all(10), decoration: BoxDecoration(color: context.c.surface, borderRadius: BorderRadius.circular(12)), child: Icon(Icons.settings_rounded, color: context.c.brand, size: 20)),
                     const SizedBox(width: 12),
-                    Text('Settings', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: _dark)),
+                    Text('Settings', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: context.c.ink)),
                   ],
                 ),
               ),
@@ -915,18 +924,29 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               }),
               _settingsTile(Icons.settings_suggest_rounded, 'Preferences', 'Customize your experience', () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Coming soon!', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)), backgroundColor: _orange, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Coming soon!', style: AppTypography.dmSans(fontWeight: FontWeight.w600)), backgroundColor: context.c.brand, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
               }),
               _settingsTile(Icons.help_outline_rounded, 'Support', 'Get help & contact us', () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email: help@flettra.com', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)), backgroundColor: _orange, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Email: help@flettra.com', style: AppTypography.dmSans(fontWeight: FontWeight.w600)), backgroundColor: context.c.brand, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
               }),
               const Divider(height: 1),
+              // Delete Account
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.06), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.delete_forever_rounded, color: Colors.red, size: 20)),
+                title: Text('Delete Account', style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.red)),
+                subtitle: Text('Permanently remove your account & data', style: AppTypography.dmSans(fontSize: 11, color: Colors.red.withOpacity(0.6))),
+                onTap: () {
+                  Navigator.pop(context); // close settings sheet
+                  _confirmDeleteAccount(context);
+                },
+              ),
               // Logout
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                 leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.08), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.logout_rounded, color: Colors.red, size: 20)),
-                title: Text('Sign Out', style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.red)),
+                title: Text('Sign Out', style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.red)),
                 onTap: () async {
                   Navigator.pop(context);
                   await _authService.logout();
@@ -946,13 +966,109 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
+  // ─── Delete Account Confirmation ──────────────────────────────────────────────
+
+  void _confirmDeleteAccount(BuildContext context) {
+    final confirmController = TextEditingController();
+    bool deleting = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              const Icon(Icons.warning_rounded, color: Colors.red, size: 22),
+              const SizedBox(width: 8),
+              Text('Delete Account', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 17, color: Colors.red)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'This action cannot be undone. Your account, rides, posts, and all personal data will be permanently deleted after 60 days.',
+                style: AppTypography.dmSans(fontSize: 13, color: const Color(0xFF6B7280), height: 1.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Type DELETE to confirm:',
+                style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.ink),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: confirmController,
+                onChanged: (_) => setDialogState(() {}),
+                style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'DELETE',
+                  hintStyle: AppTypography.dmSans(color: context.c.ink3),
+                  filled: true,
+                  fillColor: context.c.surfaceSunken,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: deleting ? null : () => Navigator.pop(ctx),
+              child: Text('Cancel', style: AppTypography.dmSans(color: const Color(0xFF6B7280))),
+            ),
+            ElevatedButton(
+              onPressed: (confirmController.text.trim() == 'DELETE' && !deleting)
+                  ? () async {
+                      setDialogState(() => deleting = true);
+                      try {
+                        await _apiService.client.delete('/users/me');
+                        await _authService.logout();
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        if (mounted) {
+                          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+                            (route) => false,
+                          );
+                        }
+                      } catch (e) {
+                        setDialogState(() => deleting = false);
+                        if (ctx.mounted) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to delete account. Please try again.', style: AppTypography.dmSans()),
+                              backgroundColor: Colors.red,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      }
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: context.c.onBrand,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: deleting
+                  ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: context.c.surfaceRaised))
+                  : Text('Delete My Account', style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _settingsTile(IconData icon, String title, String sub, VoidCallback onTap) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-      leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: _orange, size: 20)),
-      title: Text(title, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: _dark)),
-      subtitle: Text(sub, style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[400])),
-      trailing: Icon(Icons.arrow_forward_ios_rounded, size: 13, color: Colors.grey[300]),
+      leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: context.c.surface, borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: context.c.brand, size: 20)),
+      title: Text(title, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: context.c.ink)),
+      subtitle: Text(sub, style: AppTypography.dmSans(fontSize: 11, color: context.c.ink3)),
+      trailing: Icon(Icons.arrow_forward_ios_rounded, size: 13, color: context.c.ink3),
       onTap: onTap,
     );
   }
@@ -972,18 +1088,18 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       builder: (_) => StatefulBuilder(
         builder: (ctx, _) => Container(
           padding: EdgeInsets.fromLTRB(24, 16, 24, MediaQuery.of(ctx).viewInsets.bottom + 32),
-          decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+          decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(2)))),
+              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: 20),
               Row(
                 children: [
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _bg, borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.edit_rounded, color: _orange, size: 20)),
+                  Container(padding: EdgeInsets.all(10), decoration: BoxDecoration(color: context.c.surface, borderRadius: BorderRadius.circular(14)), child: Icon(Icons.edit_rounded, color: context.c.brand, size: 20)),
                   const SizedBox(width: 14),
-                  Text('Edit Profile', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
+                  Text('Edit Profile', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                 ],
               ),
               const SizedBox(height: 20),
@@ -1014,12 +1130,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       await _fetch();
                     } catch (_) {
                       if (ctx.mounted) {
-                        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Save failed. Try again.', style: GoogleFonts.dmSans(fontWeight: FontWeight.w600)), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
+                        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Save failed. Try again.', style: AppTypography.dmSans(fontWeight: FontWeight.w600)), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))));
                       }
                     }
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: _orange, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0),
-                  child: Text('Save Changes', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                  style: ElevatedButton.styleFrom(backgroundColor: context.c.brand, foregroundColor: context.c.onBrand, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0),
+                  child: Text('Save Changes', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
                 ),
               ),
             ],
@@ -1033,12 +1149,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return TextField(
       controller: ctrl,
       maxLines: maxLines,
-      style: GoogleFonts.dmSans(fontSize: 14),
+      style: AppTypography.dmSans(fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.dmSans(color: Colors.grey[400]),
-        prefixIcon: Icon(icon, color: Colors.grey[400], size: 18),
-        filled: true, fillColor: const Color(0xFFF8F9FA),
+        hintStyle: AppTypography.dmSans(color: context.c.ink3),
+        prefixIcon: Icon(icon, color: context.c.ink3, size: 18),
+        filled: true, fillColor: context.c.surfaceSunken,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
@@ -1051,15 +1167,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Expanded(
       child: Column(
         children: [
-          Text(value, style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: _dark)),
+          Text(value, style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: context.c.ink)),
           const SizedBox(height: 2),
-          Text(label, style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey[400], letterSpacing: 0.8)),
+          Text(label, style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.ink3, letterSpacing: 0.8)),
         ],
       ),
     );
   }
 
-  Widget _statDivider() => Container(height: 32, width: 1, color: Colors.grey[200]);
+  Widget _statDivider() => Container(height: 32, width: 1, color: context.c.ink3);
 
   Widget _geoShape(double size, Color color, double radius) {
     return Container(width: size, height: size, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(radius)));

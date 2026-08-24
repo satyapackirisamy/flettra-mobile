@@ -48,3 +48,7 @@ app.*.map.json
 android/local.properties
 ios/Flutter/AppEnvironment.xcconfig
 lib/src/config.dart
+
+logo-source.png
+logo1.png
+logo-size-check.png

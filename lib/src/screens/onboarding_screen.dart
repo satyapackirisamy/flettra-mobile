@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import 'dart:async';
 import 'login_screen.dart';
 import 'main_screen.dart';
@@ -26,25 +27,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       'icon': Icons.directions_car_rounded,
       'title': 'Create & Join Rides',
       'description': 'Share your commute or find travel buddies heading the same way. Save money and make friends!',
-      'color': Color(0xFF4F46E5),
     },
     {
       'icon': Icons.groups_rounded,
       'title': 'Join Travel Circles',
       'description': 'Connect with groups based on your route, workplace, or interests. Plan trips together!',
-      'color': Color(0xFFE11D48),
     },
     {
       'icon': Icons.analytics_rounded,
       'title': 'Track Your Impact',
       'description': 'See your travel stats, earn compass points, and climb the leaderboard. Every ride counts!',
-      'color': Color(0xFF0EA5E9),
     },
     {
       'icon': Icons.star_rounded,
       'title': 'Rate & Review',
       'description': 'Build trust in the community by rating your travel companions after each ride.',
-      'color': Color(0xFFF59E0B),
     },
   ];
 
@@ -53,19 +50,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       'image': 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop',
       'smallText': "It's a Big World",
       'bigText': "Out There,\nGo Explore",
-      'color': const Color(0xFF4F46E5), // Indigo (Brand)
     },
     {
       'image': 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?q=80&w=2070&auto=format&fit=crop',
       'smallText': "Find Your Tribe",
       'bigText': "Journey With\nNew Friends",
-     'color': const Color(0xFFE11D48), // Rose/Pink
     },
     {
       'image': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop',
       'smallText': "Share Moments",
       'bigText': "Plan Trips,\nCreate Stories",
-      'color': const Color(0xFF0EA5E9), // Sky Blue
     },
   ];
 
@@ -124,11 +118,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildPostAuthOnboarding() {
     final slide = _tutorialSlides[_currentPage];
-    final color = slide['color'] as Color;
+    // One accent across every slide. The per-slide colours were leftovers
+    // from the retired indigo palette and made the intro look like four
+    // different products.
+    final color = context.c.brand;
     final isLast = _currentPage == _tutorialSlides.length - 1;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFE),
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -142,7 +139,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       height: 4,
                       margin: const EdgeInsets.symmetric(horizontal: 3),
                       decoration: BoxDecoration(
-                        color: i <= _currentPage ? color : Colors.grey.shade200,
+                        color: i <= _currentPage ? color : context.c.rule,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -155,7 +152,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: _completing ? null : _completeOnboarding,
-                child: Text('Skip', style: GoogleFonts.dmSans(color: Colors.grey, fontWeight: FontWeight.w700)),
+                child: Text('Skip', style: AppTypography.dmSans(color: context.c.ink3, fontWeight: FontWeight.w700)),
               ),
             ),
             // Content
@@ -184,13 +181,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           s['title'] as String,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -1),
+                          style: AppTypography.dmSans(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -1),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           s['description'] as String,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(fontSize: 15, color: Colors.grey[600], fontWeight: FontWeight.w600, height: 1.5),
+                          style: AppTypography.dmSans(fontSize: 15, color: context.c.ink2, fontWeight: FontWeight.w600, height: 1.5),
                         ),
                       ],
                     ),
@@ -218,13 +215,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: color,
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.c.onBrand,
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                   child: Text(
                     _completing ? 'Getting ready...' : isLast ? 'Get Started' : 'Next',
-                    style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -240,10 +237,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (widget.isPostAuth) return _buildPostAuthOnboarding();
 
     // Current active color
-    final activeColor = (_slides[_currentPage]['color'] as Color?) ?? const Color(0xFF4F46E5);
+    final activeColor = (_slides[_currentPage]['color'] as Color?) ?? context.c.brand;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: context.c.ink,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -256,7 +253,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             },
             itemBuilder: (context, index) {
               final slide = _slides[index];
-              final slideColor = (slide['color'] as Color?) ?? const Color(0xFF4F46E5);
+              final slideColor = (slide['color'] as Color?) ?? context.c.brand;
               return Stack(
                 fit: StackFit.expand,
                 children: [
@@ -264,7 +261,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   SafeNetworkImage(
                     url: slide['image'] as String,
                     fit: BoxFit.cover,
-                    errorWidget: Container(color: const Color(0xFF1E293B)),
+                    errorWidget: Container(color: context.c.ink),
                   ),
                   
                   // Gradient Overlay
@@ -293,7 +290,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           const Spacer(),
                           Text(
                             slide['smallText'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppTypography.dmSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w600,
                               color: Colors.white.withOpacity(0.9),
@@ -303,10 +300,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           const SizedBox(height: 8),
                           Text(
                             slide['bigText'] as String,
-                            style: GoogleFonts.outfit(
+                            style: AppTypography.dmSans(
                               fontSize: 56,
                               fontWeight: FontWeight.w800,
                               height: 1.05,
+                              // Fixed white, not a token. This sits on a
+                              // photograph, so its contrast comes from the
+                              // image scrim rather than the theme — a surface
+                              // token here turns the headline near-black in
+                              // Nightshift.
                               color: Colors.white,
                               letterSpacing: -2.0,
                             ),
@@ -333,7 +335,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       _slides.length,
                       (index) => Row(
                         children: [
-                          _buildIndicator(index == _currentPage, (_slides[index]['color'] as Color?) ?? const Color(0xFF4F46E5)),
+                          _buildIndicator(index == _currentPage, (_slides[index]['color'] as Color?) ?? context.c.brand),
                           const SizedBox(width: 6),
                         ],
                       ),
@@ -354,7 +356,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: activeColor, // Dynamic Background
-                        foregroundColor: Colors.white,
+                        foregroundColor: context.c.onBrand,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         elevation: 8,
                         shadowColor: activeColor.withOpacity(0.5),
@@ -367,7 +369,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         children: [
                           Text(
                             "Get Started",
-                            style: GoogleFonts.outfit(
+                            style: AppTypography.dmSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.5,
@@ -387,7 +389,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: () {},
                     child: Text(
                       "Privacy Policy",
-                      style: GoogleFonts.outfit(
+                      style: AppTypography.dmSans(
                         fontSize: 14,
                         color: Colors.white.withOpacity(0.7),
                         fontWeight: FontWeight.w500,

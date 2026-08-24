@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../utils/money.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/network_image_widget.dart';
 import 'ride_details_screen.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/skeleton.dart';
+import '../widgets/motion.dart';
 
 class AllRidesScreen extends StatefulWidget {
   const AllRidesScreen({super.key});
@@ -26,10 +31,6 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   final TextEditingController _searchController = TextEditingController();
 
-  static const Color _orange    = Color(0xFFFF6B2C);
-  static const Color _orangeEnd = Color(0xFFFF8C5A);
-  static const Color _dark      = Color(0xFF1A0A08);
-  static const Color _bg        = Colors.white;
 
   static const List<String> _filters = ['ALL', 'MY RIDES', 'ONGOING', 'HISTORY'];
 
@@ -45,24 +46,25 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
     super.dispose();
   }
 
-  Future<void> _fetch() async {
-    setState(() => _isLoading = true);
-    try {
-      final user = await _authService.getUser();
-      _myUserId  = user['id']?.toString();
+  Future<void> _fetch({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
 
-      final resAll = await _apiService.client.get('/rides');
-      final resMy  = await _apiService.getMyRides();
-      if (mounted) {
-        setState(() {
-          _allRides = _parseList(resAll.data);
-          _myRides  = _parseList(resMy.data);
-          _isLoading = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    // Fetch each source independently so a failure in one (e.g. /rides/my-rides)
+    // doesn't wipe out the others — previously a single throw left every list empty.
+    final results = await Future.wait([
+      _authService.getUser().then<dynamic>((u) => u).catchError((_) => null),
+      _apiService.client.get('/rides').then<dynamic>((r) => r.data).catchError((_) => null),
+      _apiService.getMyRides().then<dynamic>((r) => r.data).catchError((_) => null),
+    ]);
+
+    if (!mounted) return;
+    final user = results[0];
+    setState(() {
+      if (user is Map) _myUserId = user['id']?.toString();
+      if (results[1] != null) _allRides = _parseList(results[1]);
+      if (results[2] != null) _myRides  = _parseList(results[2]);
+      _isLoading = false;
+    });
   }
 
   List<dynamic> _parseList(dynamic raw) {
@@ -111,7 +113,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,24 +132,24 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildHeader() {
     return Container(
-      color: Colors.white,
+      color: context.c.surfaceRaised,
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Rides',
-            style: GoogleFonts.dmSans(
+            style: AppTypography.dmSans(
               fontSize: 28,
               fontWeight: FontWeight.w700,
-              color: _dark,
+              color: context.c.ink,
               letterSpacing: -0.8,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             'Discover and join adventures',
-            style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400], fontWeight: FontWeight.w500),
+            style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 16),
         ],
@@ -159,25 +161,25 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildSearchBar() {
     return Container(
-      color: Colors.white,
+      color: context.c.surfaceRaised,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
+          color: context.c.surfaceSunken,
           borderRadius: BorderRadius.circular(16),
         ),
         child: TextField(
           controller: _searchController,
           onChanged: (v) => setState(() => _searchQuery = v),
-          style: GoogleFonts.dmSans(fontSize: 14, color: _dark),
+          style: AppTypography.dmSans(fontSize: 14, color: context.c.ink),
           decoration: InputDecoration(
             hintText: 'Search by name, origin or destination...',
-            hintStyle: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 13),
-            prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Colors.grey),
+            hintStyle: AppTypography.dmSans(color: context.c.ink3, fontSize: 13),
+            prefixIcon: Icon(Icons.search_rounded, size: 20, color: context.c.ink3),
             suffixIcon: _searchQuery.isNotEmpty
                 ? GestureDetector(
                     onTap: () { _searchController.clear(); setState(() => _searchQuery = ''); },
-                    child: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                    child: Icon(Icons.close_rounded, size: 18, color: context.c.ink3),
                   )
                 : null,
             border: InputBorder.none,
@@ -192,7 +194,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildFilterPills() {
     return Container(
-      color: Colors.white,
+      color: context.c.surfaceRaised,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -206,18 +208,22 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
                 decoration: BoxDecoration(
-                  gradient: isActive
-                      ? const LinearGradient(colors: [_orange, _orangeEnd])
-                      : null,
-                  color: isActive ? null : const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(24),
+                  // Same defect as the Publish button: the gradient sweep left
+                  // `? null : null`, and `color` was null for the active case —
+                  // so the *selected* filter pill painted nothing and its
+                  // onBrand label was near-black on the page background.
+                  color: isActive ? context.c.brand : context.c.surfaceSunken,
+                  borderRadius: AppRadius.pillR,
+                  border: isActive
+                      ? null
+                      : Border.all(color: context.c.rule),
                 ),
                 child: Text(
                   filter,
-                  style: GoogleFonts.dmSans(
+                  style: AppTypography.dmSans(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: isActive ? Colors.white : Colors.grey[500],
+                    color: isActive ? context.c.onBrand : context.c.ink2,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -233,7 +239,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
 
   Widget _buildList() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: _orange));
+      return const ListSkeleton(count: 6, avatarSize: 52);
     }
 
     final rides = _filteredRides;
@@ -246,20 +252,20 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: _orange.withOpacity(0.08),
+                color: context.c.brand.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.directions_bike_rounded, size: 40, color: _orange),
+              child: Icon(Icons.directions_bike_rounded, size: 40, color: context.c.brand),
             ),
             const SizedBox(height: 16),
             Text(
               _selectedFilter == 'ALL' ? 'No rides available' : 'No rides here',
-              style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark),
+              style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: context.c.ink),
             ),
             const SizedBox(height: 6),
             Text(
               _selectedFilter == 'ALL' ? 'Check back soon for new adventures' : 'Try a different filter',
-              style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400]),
+              style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3),
             ),
           ],
         ),
@@ -267,13 +273,19 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
     }
 
     return RefreshIndicator(
-      onRefresh: _fetch,
-      color: _orange,
+      onRefresh: () => _fetch(showSkeleton: false),
+      color: context.c.brand,
+      backgroundColor: context.c.surfaceRaised,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-        physics: const BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         itemCount: rides.length,
-        itemBuilder: (context, i) => _buildCard(rides[i]),
+        itemBuilder: (context, i) => FadeSlideIn(
+          index: i.clamp(0, 8),
+          child: _buildCard(rides[i]),
+        ),
       ),
     );
   }
@@ -306,9 +318,8 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 6))],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,8 +337,8 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                     errorWidget: Container(
                       height: 160,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF1A0A08), Color(0xFF3D1A0E)],
+                        gradient: LinearGradient(
+                          colors: [context.c.ink, Color(0xFF3D1A0E)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -362,10 +373,10 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [_orange, _orangeEnd]),
+                      color: context.c.brand,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text('MY RIDE', style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 0.8)),
+                          child: Text('MY RIDE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.onBrand, letterSpacing: 0.8)),
                         ),
                       if (status == 'ongoing' || status == 'in_progress') ...[
                         if (isOwner) const SizedBox(width: 6),
@@ -378,9 +389,9 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                              Container(width: 6, height: 6, decoration: BoxDecoration(color: context.c.surfaceRaised, shape: BoxShape.circle)),
                               const SizedBox(width: 5),
-                              Text('LIVE', style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white)),
+                              Text('LIVE', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.onBrand)),
                             ],
                           ),
                         ),
@@ -400,8 +411,8 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        '~₹$price',
-                        style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                        '₹${formatRupees(price)}',
+                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
                       ),
                     ),
                   ),
@@ -412,7 +423,7 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                   right: 14,
                   child: Text(
                     name,
-                    style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, shadows: [const Shadow(color: Colors.black45, blurRadius: 8)]),
+                    style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white, shadows: [const Shadow(color: Colors.black45, blurRadius: 8)]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -432,14 +443,14 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(color: _orange.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                          child: const Icon(Icons.near_me_rounded, size: 13, color: _orange),
+                          decoration: BoxDecoration(color: context.c.brand.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                          child: Icon(Icons.near_me_rounded, size: 13, color: context.c.brand),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             '$origin → $dest',
-                            style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _dark),
+                            style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.ink),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -450,25 +461,25 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                   Row(
                     children: [
                       // Date
-                      Icon(Icons.calendar_today_rounded, size: 12, color: Colors.grey[400]),
+                      Icon(Icons.calendar_today_rounded, size: 12, color: context.c.ink3),
                       const SizedBox(width: 5),
-                      Text(dateStr, style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                      Text(dateStr, style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w600)),
                       const SizedBox(width: 12),
                       // Seats
-                      Icon(Icons.event_seat_rounded, size: 12, color: Colors.grey[400]),
+                      Icon(Icons.event_seat_rounded, size: 12, color: context.c.ink3),
                       const SizedBox(width: 4),
-                      Text('$seats seats', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                      Text('$seats seats', style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w600)),
                       const Spacer(),
                       // Book button
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [_orange, _orangeEnd]),
+                      color: context.c.brand,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           isOwner ? 'View' : 'Book Spot',
-                          style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
+                          style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.onBrand),
                         ),
                       ),
                     ],
@@ -479,21 +490,21 @@ class _AllRidesScreenState extends State<AllRidesScreen> {
                       children: [
                         Container(
                           width: 22, height: 22,
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(colors: [_orange, _orangeEnd]),
+                          decoration: BoxDecoration(
+                      color: context.c.brand,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
                             child: Text(
                               driverName.isNotEmpty ? driverName[0].toUpperCase() : 'D',
-                              style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white),
+                              style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.onBrand),
                             ),
                           ),
                         ),
                         const SizedBox(width: 7),
                         Text(
                           'by $driverName',
-                          style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600),
+                          style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../constants/locations.dart';
 import '../services/api_service.dart';
 import '../services/cloudinary_service.dart';
@@ -18,9 +19,6 @@ class EditRideScreen extends StatefulWidget {
 
 class _EditRideScreenState extends State<EditRideScreen> {
   // ─── Brand colours (matches create_ride_screen) ───────────────────────────
-  static const _orange    = Color(0xFFFF6B2C);
-  static const _orangeEnd = Color(0xFFFF8C5A);
-  static const _dark      = Color(0xFF1A0A08);
 
   final _formKey   = GlobalKey<FormState>();
   final _apiService = ApiService();
@@ -212,18 +210,18 @@ class _EditRideScreenState extends State<EditRideScreen> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Delete Ride?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: _dark)),
+        title: Text('Delete Ride?', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink)),
         content: Text('This is permanent and cannot be undone. All passenger bookings will be cancelled.',
-            style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[600])),
+            style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.grey)),
+            child: Text('Cancel', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink3)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('Delete', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: Colors.red)),
+            child: Text('Delete', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: Colors.red)),
           ),
         ],
       ),
@@ -252,21 +250,21 @@ class _EditRideScreenState extends State<EditRideScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
             margin: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: _dark),
+            decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(10)),
+            child: Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: context.c.ink),
           ),
         ),
         title: Text('Edit Ride',
-            style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: _dark, letterSpacing: -0.5)),
+            style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: context.c.ink, letterSpacing: -0.5)),
         actions: [
           // Delete button
           GestureDetector(
@@ -285,18 +283,18 @@ class _EditRideScreenState extends State<EditRideScreen> {
           Container(
             margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [_orange, _orangeEnd]),
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+            decoration: BoxDecoration(
+              color: context.c.brand,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
             ),
             child: GestureDetector(
               onTap: _isLoading ? null : _updateRide,
               child: Center(
                 child: _isLoading
-                    ? const SizedBox(width: 16, height: 16,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    ? SizedBox(width: 16, height: 16,
+                        child: CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2))
                     : Text('Save',
-                        style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                        style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
               ),
             ),
           ),
@@ -340,29 +338,29 @@ class _EditRideScreenState extends State<EditRideScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _buildDateCard('DEPARTURE', _selectedDate, _orange, false)),
+                  Expanded(child: _buildDateCard('DEPARTURE', _selectedDate, context.c.brand, false)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(children: [
-                      Container(width: 1, height: 16, color: Colors.grey[300]),
+                      Container(width: 1, height: 16, color: context.c.ink3),
                       Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(color: _orange.withOpacity(0.1), shape: BoxShape.circle),
-                        child: const Icon(Icons.arrow_forward_rounded, size: 12, color: _orange),
+                        decoration: BoxDecoration(color: context.c.brand.withOpacity(0.1), shape: BoxShape.circle),
+                        child: Icon(Icons.arrow_forward_rounded, size: 12, color: context.c.brand),
                       ),
-                      Container(width: 1, height: 16, color: Colors.grey[300]),
+                      Container(width: 1, height: 16, color: context.c.ink3),
                     ]),
                   ),
-                  Expanded(child: _buildDateCard('ARRIVAL', _arrivalDate, _orangeEnd, true)),
+                  Expanded(child: _buildDateCard('ARRIVAL', _arrivalDate, context.c.brand, true)),
                 ],
               ),
               const SizedBox(height: 8),
               Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(color: _orange.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),
+                  decoration: BoxDecoration(color: context.c.brand.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),
                   child: Text('$_calculatedDuration day${_calculatedDuration != 1 ? 's' : ''} total',
-                      style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: _orange)),
+                      style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
                 ),
               ),
               const SizedBox(height: 24),
@@ -383,25 +381,25 @@ class _EditRideScreenState extends State<EditRideScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.c.surfaceRaised,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.grey[100]!),
                 ),
                 child: Row(children: [
                   Container(
                     padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(color: _orange.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                    child: Icon(_isPrivateCircle ? Icons.lock_outline_rounded : Icons.public_rounded, color: _orange, size: 18),
+                    decoration: BoxDecoration(color: context.c.brand.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: Icon(_isPrivateCircle ? Icons.lock_outline_rounded : Icons.public_rounded, color: context.c.brand, size: 18),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text('Visibility', style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400], fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                      Text('Visibility', style: AppTypography.dmSans(fontSize: 10, color: context.c.ink3, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                       Text(_isPrivateCircle ? 'Buddies & Groups Only' : 'Open to Anyone',
-                          style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark)),
+                          style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: context.c.ink)),
                     ]),
                   ),
-                  Switch(value: _isPrivateCircle, onChanged: (v) => setState(() => _isPrivateCircle = v), activeColor: _orange),
+                  Switch(value: _isPrivateCircle, onChanged: (v) => setState(() => _isPrivateCircle = v), activeColor: context.c.brand),
                 ]),
               ),
               const SizedBox(height: 12),
@@ -451,20 +449,29 @@ class _EditRideScreenState extends State<EditRideScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   decoration: BoxDecoration(
-                    gradient: _isLoading
-                        ? null
-                        : const LinearGradient(colors: [_orange, _orangeEnd], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                    color: _isLoading ? Colors.grey[200] : null,
+                    // Was `gradient: _isLoading ? null : null` plus a colour
+                    // that was null unless loading, so the enabled button was
+                    // a lime glow around invisible onBrand text — the same bug
+                    // as Create Ride's Publish button.
+                    color: _isLoading ? context.c.surfaceSunken : context.c.brand,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: _isLoading ? null : [BoxShadow(color: _orange.withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))],
+                    border: _isLoading ? Border.all(color: context.c.rule) : null,
+                    boxShadow: _isLoading
+                        ? null
+                        : [
+                            BoxShadow(
+                                color: context.c.brand.withValues(alpha: 0.22),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4)),
+                          ],
                   ),
                   child: Center(
                     child: _isLoading
-                        ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                        ? SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: context.c.brand, strokeWidth: 2.5))
                         : Row(mainAxisSize: MainAxisSize.min, children: [
-                            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                            Icon(Icons.check_circle_rounded, color: context.c.onBrand, size: 18),
                             const SizedBox(width: 10),
-                            Text('Apply Changes', style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                            Text('Apply Changes', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.onBrand)),
                           ]),
                   ),
                 ),
@@ -488,7 +495,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
         decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: hasImage ? Colors.transparent : Colors.grey[300]!),
+          border: Border.all(color: hasImage ? Colors.transparent : context.c.ink3),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
@@ -505,17 +512,17 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: _orange.withOpacity(0.08),
+                        color: context.c.brand.withOpacity(0.08),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.add_photo_alternate_rounded, size: 36, color: _orange),
+                      child: Icon(Icons.add_photo_alternate_rounded, size: 36, color: context.c.brand),
                     ),
                     const SizedBox(height: 12),
                     Text('Tap to upload cover photo',
-                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[600], fontSize: 14)),
+                        style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink2, fontSize: 14)),
                     const SizedBox(height: 4),
                     Text('Gallery or camera',
-                        style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
+                        style: AppTypography.dmSans(fontSize: 12, color: context.c.ink3)),
                   ],
                 ),
 
@@ -526,9 +533,9 @@ class _EditRideScreenState extends State<EditRideScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                      CircularProgressIndicator(color: context.c.surfaceRaised, strokeWidth: 2.5),
                       const SizedBox(height: 12),
-                      Text('Uploading…', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700)),
+                      Text('Uploading…', style: AppTypography.dmSans(color: Colors.white, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
@@ -546,7 +553,7 @@ class _EditRideScreenState extends State<EditRideScreen> {
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       const Icon(Icons.photo_camera_rounded, color: Colors.white, size: 14),
                       const SizedBox(width: 5),
-                      Text('Change Photo', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text('Change Photo', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
                     ]),
                   ),
                 ),
@@ -575,11 +582,11 @@ class _EditRideScreenState extends State<EditRideScreen> {
             Row(children: [
               Icon(isArrival ? Icons.flight_land_rounded : Icons.flight_takeoff_rounded, size: 13, color: color),
               const SizedBox(width: 5),
-              Text(label, style: GoogleFonts.dmSans(fontSize: 9, color: color, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+              Text(label, style: AppTypography.dmSans(fontSize: 9, color: color, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
             ]),
             const SizedBox(height: 6),
-            Text(DateFormat('MMM dd').format(dt), style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: _dark)),
-            Text(DateFormat('HH:mm').format(dt), style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+            Text(DateFormat('MMM dd').format(dt), style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w700, color: context.c.ink)),
+            Text(DateFormat('HH:mm').format(dt), style: AppTypography.dmSans(fontSize: 12, color: context.c.ink2, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -592,11 +599,11 @@ class _EditRideScreenState extends State<EditRideScreen> {
     return Row(children: [
       Container(
         padding: const EdgeInsets.all(7),
-        decoration: BoxDecoration(color: _orange.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-        child: Icon(icon, size: 15, color: _orange),
+        decoration: BoxDecoration(color: context.c.brand.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, size: 15, color: context.c.brand),
       ),
       const SizedBox(width: 10),
-      Text(title, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: _dark, letterSpacing: -0.3)),
+      Text(title, style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w700, color: context.c.ink, letterSpacing: -0.3)),
     ]);
   }
 

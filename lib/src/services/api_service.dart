@@ -15,8 +15,8 @@ class ApiService {
   ApiService() {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 30),
+      connectTimeout: const Duration(seconds: 60),
+      receiveTimeout: const Duration(seconds: 60),
       headers: {'Content-Type': 'application/json'},
     ));
 
@@ -170,7 +170,6 @@ class ApiService {
   Future<Response> completeRideWithGps(String id, {double? lat, double? lng}) => _dio.post('/rides/$id/complete', data: {if (lat != null) 'lat': lat, if (lng != null) 'lng': lng});
 
   static const String _placeholderImage = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800';
-  static const String _placeholderAvatar = 'https://ui-avatars.com/api/?background=FF5500&color=fff&size=128&name=U';
 
   // Helper for all network images — always returns an absolute URL
   static String getFullImageUrl(String? path) {
@@ -183,16 +182,21 @@ class ApiService {
   // Returns an ImageProvider that uses <img> element on web to bypass CanvasKit CORS issues.
   static ImageProvider networkImageProvider(String url) => img_helper.networkImageProvider(url);
 
-  // Helper for user avatars — falls back to generated initials avatar
-  static String getAvatarUrl(String? path, {String name = 'U'}) {
-    if (path == null || path.isEmpty) {
-      final encoded = Uri.encodeComponent(name.isNotEmpty ? name : 'U');
-      return 'https://ui-avatars.com/api/?background=FF5500&color=fff&size=128&name=$encoded';
-    }
-    if (path.startsWith('http')) return path;
-    final cleanPath = path.startsWith('/') ? path : '/$path';
-    return "$baseUrl$cleanPath";
-  }
+  // Avatars are drawn locally — see lib/src/widgets/avatar.dart.
+  //
+  // The helper that used to live here returned a ui-avatars.com URL for anyone
+  // without a profile picture, built as:
+  //
+  //     'https://ui-avatars.com/api/?…&name=\$encoded'
+  //
+  // In a single-quoted Dart string `\$` escapes the dollar, so the literal text
+  // `\$encoded` was sent as the name for every user — ui-avatars took the first
+  // two letters of "encoded" and returned a tile reading **EN**. That is the
+  // green "EN" avatar that appeared beside every person in the app.
+  //
+  // It also sent real names to a third party on every render and cost a network
+  // round trip per avatar. Avatar draws initials on a tinted circle instead:
+  // instant, offline, and nothing leaves the device.
 
   // Returns the RELATIVE path (e.g. /uploads/files/xxx.jpg) — callers must
   // use getFullImageUrl() for display.  Storing the relative path in the DB

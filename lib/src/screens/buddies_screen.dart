@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:dio/dio.dart';
 import '../services/api_service.dart';
+import '../theme/app_spacing.dart';
+import '../theme/flettra_colors.dart';
 import '../services/auth_service.dart';
-import '../widgets/network_image_widget.dart';
 import 'chat_screen.dart';
 import 'rider_profile_screen.dart';
+import '../widgets/avatar.dart';
+import '../widgets/skeleton.dart';
 
 class BuddiesScreen extends StatefulWidget {
   const BuddiesScreen({super.key});
@@ -29,9 +32,6 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
   bool _isSearching = false;
   String? _userId;
 
-  static const Color _orange = Color(0xFFFF6B2C);
-  static const Color _dark = Color(0xFF1A0A08);
-  static const Color _bg = Color(0xFFEEF6FA); // light blue-grey like reference
 
   @override
   void initState() {
@@ -45,8 +45,8 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
     if (mounted) setState(() => _userId = user?['id']);
   }
 
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadData({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
     try {
       final results = await Future.wait([
         _apiService.getBuddies(),
@@ -111,8 +111,8 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
       await _apiService.sendBuddyRequest(id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Request sent!', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
-          backgroundColor: _orange, behavior: SnackBarBehavior.floating,
+          content: Text('Request sent!', style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
+          backgroundColor: context.c.brand, behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ));
         _handleSearch(_searchController.text);
@@ -124,7 +124,9 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
     try {
       if (accept) await _apiService.acceptBuddyRequest(requestId);
       else        await _apiService.rejectBuddyRequest(requestId);
-      _loadData();
+      // Reload without the skeleton: the list is on screen and only one row is
+      // changing, so tearing the whole thing down reads as a glitch.
+      _loadData(showSkeleton: false);
     } catch (_) {}
   }
 
@@ -133,18 +135,18 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('Remove Buddy?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
-        content: Text('Remove $name from your circle?', style: GoogleFonts.dmSans()),
+        title: Text('Remove Buddy?', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
+        content: Text('Remove $name from your circle?', style: AppTypography.dmSans()),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('CANCEL', style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: Colors.grey))),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('REMOVE', style: GoogleFonts.dmSans(color: Colors.red, fontWeight: FontWeight.bold))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('CANCEL', style: AppTypography.dmSans(fontWeight: FontWeight.bold, color: context.c.ink3))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('REMOVE', style: AppTypography.dmSans(color: Colors.red, fontWeight: FontWeight.bold))),
         ],
       ),
     );
     if (confirm == true) {
       try {
         await _apiService.client.delete('/users/buddies/$buddyId');
-        _loadData();
+        _loadData(showSkeleton: false);
       } catch (_) {}
     }
   }
@@ -152,22 +154,22 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        backgroundColor: _bg,
+        backgroundColor: context.c.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _dark, size: 18),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.c.ink, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Buddy Network', style: GoogleFonts.dmSans(color: _dark, fontWeight: FontWeight.w700, fontSize: 18)),
+        title: Text('Buddy Network', style: AppTypography.dmSans(color: context.c.ink, fontWeight: FontWeight.w700, fontSize: 18)),
         centerTitle: true,
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.tune_rounded, color: _dark, size: 20),
+            decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(10)),
+            child: Icon(Icons.tune_rounded, color: context.c.ink, size: 20),
           ),
         ],
       ),
@@ -178,18 +180,17 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.c.surfaceRaised,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
               ),
               child: TextField(
                 controller: _searchController,
                 onChanged: _handleSearch,
-                style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, color: _dark),
+                style: AppTypography.dmSans(fontWeight: FontWeight.w600, color: context.c.ink),
                 decoration: InputDecoration(
                   hintText: 'Search travel buddies...',
-                  hintStyle: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 14),
-                  prefixIcon: Icon(Icons.search_rounded, color: Colors.grey[400], size: 22),
+                  hintStyle: AppTypography.dmSans(color: context.c.ink3, fontSize: 14),
+                  prefixIcon: Icon(Icons.search_rounded, color: context.c.ink3, size: 22),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 ),
@@ -199,19 +200,26 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
 
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: _orange))
+                ? const ListSkeleton(count: 7)
                 : _isSearching
                     ? _buildSearchResults()
-                    : SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 120),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_requests.isNotEmpty) _buildRequestsSection(),
-                            if (_buddies.isNotEmpty)  _buildMyBuddiesSection(),
-                            _buildSuggestedSection(),
-                          ],
+                    : RefreshIndicator(
+                        onRefresh: () => _loadData(showSkeleton: false),
+                        color: context.c.brand,
+                        backgroundColor: context.c.surfaceRaised,
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics(),
+                          ),
+                          padding: const EdgeInsets.only(bottom: 120),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_requests.isNotEmpty) _buildRequestsSection(),
+                              if (_buddies.isNotEmpty)  _buildMyBuddiesSection(),
+                              _buildSuggestedSection(),
+                            ],
+                          ),
                         ),
                       ),
           ),
@@ -231,17 +239,17 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('RECENT REQUESTS', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 1.2)),
+              Text('RECENT REQUESTS', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 1.2)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(20)),
-                child: Text('${_requests.length} PENDING', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(20)),
+                child: Text('${_requests.length} PENDING', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.onBrand)),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4))]),
+            decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4))]),
             child: Column(
               children: _requests.asMap().entries.map((entry) {
                 final i = entry.key;
@@ -263,40 +271,23 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
   }
 
   Widget _buildRequestRow(dynamic req, dynamic sender, String name) {
-    final avatarUrl = ApiService.getAvatarUrl(sender['profilePicture'], name: name);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          // Avatar — rounded-square with orange border (matching reference)
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _orange, width: 2.5),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                width: 48, height: 48,
-                child: Image(
-                  image: ApiService.networkImageProvider(avatarUrl),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: _orange.withOpacity(0.12),
-                    child: Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                        style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: _orange))),
-                  ),
-                ),
-              ),
-            ),
+          Avatar(
+            imageUrl: sender['profilePicture']?.toString(),
+            name: name,
+            size: 48,
+            showRing: true,
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: _dark)),
-                Text('Wants to connect with you', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
+                Text(name, style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: context.c.ink)),
+                Text('Wants to connect with you', style: AppTypography.dmSans(fontSize: 11, color: context.c.ink3, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
               ],
             ),
           ),
@@ -306,8 +297,8 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             onTap: () => _respondToRequest(req['id'], true),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
-              decoration: BoxDecoration(color: _dark, borderRadius: BorderRadius.circular(24)),
-              child: Text('Accept', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+              decoration: BoxDecoration(color: context.c.ink, borderRadius: BorderRadius.circular(24)),
+              child: Text('Accept', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
             ),
           ),
           const SizedBox(width: 8),
@@ -317,7 +308,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
-              child: const Icon(Icons.close_rounded, size: 16, color: Colors.grey),
+              child: Icon(Icons.close_rounded, size: 16, color: context.c.ink3),
             ),
           ),
         ],
@@ -336,26 +327,23 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('YOUR TRAVEL BUDDIES', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 1.2)),
+              Text('Your buddies', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 1.2)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: _dark, borderRadius: BorderRadius.circular(20)),
-                child: Text('${_buddies.length} CONNECTED', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
+                decoration: BoxDecoration(color: context.c.ink, borderRadius: BorderRadius.circular(20)),
+                child: Text('${_buddies.length} CONNECTED', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.onBrand)),
               ),
             ],
           ),
           const SizedBox(height: 12),
           AnimationLimiter(
-            child: GridView.builder(
+            child: ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.78,
-              ),
               itemCount: _buddies.length,
-              itemBuilder: (context, i) => AnimationConfiguration.staggeredGrid(
-                position: i, duration: const Duration(milliseconds: 400), columnCount: 2,
-                child: ScaleAnimation(child: FadeInAnimation(child: _buildBuddyCard(_buddies[i], isConnected: true))),
+              itemBuilder: (context, i) => AnimationConfiguration.staggeredList(
+                position: i, duration: const Duration(milliseconds: 400),
+                child: FadeInAnimation(child: _buildBuddyCard(_buddies[i], isConnected: true)),
               ),
             ),
           ),
@@ -375,11 +363,11 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.people_outline_rounded, size: 64, color: Colors.grey[300]),
+              Icon(Icons.people_outline_rounded, size: 64, color: context.c.ink3),
               const SizedBox(height: 16),
-              Text('No users found', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[400], fontSize: 16)),
+              Text('No users found', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink3, fontSize: 16)),
               const SizedBox(height: 8),
-              Text('Search for travel companions above', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400])),
+              Text('Search for travel companions above', style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3)),
             ],
           ),
         ),
@@ -393,19 +381,16 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('SUGGESTED TRAVEL BUDDIES', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 1.2)),
+          Text('Suggested', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 1.2)),
           const SizedBox(height: 12),
           AnimationLimiter(
-            child: GridView.builder(
+            child: ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.78,
-              ),
               itemCount: list.length,
-              itemBuilder: (context, i) => AnimationConfiguration.staggeredGrid(
-                position: i, duration: const Duration(milliseconds: 400), columnCount: 2,
-                child: ScaleAnimation(child: FadeInAnimation(child: _buildBuddyCard(list[i]))),
+              itemBuilder: (context, i) => AnimationConfiguration.staggeredList(
+                position: i, duration: const Duration(milliseconds: 400),
+                child: FadeInAnimation(child: _buildBuddyCard(list[i])),
               ),
             ),
           ),
@@ -414,109 +399,81 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
     );
   }
 
+  /// A list row, not a grid tile.
+  ///
+  /// This screen backs the Chats tab, and messaging is a list everywhere on
+  /// both platforms — two-up tiles with a 68 pt avatar and a full-width filled
+  /// button fit four people on a phone and gave every one of them the same
+  /// visual weight as a primary action.
   Widget _buildBuddyCard(dynamic buddy, {bool isConnected = false}) {
+    final c         = context.c;
     final name      = _getName(buddy);
-    final location  = buddy['location'] ?? 'Explorer';
-    final avatarUrl = ApiService.getAvatarUrl(buddy['profilePicture'], name: name);
-    final interests = _getInterests(buddy);
+    final location  = (buddy['location'] ?? 'Explorer').toString();
     final userId    = buddy['id']?.toString() ?? '';
 
-    return GestureDetector(
+    return InkWell(
       onTap: userId.isNotEmpty
-          ? () => Navigator.push(context, MaterialPageRoute(
-              builder: (_) => RiderProfileScreen(userId: userId, knownName: name)))
+          ? () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) =>
+                      RiderProfileScreen(userId: userId, knownName: name)))
           : null,
       child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 20),
-          // Avatar with orange verified badge
-          Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFF5E6DC),
-                  boxShadow: [BoxShadow(color: _orange.withOpacity(0.15), blurRadius: 12, offset: const Offset(0, 4))],
-                ),
-                padding: const EdgeInsets.all(4),
-                child: WebCircleAvatar(url: avatarUrl, radius: 34),
-              ),
-              // Orange verified badge (matching reference image)
-              Positioned(
-                bottom: 2, right: 2,
-                child: Container(
-                  width: 20, height: 20,
-                  decoration: BoxDecoration(color: _orange, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
-                  child: const Icon(Icons.check_rounded, color: Colors.white, size: 11),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Name
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(name, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
-          ),
-          // Location
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.location_on_rounded, size: 11, color: Colors.grey[400]),
-              const SizedBox(width: 2),
-              Flexible(child: Text(location, style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Interest tags
-          if (interests.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                alignment: WrapAlignment.center,
-                children: interests.take(2).map((tag) => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-                  child: Text(tag, style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.grey[600], letterSpacing: 0.5)),
-                )).toList(),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: c.ruleSoft)),
+        ),
+        child: Row(
+          children: [
+            Avatar(imageUrl: buddy['profilePicture']?.toString(), name: name, size: 42),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                  Text(location,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.footnote.copyWith(color: c.ink3)),
+                ],
               ),
             ),
-          const SizedBox(height: 12),
-          // Message (buddy) or Connect (suggested) button
-          GestureDetector(
-            onTap: isConnected
-                ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(buddy: buddy)))
-                : () => _sendRequest(buddy['id']?.toString() ?? ''),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 14),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(30)),
-              child: Center(
-                child: Text(
-                  isConnected ? 'Message' : 'Connect',
-                  style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white),
+            const SizedBox(width: AppSpacing.xs),
+            if (isConnected)
+              IconButton(
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => ChatScreen(buddy: buddy))),
+                tooltip: 'Message $name',
+                iconSize: 20,
+                color: c.brand,
+                constraints: const BoxConstraints(
+                    minWidth: AppTouch.iosMin, minHeight: AppTouch.iosMin),
+                icon: const Icon(Icons.chat_bubble_outline_rounded),
+              )
+            else
+              TextButton(
+                onPressed: () => _sendRequest(userId),
+                style: TextButton.styleFrom(
+                  foregroundColor: c.brand,
+                  textStyle: AppTypography.bodyStrong,
+                  minimumSize: const Size(0, AppTouch.iosMin),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 ),
+                child: const Text('Connect'),
               ),
-            ),
-          ),
-          const SizedBox(height: 14),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
-
-  // ─── Search Results ───────────────────────────────────────────────────────────
-
 
   Widget _buildSearchResults() {
     if (_searchResults.isEmpty) {
@@ -526,9 +483,9 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.search_off_rounded, size: 52, color: Colors.grey[300]),
+              Icon(Icons.search_off_rounded, size: 52, color: context.c.ink3),
               const SizedBox(height: 12),
-              Text('No users found', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.grey[400])),
+              Text('No users found', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.ink3)),
             ],
           ),
         ),
@@ -550,32 +507,30 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
         final name = _getName(user);
         final isBuddy = _buddies.any((b) => b['id'] == user['id']);
         final isSelf  = user['id'] == _userId;
-        final avatarUrl = ApiService.getAvatarUrl(user['profilePicture'], name: name);
         final location = user['location'] ?? 'Explorer';
         final interests = _getInterests(user);
 
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surfaceRaised,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              WebCircleAvatar(url: avatarUrl, radius: 34),
+              Avatar(imageUrl: user['profilePicture']?.toString(), name: name, size: 68),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(name, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: _dark), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+                child: Text(name, style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w800, color: context.c.ink), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.location_on_rounded, size: 11, color: Colors.grey[400]),
+                  Icon(Icons.location_on_rounded, size: 11, color: context.c.ink3),
                   const SizedBox(width: 2),
-                  Flexible(child: Text(location, style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
+                  Flexible(child: Text(location, style: AppTypography.dmSans(fontSize: 11, color: context.c.ink3, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -587,7 +542,7 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
                     children: interests.take(2).map((tag) => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-                      child: Text(tag, style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.grey[600], letterSpacing: 0.5)),
+                      child: Text(tag, style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 0.5)),
                     )).toList(),
                   ),
                 ),
@@ -598,9 +553,9 @@ class _BuddiesScreenState extends State<BuddiesScreen> {
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 14),
                     padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(color: isBuddy ? const Color(0xFF10B981) : _orange, borderRadius: BorderRadius.circular(30)),
+                    decoration: BoxDecoration(color: isBuddy ? context.c.ok : context.c.brand, borderRadius: BorderRadius.circular(30)),
                     child: Center(
-                      child: Text(isBuddy ? 'Connected ✓' : 'Connect', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+                      child: Text(isBuddy ? 'Connected ✓' : 'Connect', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                     ),
                   ),
                 ),

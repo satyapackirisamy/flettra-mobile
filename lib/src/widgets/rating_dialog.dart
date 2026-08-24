@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import '../services/api_service.dart';
 
 class RatingDialog extends StatefulWidget {
@@ -66,11 +67,11 @@ class _RatingDialogState extends State<RatingDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Rate ${widget.rateeName}', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 18)),
+            Text('Rate ${widget.rateeName}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 18)),
             const SizedBox(height: 4),
             Text(
               widget.rateeRole == 'driver' ? 'How was your driver?' : 'How was this passenger?',
-              style: GoogleFonts.dmSans(color: Colors.grey, fontSize: 13),
+              style: AppTypography.dmSans(color: context.c.ink3, fontSize: 13),
             ),
             const SizedBox(height: 16),
             Row(
@@ -84,7 +85,7 @@ class _RatingDialogState extends State<RatingDialog> {
                     child: Icon(
                       star <= _rating ? Icons.star_rounded : Icons.star_border_rounded,
                       size: 40,
-                      color: star <= _rating ? const Color(0xFFFBBF24) : Colors.grey.shade300,
+                      color: star <= _rating ? const Color(0xFFFBBF24) : context.c.rule,
                     ),
                   ),
                 );
@@ -109,7 +110,7 @@ class _RatingDialogState extends State<RatingDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: Text('Skip', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                    child: Text('Skip', style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -119,7 +120,7 @@ class _RatingDialogState extends State<RatingDialog> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: Text(_submitting ? 'Sending...' : 'Submit', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                    child: Text(_submitting ? 'Sending...' : 'Submit', style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
                   ),
                 ),
               ],

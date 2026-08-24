@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../utils/snackbar_helper.dart';
@@ -82,8 +83,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Scaffold(backgroundColor: Colors.white, body: Center(child: CircularProgressIndicator(color: Color(0xFFFF6B2C))));
-    if (_group == null) return const Scaffold(backgroundColor: Colors.white, body: Center(child: Text('Group not found')));
+    if (_isLoading) return Scaffold(backgroundColor: context.c.surface, body: Center(child: CircularProgressIndicator(color: context.c.brand)));
+    if (_group == null) return Scaffold(backgroundColor: context.c.surface, body: Center(child: Text('Group not found')));
 
     final members = (_group!['members'] as List?) ?? [];
     final admin = _group!['admin'];
@@ -92,7 +93,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final pendingRequests = (_group!['pendingRequests'] as List?) ?? [];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -100,7 +101,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           SliverAppBar(
             expandedHeight: 240,
             pinned: true,
-            backgroundColor: Colors.white,
+            backgroundColor: context.c.surface,
             elevation: 0,
             leading: Padding(
               padding: const EdgeInsets.all(8),
@@ -124,16 +125,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             margin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                            child: Text('PRIVATE', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                            decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                            child: Text('PRIVATE', style: AppTypography.dmSans(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                           ),
-                        Text(_group!['name'] ?? 'Group', style: GoogleFonts.dmSans(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white)),
+                        Text(_group!['name'] ?? 'Group', style: AppTypography.dmSans(fontSize: 26, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             const Icon(Icons.people_rounded, size: 14, color: Colors.white70),
                             const SizedBox(width: 6),
-                            Text('${members.length} members', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w600, fontSize: 13)),
+                            Text('${members.length} members', style: AppTypography.dmSans(color: Colors.white70, fontWeight: FontWeight.w600, fontSize: 13)),
                           ],
                         ),
                       ],
@@ -153,7 +154,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 children: [
                   // Description
                   if (_group!['description'] != null && _group!['description'].toString().isNotEmpty) ...[
-                    Text(_group!['description'], style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 14, height: 1.5)),
+                    Text(_group!['description'], style: AppTypography.dmSans(color: context.c.ink2, fontSize: 14, height: 1.5)),
                     const SizedBox(height: 24),
                   ],
 
@@ -164,11 +165,11 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       child: ElevatedButton.icon(
                         onPressed: _joinRequestSent ? null : _joinGroup,
                         icon: Icon(_joinRequestSent ? Icons.check_rounded : Icons.group_add_rounded, size: 20),
-                        label: Text(_joinRequestSent ? 'Request Sent' : 'Request to Join', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                        label: Text(_joinRequestSent ? 'Request Sent' : 'Request to Join', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF6B2C),
-                          disabledBackgroundColor: Colors.grey[300],
-                          foregroundColor: Colors.white,
+                          backgroundColor: context.c.brand,
+                          disabledBackgroundColor: context.c.ink3,
+                          foregroundColor: context.c.onBrand,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           elevation: 0,
@@ -180,25 +181,25 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
                   // Admin info
                   if (admin != null) ...[
-                    Text('Admin', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.grey[500])),
+                    Text('Admin', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.ink2)),
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(14)),
+                      decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(14)),
                       child: Row(
                         children: [
                           CircleAvatar(
                             radius: 20,
-                            backgroundColor: const Color(0xFFFFE4D6),
-                            child: Text(_displayName(admin)[0].toUpperCase(), style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C))),
+                            backgroundColor: context.c.brandWash,
+                            child: Text(_displayName(admin)[0].toUpperCase(), style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: context.c.brand)),
                           ),
                           const SizedBox(width: 12),
-                          Text(_displayName(admin), style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                          Text(_displayName(admin), style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
                           const Spacer(),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(color: const Color(0xFFFFF3E0), borderRadius: BorderRadius.circular(8)),
-                            child: Text('Admin', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                            decoration: BoxDecoration(color: context.c.warnWash, borderRadius: BorderRadius.circular(8)),
+                            child: Text('Admin', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
                           ),
                         ],
                       ),
@@ -207,7 +208,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   ],
 
                   // Members
-                  Text('Members (${members.length})', style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800)),
+                  Text('Members (${members.length})', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 12),
                   ...members.map((m) {
                     final isGroupAdmin = m['id'] == admin?['id'];
@@ -217,13 +218,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         children: [
                           CircleAvatar(
                             radius: 18,
-                            backgroundColor: isGroupAdmin ? const Color(0xFFFFE4D6) : const Color(0xFFF1F5F9),
-                            child: Text(_displayName(m)[0].toUpperCase(), style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 13, color: isGroupAdmin ? const Color(0xFFFF6B2C) : Colors.grey[600])),
+                            backgroundColor: isGroupAdmin ? context.c.brandWash : context.c.surfaceSunken,
+                            child: Text(_displayName(m)[0].toUpperCase(), style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 13, color: isGroupAdmin ? context.c.brand : context.c.ink2)),
                           ),
                           const SizedBox(width: 12),
-                          Expanded(child: Text(_displayName(m), style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 14))),
+                          Expanded(child: Text(_displayName(m), style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14))),
                           if (isGroupAdmin)
-                            Text('Admin', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                            Text('Admin', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
                         ],
                       ),
                     );
@@ -232,15 +233,15 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   // Pending requests (admin only)
                   if (isAdmin && pendingRequests.isNotEmpty) ...[
                     const SizedBox(height: 24),
-                    Text('Pending Requests', style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800)),
+                    Text('Pending Requests', style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 12),
                     ...pendingRequests.map((req) => Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(14)),
+                      decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(14)),
                       child: Row(
                         children: [
-                          Expanded(child: Text(_displayName(req['user']), style: GoogleFonts.dmSans(fontWeight: FontWeight.w700))),
+                          Expanded(child: Text(_displayName(req['user']), style: AppTypography.dmSans(fontWeight: FontWeight.w700))),
                           IconButton(icon: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 28), onPressed: () => _respondToRequest(req['id'], 'accepted')),
                           IconButton(icon: const Icon(Icons.cancel_rounded, color: Colors.red, size: 28), onPressed: () => _respondToRequest(req['id'], 'rejected')),
                         ],
@@ -253,8 +254,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   if (isMember) ...[
                     _actionCard(Icons.chat_bubble_outline_rounded, 'Group Chat', 'Message everyone', () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(
-                        backgroundColor: Colors.white,
-                        appBar: AppBar(title: Text('Group Chat', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)), backgroundColor: Colors.white, elevation: 0),
+                        backgroundColor: context.c.surface,
+                        appBar: AppBar(title: Text('Group Chat', style: AppTypography.dmSans(fontWeight: FontWeight.w800)), backgroundColor: context.c.surface, elevation: 0),
                         body: ChatWidget(groupId: widget.groupId, title: 'Chat'),
                       )));
                     }),
@@ -279,25 +280,25 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(16)),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: const Color(0xFFFFF3E0), borderRadius: BorderRadius.circular(12)),
-              child: Icon(icon, size: 20, color: const Color(0xFFFF6B2C)),
+              decoration: BoxDecoration(color: context.c.warnWash, borderRadius: BorderRadius.circular(12)),
+              child: Icon(icon, size: 20, color: context.c.brand),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
-                  Text(subtitle, style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                  Text(title, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                  Text(subtitle, style: AppTypography.dmSans(fontSize: 12, color: context.c.ink2, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.grey),
+            Icon(Icons.chevron_right_rounded, color: context.c.ink3),
           ],
         ),
       ),

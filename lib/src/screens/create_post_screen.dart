@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
+import '../widgets/avatar.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final Map<String, dynamic>? currentUser;
@@ -13,8 +15,6 @@ class CreatePostScreen extends StatefulWidget {
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
-  static const _primary = Color(0xFFFF6B2C);
-  static const _bg = Color(0xFFF8F8F8);
 
   final TextEditingController _contentController = TextEditingController();
   final ImagePicker _imagePicker = ImagePicker();
@@ -71,7 +71,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to post. Please try again.', style: GoogleFonts.dmSans()),
+            content: Text('Failed to post. Please try again.', style: AppTypography.dmSans()),
             backgroundColor: Colors.red[400],
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -84,35 +84,34 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     final name = _profile?['name'] as String? ?? '';
-    final avatarUrl = ApiService.getAvatarUrl(_profile?['profilePicture'] as String?, name: name.isNotEmpty ? name : 'U');
     final charCount = _contentController.text.length;
     const maxChars = 500;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Container(
             width: 36, height: 36,
-            decoration: BoxDecoration(color: _bg, shape: BoxShape.circle),
-            child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF1A1A1A)),
+            decoration: BoxDecoration(color: context.c.surface, shape: BoxShape.circle),
+            child: Icon(Icons.close_rounded, size: 18, color: context.c.ink),
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('New Post',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 17, color: const Color(0xFF1A1A1A)),
+          style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 17, color: context.c.ink),
         ),
         centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: _isLoading
-                ? const SizedBox(width: 36, height: 36,
+                ? SizedBox(width: 36, height: 36,
                     child: Center(child: SizedBox(width: 20, height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: _primary))))
+                      child: CircularProgressIndicator(strokeWidth: 2, color: context.c.brand))))
                 : AnimatedOpacity(
                     opacity: _canPost ? 1.0 : 0.45,
                     duration: const Duration(milliseconds: 200),
@@ -121,11 +120,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                         decoration: BoxDecoration(
-                          color: _primary,
+                          color: context.c.brand,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text('Post',
-                          style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14),
+                          style: AppTypography.dmSans(color: context.c.onBrand, fontWeight: FontWeight.w800, fontSize: 14),
                         ),
                       ),
                     ),
@@ -149,19 +148,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   // Avatar column
                   Column(
                     children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundImage: name.isNotEmpty ? NetworkImage(avatarUrl) : null,
-                        backgroundColor: name.isNotEmpty ? null : Colors.grey[200],
-                        child: name.isEmpty
-                            ? const SizedBox(width: 18, height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: _primary))
-                            : null,
+                      // While the profile is still loading `name` is empty, so
+                      // Avatar shows its person glyph rather than a spinner
+                      // inside a 44pt circle.
+                      Avatar(
+                        size: 44,
+                        imageUrl: _profile?['profilePicture'] as String?,
+                        name: name,
                       ),
                       if (_canPost) ...[
                         const SizedBox(height: 8),
                         Container(width: 2, height: 30, decoration: BoxDecoration(
-                          color: Colors.grey[200],
+                          color: context.c.ink3,
                           borderRadius: BorderRadius.circular(2),
                         )),
                       ],
@@ -175,7 +173,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       children: [
                         if (name.isNotEmpty)
                         Text(name,
-                          style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: const Color(0xFF1A1A1A)),
+                          style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: context.c.ink),
                         ),
                         const SizedBox(height: 4),
                         TextField(
@@ -185,10 +183,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           autofocus: true,
                           maxLength: maxChars,
                           onChanged: (_) => setState(() {}),
-                          style: GoogleFonts.dmSans(fontSize: 16, height: 1.6, color: const Color(0xFF1A1A1A)),
+                          style: AppTypography.dmSans(fontSize: 16, height: 1.6, color: context.c.ink),
                           decoration: InputDecoration(
                             hintText: "Share your travel story, tip, or moment…",
-                            hintStyle: GoogleFonts.dmSans(color: const Color(0xFFBBBBBB), fontSize: 16, height: 1.6),
+                            hintStyle: AppTypography.dmSans(color: const Color(0xFFBBBBBB), fontSize: 16, height: 1.6),
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
@@ -210,9 +208,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: Text('${maxChars - charCount}',
-                              style: GoogleFonts.dmSans(
+                              style: AppTypography.dmSans(
                                 fontSize: 13,
-                                color: charCount > 480 ? Colors.red[400] : Colors.grey[400],
+                                color: charCount > 480 ? Colors.red[400] : context.c.ink3,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -229,7 +227,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           // Bottom toolbar
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.c.surfaceRaised,
               border: Border(top: BorderSide(color: Colors.grey[100]!)),
             ),
             padding: EdgeInsets.only(
@@ -258,8 +256,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     child: CircularProgressIndicator(
                       value: charCount / maxChars,
                       strokeWidth: 2.5,
-                      backgroundColor: Colors.grey[200],
-                      color: charCount > 480 ? Colors.red[400] : _primary,
+                      backgroundColor: context.c.ink3,
+                      color: charCount > 480 ? Colors.red[400] : context.c.brand,
                     ),
                   ),
               ],
@@ -297,7 +295,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               child: Container(
                 color: Colors.black.withOpacity(0.5),
                 child: Center(child: Text('+${count - 3}',
-                  style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
+                  style: AppTypography.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
                 )),
               ),
             )),
@@ -345,15 +343,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, color: _primary, size: 20),
+          Icon(icon, color: context.c.brand, size: 20),
           const SizedBox(width: 5),
-          Text(label, style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 13, fontWeight: FontWeight.w600)),
+          Text(label, style: AppTypography.dmSans(color: context.c.ink2, fontSize: 13, fontWeight: FontWeight.w600)),
           if (badge != null) ...[
             const SizedBox(width: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: _primary.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-              child: Text(badge, style: GoogleFonts.dmSans(color: _primary, fontSize: 11, fontWeight: FontWeight.w700)),
+              decoration: BoxDecoration(color: context.c.brand.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+              child: Text(badge, style: AppTypography.dmSans(color: context.c.brand, fontSize: 11, fontWeight: FontWeight.w700)),
             ),
           ],
         ]),

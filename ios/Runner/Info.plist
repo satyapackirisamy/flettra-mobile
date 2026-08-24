@@ -4,12 +4,28 @@
 <dict>
 	<key>MAPS_API_KEY</key>
 	<string>$(MAPS_API_KEY)</string>
+	<!-- Custom URL scheme: flettra://ride/<token>. Needs no domain
+	     verification, so it works even before the Universal Link association
+	     file has propagated. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.flettra.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>flettra</string>
+			</array>
+		</dict>
+	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Flettra Mobile</string>
+	<string>Flettra</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,23 +44,35 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Flettra only uses your location while the app is open — to rank rides departing near you and to share your position with fellow travellers during an active ride. It does not track you in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Flettra needs your location to show nearby rides and personalize your feed.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-<string>This app needs location access to show nearby places.</string>
 
 <key>NSCameraUsageDescription</key>
-<string>This app needs camera access to upload photos.</string>
+<string>Flettra uses the camera so you can add photos of a trip to your ride journal and posts.</string>
 
 <key>NSPhotoLibraryUsageDescription</key>
-<string>This app needs photo library access to upload images.</string>
+<string>Flettra needs your photo library so you can attach existing photos to a ride, a post or your profile.</string>
 
 <key>NSFaceIDUsageDescription</key>
 <string>Use Face ID to sign in to Flettra quickly and securely.</string>
+	<!-- ATS stays on. The blanket NSAllowsArbitraryLoads that was here disabled
+	     transport security for every host, which App Review asks you to justify.
+	     Production is HTTPS; only the local dev server needs an exception, and
+	     that mirrors how android/res/xml/network_security_config.xml is scoped. -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoads</key>
+		<key>NSAllowsLocalNetworking</key>
 		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
@@ -65,5 +93,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

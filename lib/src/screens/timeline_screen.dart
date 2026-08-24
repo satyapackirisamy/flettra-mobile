@@ -1,11 +1,16 @@
 import 'package:flutter/foundation.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'edit_post_screen.dart';
 import '../widgets/network_image_widget.dart';
+import '../widgets/moderation_sheet.dart';
+import '../widgets/avatar.dart';
+import '../widgets/motion.dart';
+import '../widgets/skeleton.dart';
 
 class TimelineScreen extends StatefulWidget {
   const TimelineScreen({super.key});
@@ -24,9 +29,6 @@ class _TimelineScreenState extends State<TimelineScreen> {
   bool _isLoading = true;
   String _selectedScope = 'Friends';
 
-  static const Color _orange = Color(0xFFFF6B2C);
-  static const Color _bg = Colors.white;
-  static const Color _dark = Color(0xFF1A0A08);
 
   @override
   void initState() {
@@ -37,8 +39,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
   /// Called externally (e.g. from MainScreen after a new post is created).
   void refresh() => _loadData();
 
-  Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+  /// A pull-to-refresh passes showSkeleton: false so the feed you are looking
+  /// at stays on screen while the new one loads. Blanking it to a spinner is
+  /// what made a refresh feel like a cold start.
+  Future<void> _loadData({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
     await _fetchPosts();
     if (mounted) setState(() => _isLoading = false);
   }
@@ -58,25 +63,34 @@ class _TimelineScreenState extends State<TimelineScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: _bg,
+      color: context.c.surface,
       child: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
             Expanded(
               child: RefreshIndicator(
-                onRefresh: _loadData,
-                color: _orange,
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator(color: _orange))
-                    : _posts.isEmpty
-                        ? _buildEmpty()
-                        : ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            padding: const EdgeInsets.only(bottom: 120),
-                            itemCount: _posts.length,
-                            itemBuilder: (context, i) => _buildCard(_posts[i], i),
-                          ),
+                onRefresh: () => _loadData(showSkeleton: false),
+                color: context.c.brand,
+                backgroundColor: context.c.surfaceRaised,
+                child: StateSwitcher(
+                  child: _isLoading
+                      ? const SingleChildScrollView(
+                          physics: NeverScrollableScrollPhysics(),
+                          child: FeedSkeleton(),
+                        )
+                      : _posts.isEmpty
+                          ? _buildEmpty()
+                          : ListView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.only(bottom: 120),
+                              itemCount: _posts.length,
+                              itemBuilder: (context, i) => FadeSlideIn(
+                                index: i.clamp(0, 6),
+                                child: _buildCard(_posts[i], i),
+                              ),
+                            ),
+                ),
               ),
             ),
           ],
@@ -89,20 +103,20 @@ class _TimelineScreenState extends State<TimelineScreen> {
 
   Widget _buildHeader() {
     return Container(
-      color: _bg,
+      color: context.c.surface,
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
       child: Row(
         children: [
           Text(
             'Feed',
-            style: GoogleFonts.dmSans(fontSize: 24, fontWeight: FontWeight.w800, color: _dark, letterSpacing: -0.5),
+            style: AppTypography.dmSans(fontSize: 24, fontWeight: FontWeight.w800, color: context.c.ink, letterSpacing: -0.5),
           ),
           const Spacer(),
           // Scope toggle
           Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F2F2),
+              color: context.c.surfaceSunken,
               borderRadius: BorderRadius.circular(30),
             ),
             child: Row(
@@ -113,10 +127,10 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                     decoration: BoxDecoration(
-                      color: active ? _orange : Colors.transparent,
+                      color: active ? context.c.brand : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(s, style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: active ? Colors.white : Colors.grey[400])),
+                    child: Text(s, style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: active ? context.c.onBrand : context.c.ink3)),
                   ),
                 );
               }).toList(),
@@ -149,12 +163,11 @@ class _TimelineScreenState extends State<TimelineScreen> {
     final imageUrl = _getImageUrl(post);
     final name = _authorName(post);
     final content = (post['content'] ?? '').toString();
-    final avatarUrl = ApiService.getAvatarUrl(post['author']?['profilePicture'], name: name);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 24, offset: const Offset(0, 8))],
       ),
@@ -168,7 +181,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                 child: imageUrl != null
                     ? SafeNetworkImage(url: imageUrl, height: 260, width: double.infinity, fit: BoxFit.cover)
-                    : Container(height: 260, color: Colors.grey[200]),
+                    : Container(height: 260, color: context.c.ink3),
               ),
               // Dark gradient
               Positioned(
@@ -193,13 +206,13 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(6)),
-                      child: Text('FEATURED JOURNEY', style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.2)),
+                      decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(6)),
+                      child: Text('FEATURED JOURNEY', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.onBrand, letterSpacing: 1.2)),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       _postTitle(post),
-                      style: GoogleFonts.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: -0.5, height: 1.15),
+                      style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w700, color: context.c.onBrand, letterSpacing: -0.5, height: 1.15),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -216,19 +229,19 @@ class _TimelineScreenState extends State<TimelineScreen> {
               children: [
                 Text(
                   '"$content"',
-                  style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[600], height: 1.6, fontStyle: FontStyle.italic),
+                  style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, height: 1.6, fontStyle: FontStyle.italic),
                 ),
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    WebCircleAvatar(url: avatarUrl, radius: 16),
+                    Avatar(imageUrl: post['author']?['profilePicture']?.toString(), name: name, size: 32),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 13, color: _dark)),
-                          Text(_timeAgo(post['createdAt']), style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400])),
+                          Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 13, color: context.c.ink)),
+                          Text(_timeAgo(post['createdAt']), style: AppTypography.dmSans(fontSize: 10, color: context.c.ink3)),
                         ],
                       ),
                     ),
@@ -249,16 +262,14 @@ class _TimelineScreenState extends State<TimelineScreen> {
     final imageUrl = _getImageUrl(post);
     final name = _authorName(post);
     final content = (post['content'] ?? '').toString();
-    final avatarUrl = ApiService.getAvatarUrl(post['author']?['profilePicture'], name: name);
     final likes = (post['likes'] as List?)?.length ?? 0;
     final comments = (post['commentsCount'] ?? 0);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,14 +279,14 @@ class _TimelineScreenState extends State<TimelineScreen> {
             padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
             child: Row(
               children: [
-                WebCircleAvatar(url: avatarUrl, radius: 18),
+                Avatar(imageUrl: post['author']?['profilePicture']?.toString(), name: name, size: 36),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: _dark)),
-                      Text(_timeAgo(post['createdAt']), style: GoogleFonts.dmSans(fontSize: 10, color: Colors.grey[400])),
+                      Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: context.c.ink)),
+                      Text(_timeAgo(post['createdAt']), style: AppTypography.dmSans(fontSize: 10, color: context.c.ink3)),
                     ],
                   ),
                 ),
@@ -295,8 +306,8 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   top: 12, right: 12,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(12)),
-                    child: Text(_categoryTag(post), style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: _dark, letterSpacing: 0.8)),
+                    decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.9), borderRadius: BorderRadius.circular(12)),
+                    child: Text(_categoryTag(post), style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: context.c.ink, letterSpacing: 0.8)),
                   ),
                 ),
               ],
@@ -307,7 +318,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Text(
               content,
-              style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[700], height: 1.55),
+              style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, height: 1.55),
             ),
           ),
           // Engagement
@@ -322,14 +333,14 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),
-                Text('$likes', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[500])),
+                Text('$likes', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: context.c.ink2)),
                 const SizedBox(width: 12),
-                const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: Colors.grey),
+                Icon(Icons.chat_bubble_outline_rounded, size: 18, color: context.c.ink3),
                 const SizedBox(width: 4),
-                Text('$comments', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[500])),
+                Text('$comments', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: context.c.ink2)),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.near_me_outlined, size: 20, color: _orange),
+                  icon: Icon(Icons.near_me_outlined, size: 20, color: context.c.brand),
                   onPressed: () {},
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
@@ -351,31 +362,31 @@ class _TimelineScreenState extends State<TimelineScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(color: _orange, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(24)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('"', style: GoogleFonts.dmSans(fontSize: 72, fontWeight: FontWeight.w700, color: Colors.white.withOpacity(0.4), height: 0.6)),
+          Text('"', style: AppTypography.dmSans(fontSize: 72, fontWeight: FontWeight.w700, color: Colors.white.withOpacity(0.4), height: 0.6)),
           const SizedBox(height: 8),
           Text(
             content,
-            style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white, height: 1.35, letterSpacing: -0.3),
+            style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: context.c.onBrand, height: 1.35, letterSpacing: -0.3),
           ),
           const SizedBox(height: 20),
           Row(
             children: [
               Container(
                 width: 36, height: 36,
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
-                child: Center(child: Text(name[0], style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16))),
+                decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), shape: BoxShape.circle),
+                child: Center(child: Text(name[0], style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.onBrand, fontSize: 16))),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
-                    Text('THOUGHT LEADER', style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white70, letterSpacing: 1.0)),
+                    Text(name, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: context.c.onBrand)),
+                    Text('THOUGHT LEADER', style: AppTypography.dmSans(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.white70, letterSpacing: 1.0)),
                   ],
                 ),
               ),
@@ -383,7 +394,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                 onTap: () {},
                 child: Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: context.c.surfaceRaised.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
                   child: const Icon(Icons.ios_share_rounded, size: 18, color: Colors.white),
                 ),
               ),
@@ -399,56 +410,54 @@ class _TimelineScreenState extends State<TimelineScreen> {
   Widget _buildJournalCard(dynamic post) {
     final name = _authorName(post);
     final content = (post['content'] ?? '').toString();
-    final avatarUrl = ApiService.getAvatarUrl(post['author']?['profilePicture'], name: name);
     final likes = (post['likes'] as List?)?.length ?? 0;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              WebCircleAvatar(url: avatarUrl, radius: 16),
+              Avatar(imageUrl: post['author']?['profilePicture']?.toString(), name: name, size: 32),
               const SizedBox(width: 8),
-              Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: _dark)),
+              Text(name, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: context.c.ink)),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(color: _orange.withOpacity(0.10), borderRadius: BorderRadius.circular(8)),
-                child: Text('PRIVATE JOURNAL', style: GoogleFonts.dmSans(fontSize: 8, fontWeight: FontWeight.w700, color: _orange, letterSpacing: 0.8)),
+                decoration: BoxDecoration(color: context.c.brand.withOpacity(0.10), borderRadius: BorderRadius.circular(8)),
+                child: Text('PRIVATE JOURNAL', style: AppTypography.dmSans(fontSize: 8, fontWeight: FontWeight.w700, color: context.c.brand, letterSpacing: 0.8)),
               ),
             ],
           ),
           const SizedBox(height: 14),
           Text(
             _postTitle(post),
-            style: GoogleFonts.dmSans(fontSize: 17, fontWeight: FontWeight.w700, color: _dark, height: 1.2),
+            style: AppTypography.dmSans(fontSize: 17, fontWeight: FontWeight.w700, color: context.c.ink, height: 1.2),
           ),
           const SizedBox(height: 8),
           Text(
             content,
-            style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[600], height: 1.6),
+            style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, height: 1.6),
           ),
           const SizedBox(height: 14),
           Row(
             children: [
               GestureDetector(
                 onTap: () async { await ApiService().likePost(post['id']); _loadData(); },
-                child: Text('READ FULL STORY →', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _orange, letterSpacing: 0.3)),
+                child: Text('READ FULL STORY →', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.brand, letterSpacing: 0.3)),
               ),
               const Spacer(),
               const Icon(Icons.favorite_border_rounded, size: 16, color: Color(0xFFE53935)),
               const SizedBox(width: 4),
-              Text('$likes', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w700)),
+              Text('$likes', style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w700)),
               const SizedBox(width: 12),
-              const Icon(Icons.ios_share_rounded, size: 16, color: Colors.grey),
+              Icon(Icons.ios_share_rounded, size: 16, color: context.c.ink3),
             ],
           ),
         ],
@@ -464,7 +473,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(color: Colors.grey[50], shape: BoxShape.circle),
-        child: Icon(Icons.more_horiz_rounded, color: Colors.grey[400], size: 18),
+        child: Icon(Icons.more_horiz_rounded, color: context.c.ink3, size: 18),
       ),
     );
   }
@@ -529,69 +538,89 @@ class _TimelineScreenState extends State<TimelineScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: _orange.withOpacity(0.10), shape: BoxShape.circle),
-              child: const Icon(Icons.photo_library_outlined, size: 48, color: _orange),
+              decoration: BoxDecoration(color: context.c.brand.withOpacity(0.10), shape: BoxShape.circle),
+              child: Icon(Icons.photo_library_outlined, size: 48, color: context.c.brand),
             ),
             const SizedBox(height: 20),
-            Text('Your feed is empty', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: _dark)),
+            Text('Your feed is empty', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800, color: context.c.ink)),
             const SizedBox(height: 8),
-            Text('Share your traveler moments to inspire others', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400]), textAlign: TextAlign.center),
+            Text('Share your traveler moments to inspire others', style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3), textAlign: TextAlign.center),
           ],
         ),
       ),
     );
   }
 
-  void _showPostOptions(dynamic post) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
-              const SizedBox(height: 12),
-              ListTile(
-                leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.edit_rounded, size: 20)),
-                title: Text('Edit Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => EditPostScreen(post: post)));
-                  if (result == true) _loadData();
-                },
-              ),
-              ListTile(
-                leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.08), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20)),
-                title: Text('Delete Post', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.red)),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      title: Text('Delete Post?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
-                      content: Text('This action cannot be undone.', style: GoogleFonts.dmSans()),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700))),
-                        TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: GoogleFonts.dmSans(color: Colors.red, fontWeight: FontWeight.w800))),
-                      ],
-                    ),
-                  );
-                  if (confirmed == true) {
-                    try { await ApiService().deletePost(post['id']); _loadData(); } catch (_) {}
-                  }
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
+  Future<void> _showPostOptions(dynamic post) async {
+    final myId = await _authService.getCurrentUserId();
+    final authorId = post['author']?['id'] ?? post['authorId'];
+    final isMyPost = myId != null && myId == authorId;
+
+    if (!mounted) return;
+
+    if (isMyPost) {
+      // Own post: edit / delete
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (_) => Container(
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(24)),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(width: 40, height: 4, decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.edit_rounded, size: 20)),
+                  title: Text('Edit Post', style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => EditPostScreen(post: post)));
+                    if (result == true) _loadData();
+                  },
+                ),
+                ListTile(
+                  leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.08), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20)),
+                  title: Text('Delete Post', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: Colors.red)),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        title: Text('Delete Post?', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
+                        content: Text('This action cannot be undone.', style: AppTypography.dmSans()),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: AppTypography.dmSans(fontWeight: FontWeight.w700))),
+                          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: AppTypography.dmSans(color: Colors.red, fontWeight: FontWeight.w800))),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      try { await ApiService().deletePost(post['id']); _loadData(); } catch (_) {}
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      // Someone else's post: report / mute / block
+      final authorName = _authorName(post);
+      if (!mounted) return;
+      await showModerationSheet(
+        context,
+        targetUserId: authorId ?? '',
+        postId: post['id'],
+        targetName: authorName,
+        onActionDone: _loadData,
+      );
+    }
   }
 }

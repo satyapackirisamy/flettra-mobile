@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/flettra_colors.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 import '../../widgets/network_image_widget.dart';
 import 'destination_form_screen.dart';
@@ -74,7 +75,7 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
         title: const Text('Travel Hotspots'),
         actions: [
@@ -100,11 +101,11 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.map_outlined, size: 64, color: Colors.grey[400]),
+                          Icon(Icons.map_outlined, size: 64, color: context.c.ink3),
                           const SizedBox(height: 16),
                           Text(
                             'No destinations created yet',
-                            style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 16),
+                            style: AppTypography.dmSans(color: context.c.ink2, fontSize: 16),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
@@ -137,12 +138,9 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
   Widget _buildDestinationCard(dynamic dest) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,8 +157,8 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                 : Container(
                     height: 160,
                     width: double.infinity,
-                    color: Colors.grey[200],
-                    child: Icon(Icons.image_not_supported_outlined, color: Colors.grey[400], size: 48),
+                    color: context.c.ink3,
+                    child: Icon(Icons.image_not_supported_outlined, color: context.c.ink3, size: 48),
                   ),
           ),
           Padding(
@@ -174,7 +172,7 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                     Expanded(
                       child: Text(
                         dest['name'] ?? 'Untitled',
-                        style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800),
+                        style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800),
                       ),
                     ),
                     _buildActiveBadge(dest['isActive'] ?? true),
@@ -183,18 +181,18 @@ class _AdminDestinationManagementScreenState extends State<AdminDestinationManag
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, size: 16, color: Colors.grey[500]),
+                    Icon(Icons.location_on_outlined, size: 16, color: context.c.ink2),
                     const SizedBox(width: 4),
                     Text(
                       dest['location'] ?? 'Global',
-                      style: GoogleFonts.dmSans(color: Colors.grey[600], fontSize: 13),
+                      style: AppTypography.dmSans(color: context.c.ink2, fontSize: 13),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
                   dest['description'] ?? 'No description provided.',
-                  style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 13, height: 1.5),
+                  style: AppTypography.dmSans(color: context.c.ink2, fontSize: 13, height: 1.5),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

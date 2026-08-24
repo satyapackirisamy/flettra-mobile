@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/flettra_colors.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
-import '../../widgets/network_image_widget.dart';
+import '../../widgets/avatar.dart';
 
 class AdminUserManagementScreen extends StatefulWidget {
   const AdminUserManagementScreen({super.key});
@@ -120,16 +121,16 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
         value: id,
         groupValue: selectedPlan,
         onChanged: (v) => onTap(v!),
-        activeColor: const Color(0xFF4F46E5),
+        activeColor: context.c.brand,
       ),
-      title: Text(label, style: GoogleFonts.dmSans(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+      title: Text(label, style: AppTypography.dmSans(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
         title: const Text('Platform Users'),
         bottom: PreferredSize(
@@ -178,19 +179,20 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   Widget _buildUserTile(dynamic user) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: WebCircleAvatar(
-          radius: 24,
-          url: ApiService.getAvatarUrl(user['profilePicture'], name: user['name'] ?? 'U'),
+        leading: Avatar(
+          size: 48,
+          imageUrl: user['profilePicture']?.toString(),
+          name: user['name']?.toString(),
         ),
         title: Text(
           user['name'] ?? 'No Name',
-          style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, fontSize: 16),
+          style: AppTypography.dmSans(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +238,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     switch (plan) {
       case 'premium': planColor = Colors.purple; break;
       case 'basic': planColor = Colors.green; break;
-      default: planColor = Colors.grey; break;
+      default: planColor = context.c.ink3; break;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

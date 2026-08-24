@@ -1,7 +1,7 @@
 name: flettra_mobile
 description: Flettra mobile application.
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.5+10
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -13,7 +13,6 @@ dependencies:
   dio: ^5.0.0
   provider: ^6.0.0
   flutter_secure_storage: ^8.0.0
-  google_fonts: ^6.0.0
   intl: ^0.18.0
   socket_io_client: ^3.1.0
   shimmer: ^3.0.0
@@ -28,6 +27,14 @@ dependencies:
   share_plus: ^10.0.0
   url_launcher: ^6.3.0
   local_auth: ^2.1.6
+  # Disk + memory image cache. Plain NetworkImage re-fetches on every rebuild,
+  # which is most of the scroll stutter testers reported.
+  cached_network_image: ^3.4.1
+  shared_preferences: ^2.3.0
+  # Incoming Universal Links / App Links / flettra:// URLs. Needed for
+  # "Share ride" to open the app instead of a web page — see
+  # lib/src/utils/deep_links.dart.
+  app_links: ^7.0.0
 
 dev_dependencies:
   flutter_test:
@@ -38,3 +45,16 @@ flutter:
   uses-material-design: true
   assets:
     - assets/privacy_policy.html
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/DMSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/DMSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/DMSans-ExtraBold.ttf
+          weight: 800

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Universal Links. iOS fetches
+	     https://flettra.com/.well-known/apple-app-site-association (via Apple's
+	     CDN) and routes matching URLs to the app instead of Safari.
+	     See mobile/lib/src/utils/deep_links.dart and
+	     frontend/public/.well-known/README.md. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:flettra.com</string>
+		<string>applinks:www.flettra.com</string>
+	</array>
+</dict>
+</plist>

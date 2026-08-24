@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
+import '../utils/money.dart';
+import '../theme/app_typography.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:dio/dio.dart' show Options;
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
+import '../theme/app_spacing.dart';
+import '../theme/flettra_colors.dart';
 import '../services/auth_service.dart';
 import '../widgets/chat_widget.dart';
 import '../widgets/rating_dialog.dart';
 import '../widgets/network_image_widget.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../utils/snackbar_helper.dart';
 import 'edit_ride_screen.dart';
-import 'create_ride_screen.dart' show TransportMode;
 import 'rider_profile_screen.dart';
 import 'group_live_map_screen.dart';
+import '../widgets/moderation_sheet.dart';
+import '../widgets/avatar.dart';
+import '../widgets/motion.dart';
+import '../widgets/skeleton.dart';
+import '../utils/user_display.dart';
+import '../utils/deep_links.dart';
+import 'chat_screen.dart';
 
 class RideDetailsScreen extends StatefulWidget {
   final String rideId;
@@ -36,18 +46,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
   bool _isFavorite = false;
   String? _userId;
 
-  String _displayName(Map<String, dynamic>? user, [String fallback = 'User']) {
-    if (user == null) return fallback;
-    final name = user['name'] as String?;
-    if (name != null && name.trim().isNotEmpty) return name;
-    final first = user['firstName'] as String? ?? '';
-    final last = user['lastName'] as String? ?? '';
-    final full = '$first $last'.trim();
-    if (full.isNotEmpty) return full;
-    final email = user['email'] as String?;
-    if (email != null && email.contains('@')) return email.split('@')[0];
-    return fallback;
-  }
+  String _displayName(Map<String, dynamic>? user, [String fallback = 'User']) =>
+      userName(user, fallback: fallback);
 
   @override
   void initState() {
@@ -107,7 +107,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
         title: const Row(
           children: [
             Text('✨ ', style: TextStyle(fontSize: 24)),
-            Text('Regenerate Itinerary', style: TextStyle(fontWeight: FontWeight.w700)),
+            Flexible(child: Text('Regenerate Itinerary', style: TextStyle(fontWeight: FontWeight.w700))),
           ],
         ),
         content: Column(
@@ -143,7 +143,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
               _generateItinerary(instructionsController.text);
             },
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFFF6B2C),
+              backgroundColor: context.c.brand,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('GENERATE', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, letterSpacing: 1.0)),
@@ -208,12 +208,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
         if (mounted) {
            await showDialog(
              context: context,
-             builder: (context) => AlertDialog(
-               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-               title: const Text('Ride Complete! 🏁', style: TextStyle(fontWeight: FontWeight.w700)),
-               content: const Text('You and your passengers have earned 100 Compass Points! 🪙', style: TextStyle(fontWeight: FontWeight.bold)),
-               actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('GREAT', style: TextStyle(fontWeight: FontWeight.w700)))],
-             ),
+             builder: (_) => const _RideCompleteSheet(points: 100),
            );
         }
         // Show rating dialog for driver (if user is passenger) or passengers (if user is driver)
@@ -287,11 +282,11 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
 
   Color get _statusColor {
     switch (_ride!['status']) {
-      case 'ongoing': return const Color(0xFF10B981);
+      case 'ongoing': return context.c.ok;
       case 'completed': return const Color(0xFF6366F1);
       case 'cancelled': return Colors.red;
       case 'paused': return const Color(0xFFF59E0B);
-      default: return const Color(0xFFFF6B2C);
+      default: return context.c.brand;
     }
   }
 
@@ -310,15 +305,13 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator(color: Color(0xFFFF6B2C))));
+    if (_isLoading) return Scaffold(body: Center(child: CircularProgressIndicator(color: context.c.brand)));
     if (_ride == null) return const Scaffold(body: Center(child: Text('Ride not found')));
 
     final isDriver   = _ride!['driver']['id'] == _userId;
     final passengers = (_ride!['passengers'] as List);
     final isPassenger = passengers.any((p) => p['id'] == _userId);
-    final canChat    = isDriver || isPassenger;
     final driverName = _displayName(_ride!['driver']);
-    final driverAvatar = ApiService.getAvatarUrl(_ride!['driver']['profilePicture'], name: driverName);
     final itinerary  = _ride!['itinerary'];
     final dailyPlan  = (itinerary is Map ? itinerary['dailyPlan'] as List? : null) ?? [];
     final description = _ride!['description'] ?? '';
@@ -326,9 +319,11 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
 
     final inRide = isDriver || isPassenger;
     final isOngoing = _ride!['status'] == 'ongoing';
+    final isRejected = (_ride!['adminStatus']?.toString() ?? 'active') == 'rejected';
+    final rejectionReason = _ride!['adminRejectionReason']?.toString() ?? '';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: context.c.surface,
       floatingActionButton: (inRide && isOngoing)
           ? _LiveMapFab(
               onTap: () {
@@ -359,7 +354,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
               },
             )
           : null,
-      body: Column(
+      body: Opacity(
+        opacity: isRejected ? 0.75 : 1.0,
+        child: Column(
         children: [
           Expanded(
             child: CustomScrollView(
@@ -368,36 +365,33 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                 // ── AppBar ──────────────────────────────────────────────────
                 SliverAppBar(
                   pinned: true,
-                  backgroundColor: const Color(0xFFFFFFFF),
+                  backgroundColor: context.c.surface,
                   elevation: 0,
                   leading: Padding(
                     padding: const EdgeInsets.all(8),
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
-                        decoration: const BoxDecoration(color: Color(0xFFFF6B2C), shape: BoxShape.circle),
-                        child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Colors.white),
+                        decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle),
+                        child: Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: context.c.onBrand),
                       ),
                     ),
                   ),
                   title: Text(
                     'Trip Journal',
-                    style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 17, color: const Color(0xFF1A0A08)),
+                    style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 17, color: context.c.ink),
                   ),
                   centerTitle: true,
                   actions: [
                     if (_ride?['shareToken'] != null)
                       IconButton(
-                        icon: const Icon(Icons.share_rounded, color: Color(0xFFFF6B2C), size: 22),
-                        onPressed: () {
-                          final url = '${ApiService.baseUrl}/rides/share/${_ride!['shareToken']}';
-                          Clipboard.setData(ClipboardData(text: url));
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Share link copied!')));
-                        },
+                        icon: Icon(Icons.share_rounded, color: context.c.brand, size: 22),
+                        tooltip: 'Share ride',
+                        onPressed: _shareRide,
                       ),
                     if (isDriver)
                       PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF1A0A08), size: 22),
+                        icon: Icon(Icons.more_vert_rounded, color: context.c.ink, size: 22),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         onSelected: (value) async {
                           if (value == 'edit') {
@@ -420,6 +414,53 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   ],
                 ),
 
+                // ── Rejection Banner ────────────────────────────────────────
+                if (isRejected)
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: context.c.badWash,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE53935).withOpacity(0.35)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.block_rounded, color: Color(0xFFE53935), size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Removed by Admin',
+                                  style: TextStyle(
+                                    color: Color(0xFFE53935),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                if (rejectionReason.isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    rejectionReason,
+                                    style: const TextStyle(
+                                      color: Color(0xFFB71C1C),
+                                      fontSize: 12,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                 // ── Content ─────────────────────────────────────────────────
                 SliverToBoxAdapter(
                   child: Column(
@@ -430,188 +471,263 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
                         child: Row(
                           children: [
-                            _actionChip(
-                              icon: Icons.chat_bubble_rounded,
-                              label: 'Chat',
-                              enabled: canChat,
-                              onTap: canChat
-                                  ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => Scaffold(
-                                      appBar: AppBar(title: Text('Ride Chat', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)), backgroundColor: Colors.white, elevation: 0),
-                                      body: ChatWidget(rideId: widget.rideId, title: 'Chat'),
-                                    )))
-                                  : null,
-                            ),
-                            const SizedBox(width: 10),
-                            _actionChip(
-                              icon: Icons.receipt_long_rounded,
-                              label: 'Expenses',
-                              enabled: true,
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => _ExpensesPage(ride: _ride!, rideId: widget.rideId, canEdit: isDriver || isPassenger))),
-                            ),
+                            // Chat and Expenses belong to the ride, so they only
+                            // appear once you are in it. The Chat chip used to
+                            // render disabled — grey on grey, still looking
+                            // tappable — and Expenses was always enabled, which
+                            // let a non-member open the ride's money.
+                            if (inRide) ...[
+                              _actionChip(
+                                icon: Icons.chat_bubble_rounded,
+                                label: 'Chat',
+                                onTap: _openRideChat,
+                              ),
+                              const SizedBox(width: AppSpacing.xs + 2),
+                              _actionChip(
+                                icon: Icons.receipt_long_rounded,
+                                label: 'Expenses',
+                                onTap: () => Navigator.push(
+                                  context,
+                                  fadeThroughRoute(_ExpensesPage(
+                                    ride: _ride!,
+                                    rideId: widget.rideId,
+                                    canEdit: inRide,
+                                  )),
+                                ),
+                              ),
+                            ],
                             const Spacer(),
                             // Status badge
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(color: _statusColor.withOpacity(0.12), borderRadius: BorderRadius.circular(20)),
-                              child: Text(_statusLabel, style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: _statusColor)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm, vertical: 6),
+                              decoration: BoxDecoration(
+                                  color: _statusColor.withValues(alpha: 0.12),
+                                  borderRadius: AppRadius.pillR),
+                              child: Text(_statusLabel,
+                                  style: AppTypography.dmSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: _statusColor)),
                             ),
                           ],
                         ),
                       ),
 
-                      // ── Hero image ───────────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Hero(
-                          tag: 'ride-image-${widget.rideId}',
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(24),
-                            child: SafeNetworkImage(
-                              url: _getCoverImage(_ride!['coverImage'], _ride!['destination']),
-                              height: 240,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                      // ── Hero ─────────────────────────────────────────────
+                      // Full-bleed and 200pt, down from a 240pt inset card with
+                      // a 24pt radius. Bleeding it to the edges reads larger
+                      // while occupying less, and it stops the screen opening
+                      // with a band of white on three sides.
+                      Hero(
+                        tag: 'ride-image-${widget.rideId}',
+                        child: SizedBox(
+                          height: 200,
+                          width: double.infinity,
+                          child: SafeNetworkImage(
+                            url: _getCoverImage(
+                                _ride!['coverImage'], _ride!['destination']),
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
 
-                      // ── Floating info card ───────────────────────────────
+                      // ── Headline block ───────────────────────────────────
+                      // Was a shadowed card floating over the image, then a
+                      // second labelled card for the host, then a third for the
+                      // description. Three containers, three shadows, ~600pt to
+                      // carry five facts. Flat on the surface, hairline
+                      // separated, the host and the journey now sit above the
+                      // fold instead of below it.
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [BoxShadow(color: const Color(0xFFFF6B2C).withOpacity(0.10), blurRadius: 24, offset: const Offset(0, 8))],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.md,
+                            AppSpacing.sm, AppSpacing.md, AppSpacing.sm),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xs, vertical: 3),
+                                  decoration: BoxDecoration(
+                                      color: context.c.brandWash,
+                                      borderRadius: AppRadius.chipR),
+                                  child: Text(
+                                    '${_ride!['seatsAvailable'] ?? 0} seats left',
+                                    style: AppTypography.caption
+                                        .copyWith(color: context.c.brand),
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.xs - 2),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.xs, vertical: 3),
+                                  decoration: BoxDecoration(
+                                      color: _statusColor.withValues(alpha: 0.12),
+                                      borderRadius: AppRadius.chipR),
+                                  child: Text(_statusLabel,
+                                      style: AppTypography.caption
+                                          .copyWith(color: _statusColor)),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '₹${formatRupees(_ride!["pricePerSeat"])}',
+                                  style: AppTypography.title
+                                      .copyWith(color: context.c.ink),
+                                ),
+                                const SizedBox(width: 3),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: Text('/seat',
+                                      style: AppTypography.footnote
+                                          .copyWith(color: context.c.ink3)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              _ride!['name'] ?? _ride!['destination'] ?? 'Trip',
+                              style: AppTypography.display
+                                  .copyWith(color: context.c.ink),
+                            ),
+                            const SizedBox(height: AppSpacing.xxs),
+                            Text(
+                              '${_ride!['origin'] ?? ''}  →  ${_ride!['destination'] ?? ''}',
+                              style: AppTypography.body
+                                  .copyWith(color: context.c.ink2),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              '${_fmtDate(_ride!['departureDate'])}  ·  ${(_ride!['transportMode'] ?? 'Car').toString().capitalize()}',
+                              style: AppTypography.footnote
+                                  .copyWith(color: context.c.ink3),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Divider(height: 1, thickness: 1, color: context.c.ruleSoft),
+
+                      // ── Host ─────────────────────────────────────────────
+                      // The "HOSTED BY" overline cost a row plus 12pt of gap to
+                      // label a row whose avatar already says what it is.
+                      InkWell(
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => RiderProfileScreen(
+                                    userId: _ride!['driver']['id'],
+                                    knownName: driverName))),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.xs),
+                          child: Row(
                             children: [
-                              // Spots badge + price
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(color: const Color(0xFFFFF3EE), borderRadius: BorderRadius.circular(12)),
-                                    child: Text(
-                                      '${_ride!['seatsAvailable'] ?? 0} spots left',
-                                      style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
+                              Avatar(
+                                size: 38,
+                                imageUrl: _ride!['driver']['profilePicture']
+                                    ?.toString(),
+                                name: driverName,
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(driverName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: AppTypography.bodyStrong
+                                                  .copyWith(color: context.c.ink)),
+                                        ),
+                                        const SizedBox(width: AppSpacing.xxs),
+                                        Icon(Icons.verified_rounded,
+                                            size: 14, color: context.c.ok),
+                                      ],
+                                    ),
+                                    Text(
+                                      'Host  ·  ★ 4.8  ·  ${passengers.length} trips',
+                                      style: AppTypography.footnote
+                                          .copyWith(color: context.c.ink3),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Message the host directly. Only for someone
+                              // actually on the ride — a stranger who has not
+                              // been accepted has no business DMing the
+                              // organiser, and the gateway would reject it.
+                              if (isPassenger)
+                                Pressable(
+                                  onTap: _openHostChat,
+                                  scale: 0.9,
+                                  child: Container(
+                                    width: AppTouch.iosMin,
+                                    height: AppTouch.iosMin,
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(7),
+                                      decoration: BoxDecoration(
+                                        color: context.c.brandWash,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                            color: context.c.brand
+                                                .withValues(alpha: 0.4)),
+                                      ),
+                                      child: Icon(
+                                          Icons.chat_bubble_outline_rounded,
+                                          size: 16,
+                                          color: context.c.brand),
                                     ),
                                   ),
-                                  Text(
-                                    '~₹${_ride!["pricePerSeat"]} est.',
-                                    style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08)),
+                                ),
+                              if (!isDriver)
+                                IconButton(
+                                  onPressed: () => showModerationSheet(
+                                    context,
+                                    targetUserId: _ride!['driver']['id'],
+                                    targetName: driverName,
+                                    onActionDone: _fetchRideDetails,
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              // Destination title
-                              Text(
-                                _ride!['name'] ?? _ride!['destination'] ?? 'Trip',
-                                style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08), letterSpacing: -0.3),
-                              ),
-                              const SizedBox(height: 8),
-                              // Route + date row
-                              Row(
-                                children: [
-                                  const Icon(Icons.trip_origin_rounded, size: 12, color: Color(0xFFFF6B2C)),
-                                  const SizedBox(width: 4),
-                                  Text(_ride!['origin'] ?? '', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                                    child: Icon(Icons.arrow_forward_rounded, size: 12, color: Colors.grey[300]),
-                                  ),
-                                  const Icon(Icons.location_on_rounded, size: 12, color: Color(0xFFFF6B2C)),
-                                  const SizedBox(width: 4),
-                                  Expanded(child: Text(_ride!['destination'] ?? '', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  const Icon(Icons.calendar_today_rounded, size: 12, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text(_fmtDate(_ride!['departureDate']), style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                  const SizedBox(width: 16),
-                                  const Icon(Icons.directions_car_rounded, size: 12, color: Colors.grey),
-                                  const SizedBox(width: 4),
-                                  Text((_ride!['transportMode'] ?? 'Car').toString().capitalize(), style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                ],
-                              ),
+                                  tooltip: 'More',
+                                  iconSize: 18,
+                                  color: context.c.ink3,
+                                  constraints: const BoxConstraints(
+                                      minWidth: AppTouch.iosMin,
+                                      minHeight: AppTouch.iosMin),
+                                  icon: const Icon(Icons.more_horiz_rounded),
+                                ),
                             ],
                           ),
                         ),
                       ),
 
-                      // ── Hosted By ────────────────────────────────────────
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('HOSTED BY', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
-                            const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
-                              ),
-                              child: Row(
-                                children: [
-                                  WebCircleAvatar(radius: 26, url: driverAvatar),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(driverName, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08))),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.star_rounded, size: 13, color: Color(0xFFFBBF24)),
-                                            const SizedBox(width: 3),
-                                            Text('4.8 · ${passengers.length} trips', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(10)),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.verified_rounded, size: 13, color: Color(0xFF10B981)),
-                                        const SizedBox(width: 4),
-                                        Text('Verified', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      Divider(height: 1, thickness: 1, color: context.c.ruleSoft),
 
                       // ── The Journey (description) ─────────────────────────
                       if (hasDescription) ...[
-                        const SizedBox(height: 20),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.fromLTRB(AppSpacing.md,
+                              AppSpacing.sm, AppSpacing.md, AppSpacing.xxs),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('THE JOURNEY', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
-                              const SizedBox(height: 8),
+                              Text('About this trip',
+                                  style: AppTypography.heading
+                                      .copyWith(color: context.c.ink)),
+                              const SizedBox(height: AppSpacing.xxs),
                               Text(
                                 description.toString(),
-                                style: GoogleFonts.dmSans(fontSize: 14, color: Colors.grey[600], height: 1.6, fontWeight: FontWeight.w500),
+                                style: AppTypography.body
+                                    .copyWith(color: context.c.ink2),
                               ),
                             ],
                           ),
@@ -627,13 +743,13 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                           children: [
                             Row(
                               children: [
-                                Text('JOINED TRAVELERS', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(color: const Color(0xFFFF6B2C), borderRadius: BorderRadius.circular(10)),
-                                  child: Text('${passengers.length}', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
-                                ),
+                                Text('Who\'s coming',
+                                    style: AppTypography.heading
+                                        .copyWith(color: context.c.ink)),
+                                const SizedBox(width: AppSpacing.xxs + 2),
+                                Text('${passengers.length}',
+                                    style: AppTypography.heading
+                                        .copyWith(color: context.c.ink3)),
                               ],
                             ),
                             const SizedBox(height: 10),
@@ -642,32 +758,32 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 width: double.infinity,
                                 padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: context.c.surfaceRaised,
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFFFFE4D6), width: 1.5),
+                                  border: Border.all(color: context.c.brandWash, width: 1.5),
                                 ),
                                 child: Column(
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(14),
-                                      decoration: const BoxDecoration(color: Color(0xFFFFF3EE), shape: BoxShape.circle),
+                                      decoration: BoxDecoration(color: context.c.brandWash, shape: BoxShape.circle),
                                       child: Icon(
                                         isDriver ? Icons.people_outline_rounded : Icons.emoji_people_rounded,
-                                        color: const Color(0xFFFF6B2C),
+                                        color: context.c.brand,
                                         size: 28,
                                       ),
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
                                       isDriver ? 'Waiting for travelers' : 'No one yet!',
-                                      style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: const Color(0xFF1A0A08)),
+                                      style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w800, color: context.c.ink),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       isDriver
                                           ? 'Share this ride to attract fellow adventurers'
                                           : 'Be the first to join this adventure!',
-                                      style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400], fontWeight: FontWeight.w500),
+                                      style: AppTypography.dmSans(fontSize: 12, color: context.c.ink3, fontWeight: FontWeight.w500),
                                       textAlign: TextAlign.center,
                                     ),
                                   ],
@@ -677,9 +793,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: context.c.surfaceRaised,
                                   borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
                                 ),
                                 child: Column(
                                   children: [
@@ -689,7 +804,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                           final p = e.value as Map<String, dynamic>;
                                           final name = _displayName(p);
                                           final colors = [
-                                            const Color(0xFFFF6B2C), const Color(0xFF6366F1), const Color(0xFF10B981),
+                                            context.c.brand, const Color(0xFF6366F1), context.c.ok,
                                             const Color(0xFFF59E0B), const Color(0xFFEC4899), const Color(0xFF3B82F6),
                                           ];
                                           return Align(
@@ -699,12 +814,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                               decoration: BoxDecoration(
                                                 color: colors[e.key % colors.length],
                                                 shape: BoxShape.circle,
-                                                border: Border.all(color: Colors.white, width: 2.5),
+                                                border: Border.all(color: context.c.surfaceRaised, width: 2.5),
                                               ),
                                               child: Center(
                                                 child: Text(
                                                   name.isNotEmpty ? name[0].toUpperCase() : '?',
-                                                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white),
+                                                  style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 15, color: context.c.onBrand),
                                                 ),
                                               ),
                                             ),
@@ -715,20 +830,20 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                             padding: const EdgeInsets.only(left: 6),
                                             child: Container(
                                               width: 44, height: 44,
-                                              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2.5)),
-                                              child: Center(child: Text('+${passengers.length - 6}', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[600]))),
+                                              decoration: BoxDecoration(color: context.c.surfaceSunken, shape: BoxShape.circle, border: Border.all(color: context.c.surfaceRaised, width: 2.5)),
+                                              child: Center(child: Text('+${passengers.length - 6}', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink2))),
                                             ),
                                           ),
                                         const Spacer(),
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(10)),
+                                          decoration: BoxDecoration(color: context.c.okWash, borderRadius: BorderRadius.circular(10)),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              const Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF10B981)),
+                                              Icon(Icons.check_circle_rounded, size: 12, color: context.c.ok),
                                               const SizedBox(width: 4),
-                                              Text('${passengers.length} joined', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF10B981))),
+                                              Text('${passengers.length} joined', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ok)),
                                             ],
                                           ),
                                         ),
@@ -742,27 +857,43 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                         final pMap = p as Map<String, dynamic>;
                                         final name = _displayName(pMap);
                                         final pid  = pMap['id']?.toString() ?? '';
-                                        return GestureDetector(
-                                          onTap: pid.isNotEmpty
-                                              ? () => Navigator.push(context, MaterialPageRoute(
-                                                  builder: (_) => RiderProfileScreen(userId: pid, knownName: name)))
-                                              : null,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(bottom: 8),
-                                            child: Row(
-                                              children: [
-                                                const Icon(Icons.person_rounded, size: 13, color: Color(0xFFFF6B2C)),
-                                                const SizedBox(width: 6),
-                                                Text(name, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF1A0A08))),
-                                                const Spacer(),
-                                                const Icon(Icons.chevron_right_rounded, size: 14, color: Color(0xFFFF6B2C)),
-                                              ],
-                                            ),
+                                        final isMe = pid == _userId;
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 8),
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.person_rounded, size: 13, color: context.c.brand),
+                                              const SizedBox(width: 6),
+                                              Expanded(
+                                                child: GestureDetector(
+                                                  onTap: pid.isNotEmpty
+                                                      ? () => Navigator.push(context, MaterialPageRoute(
+                                                          builder: (_) => RiderProfileScreen(userId: pid, knownName: name)))
+                                                      : null,
+                                                  child: Text(name, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: context.c.ink)),
+                                                ),
+                                              ),
+                                              if (!isMe && pid.isNotEmpty)
+                                                GestureDetector(
+                                                  onTap: () => showModerationSheet(
+                                                    context,
+                                                    targetUserId: pid,
+                                                    targetName: name,
+                                                    onActionDone: _fetchRideDetails,
+                                                  ),
+                                                  child: const Padding(
+                                                    padding: EdgeInsets.only(left: 8),
+                                                    child: Icon(Icons.more_vert_rounded, size: 16, color: Color(0xFF9CA3AF)),
+                                                  ),
+                                                )
+                                              else
+                                                Icon(Icons.chevron_right_rounded, size: 14, color: context.c.brand),
+                                            ],
                                           ),
                                         );
                                       }),
                                       if (passengers.length > 3)
-                                        Text('and ${passengers.length - 3} more...', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400], fontWeight: FontWeight.w500)),
+                                        Text('and ${passengers.length - 3} more...', style: AppTypography.dmSans(fontSize: 12, color: context.c.ink3, fontWeight: FontWeight.w500)),
                                     ],
                                   ],
                                 ),
@@ -781,14 +912,14 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.person_add_rounded, size: 16, color: Color(0xFFFF6B2C))),
+                                  Container(padding: EdgeInsets.all(6), decoration: BoxDecoration(color: context.c.surface, borderRadius: BorderRadius.circular(8)), child: Icon(Icons.person_add_rounded, size: 16, color: context.c.brand)),
                                   const SizedBox(width: 10),
-                                  Text('Join Requests', style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w800)),
+                                  Text('Join Requests', style: AppTypography.dmSans(fontSize: 15, fontWeight: FontWeight.w800)),
                                   const SizedBox(width: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                    decoration: BoxDecoration(color: const Color(0xFFFF6B2C), borderRadius: BorderRadius.circular(6)),
-                                    child: Text('${_requests.where((r) => r['status'] == 'pending').length}', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+                                    decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(6)),
+                                    child: Text('${_requests.where((r) => r['status'] == 'pending').length}', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.onBrand)),
                                   ),
                                 ],
                               ),
@@ -805,22 +936,22 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                   child: Container(
                                     margin: const EdgeInsets.only(bottom: 10),
                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                    decoration: BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(14)),
+                                    decoration: BoxDecoration(color: context.c.surface, borderRadius: BorderRadius.circular(14)),
                                     child: Row(
                                       children: [
-                                        Container(width: 36, height: 36, decoration: const BoxDecoration(color: Color(0xFFFFE4D6), shape: BoxShape.circle),
-                                          child: Center(child: Text(reqName.isNotEmpty ? reqName[0].toUpperCase() : '?', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)))),
+                                        Container(width: 36, height: 36, decoration: BoxDecoration(color: context.c.brandWash, shape: BoxShape.circle),
+                                          child: Center(child: Text(reqName.isNotEmpty ? reqName[0].toUpperCase() : '?', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: context.c.brand))),
                                         ),
                                         const SizedBox(width: 10),
                                         Expanded(child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(reqName, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                                            Text(reqName, style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
                                           ],
                                         )),
-                                        GestureDetector(onTap: () => _handleRequest(req['id'], 'accepted'), child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 18))),
+                                        GestureDetector(onTap: () => _handleRequest(req['id'], 'accepted'), child: Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: context.c.okWash, borderRadius: BorderRadius.circular(10)), child: Icon(Icons.check_rounded, color: context.c.ok, size: 18))),
                                         const SizedBox(width: 8),
-                                        GestureDetector(onTap: () => _handleRequest(req['id'], 'rejected'), child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.close_rounded, color: Colors.red, size: 18))),
+                                        GestureDetector(onTap: () => _handleRequest(req['id'], 'rejected'), child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: context.c.badWash, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.close_rounded, color: Colors.red, size: 18))),
                                       ],
                                     ),
                                   ),
@@ -844,8 +975,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Itinerary', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF1A0A08))),
-                                    Container(height: 3, width: 60, margin: const EdgeInsets.only(top: 4), decoration: BoxDecoration(color: const Color(0xFFFF6B2C), borderRadius: BorderRadius.circular(2))),
+                                    Text('Itinerary', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w700, color: context.c.ink)),
+                                    Container(height: 3, width: 60, margin: const EdgeInsets.only(top: 4), decoration: BoxDecoration(color: context.c.brand, borderRadius: BorderRadius.circular(2))),
                                   ],
                                 ),
                                 if (isDriver)
@@ -854,18 +985,18 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFFFF3EE),
+                                        color: context.c.brandWash,
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFFFF6B2C).withOpacity(0.3)),
+                                        border: Border.all(color: context.c.brand.withOpacity(0.3)),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.auto_awesome_rounded, size: 13, color: Color(0xFFFF6B2C)),
+                                          Icon(Icons.auto_awesome_rounded, size: 13, color: context.c.brand),
                                           const SizedBox(width: 4),
                                           Text(
                                             _isGenerating ? 'Generating...' : itinerary != null ? 'Regenerate' : 'Generate AI',
-                                            style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
+                                            style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.brand),
                                           ),
                                         ],
                                       ),
@@ -874,27 +1005,27 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 if (!isDriver && itinerary != null)
                                   GestureDetector(
                                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => _ItineraryPage(ride: _ride!, rideId: widget.rideId, isDriver: false, onGenerate: _generateItinerary, onRegenerate: _showRegenerateDialog, isGenerating: _isGenerating))),
-                                    child: Text('View all', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                    child: Text('View all', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: context.c.brand)),
                                   ),
                               ],
                             ),
                             const SizedBox(height: 14),
                             if (_isGenerating)
-                              const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFFFF6B2C))))
+                              Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: context.c.brand)))
                             else if (itinerary == null)
                               Container(
                                 padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                                decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(16)),
                                 child: Row(
                                   children: [
-                                    Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: const Color(0xFFFFF3EE), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.map_outlined, color: Color(0xFFFF6B2C), size: 24)),
+                                    Container(padding: EdgeInsets.all(12), decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(12)), child: Icon(Icons.map_outlined, color: context.c.brand, size: 24)),
                                     const SizedBox(width: 14),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text('No itinerary yet', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14)),
-                                          Text(isDriver ? 'Tap "Generate AI" to create one' : 'The organizer will add one soon', style: GoogleFonts.dmSans(fontSize: 12, color: Colors.grey[400])),
+                                          Text('No itinerary yet', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14)),
+                                          Text(isDriver ? 'Tap "Generate AI" to create one' : 'The organizer will add one soon', style: AppTypography.dmSans(fontSize: 12, color: context.c.ink3)),
                                         ],
                                       ),
                                     ),
@@ -909,9 +1040,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 10),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: context.c.surfaceRaised,
                                     borderRadius: BorderRadius.circular(18),
-                                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
                                   ),
                                   child: Theme(
                                     data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -923,24 +1053,24 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                       collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                                       leading: Container(
                                         width: 36, height: 36,
-                                        decoration: const BoxDecoration(color: Color(0xFFFF6B2C), shape: BoxShape.circle),
-                                        child: Center(child: Text('${day['day']}', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 13))),
+                                        decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle),
+                                        child: Center(child: Text('${day['day']}', style: AppTypography.dmSans(fontWeight: FontWeight.w700, color: context.c.onBrand, fontSize: 13))),
                                       ),
                                       title: Text(
                                         'Day ${day['day']}${day['title'] != null ? ' · ${day['title']}' : ''}',
-                                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: const Color(0xFF1A0A08)),
+                                        style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: context.c.ink),
                                       ),
                                       subtitle: Text(
                                         '${activities.length} ${activities.length == 1 ? 'activity' : 'activities'}',
-                                        style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w600),
+                                        style: AppTypography.dmSans(fontSize: 11, color: context.c.ink3, fontWeight: FontWeight.w600),
                                       ),
-                                      iconColor: const Color(0xFFFF6B2C),
-                                      collapsedIconColor: Colors.grey[400],
+                                      iconColor: context.c.brand,
+                                      collapsedIconColor: context.c.ink3,
                                       children: [
                                         if (activities.isEmpty)
                                           Padding(
                                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                                            child: Text('No activities listed', style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400])),
+                                            child: Text('No activities listed', style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3)),
                                           )
                                         else
                                           Padding(
@@ -962,7 +1092,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                                           padding: const EdgeInsets.only(top: 2),
                                                           child: Text(
                                                             time,
-                                                            style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C)),
+                                                            style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.brand),
                                                           ),
                                                         ),
                                                       ),
@@ -971,11 +1101,11 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                                         children: [
                                                           Container(
                                                             width: 8, height: 8,
-                                                            decoration: const BoxDecoration(color: Color(0xFFFF6B2C), shape: BoxShape.circle),
+                                                            decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle),
                                                           ),
                                                           if (!isLast)
                                                             Expanded(
-                                                              child: Container(width: 1.5, color: const Color(0xFFFFE4D6)),
+                                                              child: Container(width: 1.5, color: context.c.brandWash),
                                                             ),
                                                         ],
                                                       ),
@@ -986,7 +1116,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                                           padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
                                                           child: Text(
                                                             desc,
-                                                            style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[700], height: 1.4, fontWeight: FontWeight.w500),
+                                                            style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, height: 1.4, fontWeight: FontWeight.w500),
                                                           ),
                                                         ),
                                                       ),
@@ -1008,17 +1138,17 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                                   margin: const EdgeInsets.only(top: 4),
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: context.c.surfaceRaised,
                                     borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: const Color(0xFFFF6B2C).withOpacity(0.3)),
+                                    border: Border.all(color: context.c.brand.withOpacity(0.3)),
                                   ),
                                   child: Center(
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.calendar_month_rounded, size: 14, color: Color(0xFFFF6B2C)),
+                                        Icon(Icons.calendar_month_rounded, size: 14, color: context.c.brand),
                                         const SizedBox(width: 6),
-                                        Text('View full itinerary', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                        Text('View full itinerary', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.brand)),
                                       ],
                                     ),
                                   ),
@@ -1035,14 +1165,14 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('ESTIMATED COST', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 1.2)),
+                            Text('ESTIMATED COST', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink3, letterSpacing: 1.2)),
                             const SizedBox(height: 10),
                             Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))]),
+                              decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))]),
                               child: Column(
                                 children: [
-                                  _costRow('Est. Budget/seat', '~₹${_ride!["pricePerSeat"]}'),
+                                  _costRow('Est. Budget/seat', '₹${formatRupees(_ride!["pricePerSeat"])}'),
                                   const Divider(height: 20),
                                   _costRow('Seats Available', '${_ride!['seatsAvailable']}'),
                                   const Divider(height: 20),
@@ -1065,27 +1195,131 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
           ),
           _buildBottomBar(isDriver, isPassenger),
         ],
+        ),
       ),
+    );
+  }
+
+  /// Shares a link that opens the ride *in the app*.
+  ///
+  /// This used to copy `${ApiService.baseUrl}/rides/share/<token>` — the REST
+  /// endpoint. Opening it showed a page of raw JSON, and it could never deep
+  /// link because api.flettra.com is not an associated domain. The link now
+  /// points at the web landing page, which is registered as a Universal Link
+  /// (iOS) and an App Link (Android): with the app installed the tap goes
+  /// straight to this screen, and without it the page offers the store.
+  ///
+  /// It also opens the system share sheet rather than silently writing to the
+  /// clipboard, because "Share" that only copies is not what the icon promises.
+  Future<void> _shareRide() async {
+    final token = _ride?['shareToken']?.toString();
+    if (token == null || token.isEmpty) return;
+
+    final url = rideShareUrl(token);
+    final name = (_ride!['name'] ?? _ride!['destination'] ?? 'a ride').toString();
+    final route = [_ride!['origin'], _ride!['destination']]
+        .whereType<String>()
+        .where((e) => e.isNotEmpty)
+        .join(' → ');
+
+    try {
+      await Share.share(
+        route.isEmpty
+            ? 'Join me on Flettra: $name\n$url'
+            : 'Join me on Flettra — $name ($route)\n$url',
+        subject: 'Join my ride on Flettra',
+      );
+    } catch (_) {
+      // Share sheet unavailable (desktop / web): fall back to the clipboard.
+      await Clipboard.setData(ClipboardData(text: url));
+      if (mounted) showSuccess(context, 'Share link copied');
+    }
+  }
+
+  /// Opens the ride's group chat, titled with the ride rather than the feature.
+  void _openRideChat() {
+    final rideName =
+        (_ride!['name'] ?? _ride!['destination'] ?? 'Ride').toString();
+    final route = [_ride!['origin'], _ride!['destination']]
+        .whereType<String>()
+        .where((e) => e.isNotEmpty)
+        .join(' → ');
+
+    Navigator.push(
+      context,
+      fadeThroughRoute(Scaffold(
+        appBar: AppBar(
+          titleSpacing: 0,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(rideName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.heading.copyWith(color: context.c.ink)),
+              if (route.isNotEmpty)
+                Text(route,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        AppTypography.footnote.copyWith(color: context.c.ink3)),
+            ],
+          ),
+        ),
+        body: ChatWidget(rideId: widget.rideId, title: rideName),
+      )),
+    );
+  }
+
+  /// Opens a one-to-one chat with the ride's host.
+  ///
+  /// Reachable from the host row, and only for someone travelling on the ride —
+  /// the group chat is not the place to ask the organiser a private question,
+  /// and before this there was no way to start one from the ride at all.
+  void _openHostChat() {
+    final driver = _ride!['driver'] as Map<String, dynamic>;
+    Navigator.push(
+      context,
+      fadeThroughRoute(ChatScreen(buddy: {
+        'id': driver['id'],
+        'name': _displayName(driver),
+        'profilePicture': driver['profilePicture'],
+      })),
     );
   }
 
   // ─── Section helpers ──────────────────────────────────────────────────────
 
-  Widget _actionChip({required IconData icon, required String label, required bool enabled, VoidCallback? onTap}) {
-    return GestureDetector(
+  /// A brand-filled pill in the actions row.
+  ///
+  /// The `enabled: false` variant is gone. It drew the chip in `ink3` on `ink3`
+  /// — an unreadable grey-on-grey pill that still looked tappable and did
+  /// nothing. A capability you do not have should not occupy a slot at all, so
+  /// the caller omits the chip instead. See the actions row in [build].
+  Widget _actionChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final c = context.c;
+    return Pressable(
       onTap: onTap,
+      scale: 0.94,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.xs + 2),
         decoration: BoxDecoration(
-          color: enabled ? const Color(0xFFFF6B2C) : Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
+          color: c.brand,
+          borderRadius: AppRadius.pillR,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: enabled ? Colors.white : Colors.grey[400]),
+            Icon(icon, size: 14, color: c.onBrand),
             const SizedBox(width: 6),
-            Text(label, style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w800, color: enabled ? Colors.white : Colors.grey[400])),
+            Text(label,
+                style: AppTypography.dmSans(
+                    fontSize: 12, fontWeight: FontWeight.w800, color: c.onBrand)),
           ],
         ),
       ),
@@ -1096,8 +1330,8 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[500], fontWeight: FontWeight.w600)),
-        Text(value, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: valueColor ?? const Color(0xFF1A0A08))),
+        Text(label, style: AppTypography.dmSans(fontSize: 13, color: context.c.ink2, fontWeight: FontWeight.w600)),
+        Text(value, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w800, color: valueColor ?? context.c.ink)),
       ],
     );
   }
@@ -1145,17 +1379,20 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
   Widget _bottomBar(String label, IconData icon, VoidCallback? onTap, {bool enabled = true}) {
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
-      decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, -4))]),
+      decoration: BoxDecoration(
+        color: context.c.surfaceRaised,
+        border: Border(top: BorderSide(color: context.c.rule, width: 0.5)),
+      ),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
           onPressed: enabled ? onTap : null,
           icon: Icon(icon, size: 20),
-          label: Text(label, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
+          label: Text(label, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFF6B2C),
-            disabledBackgroundColor: Colors.grey[300],
-            foregroundColor: Colors.white,
+            backgroundColor: context.c.brand,
+            disabledBackgroundColor: context.c.ink3,
+            foregroundColor: context.c.onBrand,
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             elevation: 0,
@@ -1176,24 +1413,24 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: const Color(0xFFFFF3EE), shape: BoxShape.circle),
-              child: const Icon(Icons.check_rounded, size: 40, color: Color(0xFFFF6B2C)),
+              decoration: BoxDecoration(color: context.c.brandWash, shape: BoxShape.circle),
+              child: Icon(Icons.check_rounded, size: 40, color: context.c.brand),
             ),
             const SizedBox(height: 24),
-            Text('Join Request Sent!', style: GoogleFonts.dmSans(fontSize: 22, fontWeight: FontWeight.w800)),
+            Text('Join Request Sent!', style: AppTypography.dmSans(fontSize: 22, fontWeight: FontWeight.w800)),
             const SizedBox(height: 12),
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
-                style: GoogleFonts.dmSans(fontSize: 14, color: Colors.grey[600], height: 1.5),
+                style: AppTypography.dmSans(fontSize: 14, color: context.c.ink2, height: 1.5),
                 children: [
                   TextSpan(text: 'Your request to join the $dest trip has been sent to '),
                   TextSpan(text: driverName, style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87)),
@@ -1207,13 +1444,13 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(ctx),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF6B2C),
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.c.brand,
+                  foregroundColor: context.c.onBrand,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                child: Text('Got it, thanks!', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
+                child: Text('Got it, thanks!', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
               ),
             ),
           ],
@@ -1294,6 +1531,20 @@ class _ItineraryPageState extends State<_ItineraryPage> {
     }
   }
 
+  /// Absolute URL for a day's image, or null when there is nothing loadable.
+  ///
+  /// The backend now fills `imageUrl` with a destination photo for every day
+  /// (see backend/src/itinerary/day-images.ts), so this mostly passes through.
+  /// It still filters two historical cases: a missing value, and a
+  /// pre-Cloudinary `/uploads/...` path whose file no longer exists.
+  String? _dayImageUrl(String? raw) {
+    final path = (raw ?? '').trim();
+    if (path.isEmpty) return null;
+    if (path.contains('/uploads/')) return null;
+    if (path.startsWith('http')) return path;
+    return ApiService.getFullImageUrl(path);
+  }
+
   Future<void> _pickDayImage(int dayIndex) async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
@@ -1316,24 +1567,24 @@ class _ItineraryPageState extends State<_ItineraryPage> {
     dynamic itinerary = _editableItinerary;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        title: Text('Itinerary', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
-        backgroundColor: Colors.white,
+        title: Text('Itinerary', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
+        backgroundColor: context.c.surface,
         elevation: 0,
         actions: [
           if (widget.isDriver && itinerary != null)
             TextButton(
               onPressed: _isEditing ? _saveManualEdits : () => setState(() => _isEditing = true),
-              child: Text(_isEditing ? 'Save' : 'Edit', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C))),
+              child: Text(_isEditing ? 'Save' : 'Edit', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: context.c.brand)),
             ),
         ],
       ),
       body: widget.isGenerating
-          ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-              CircularProgressIndicator(color: Color(0xFFFF6B2C)),
+          ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+              CircularProgressIndicator(color: context.c.brand),
               SizedBox(height: 16),
-              Text('Generating itinerary...', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+              Text('Generating itinerary...', style: TextStyle(color: context.c.ink3, fontWeight: FontWeight.w600)),
             ]))
           : itinerary == null
               ? Center(
@@ -1342,23 +1593,23 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.map_outlined, size: 64, color: Colors.grey[300]),
+                        Icon(Icons.map_outlined, size: 64, color: context.c.ink3),
                         const SizedBox(height: 16),
-                        Text('No Itinerary Yet', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
+                        Text('No Itinerary Yet', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                         const SizedBox(height: 8),
                         Text(
                           widget.isDriver ? 'Generate a travel plan using AI' : 'The organizer hasn\'t created an itinerary yet.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 14),
+                          style: AppTypography.dmSans(color: context.c.ink2, fontSize: 14),
                         ),
                         if (widget.isDriver) ...[
                           const SizedBox(height: 24),
                           ElevatedButton.icon(
                             onPressed: () => widget.onGenerate(),
                             icon: const Icon(Icons.auto_awesome_rounded, size: 18),
-                            label: Text('Generate Itinerary', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
+                            label: Text('Generate Itinerary', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF6B2C), foregroundColor: Colors.white,
+                              backgroundColor: context.c.brand, foregroundColor: context.c.onBrand,
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 0,
                             ),
@@ -1383,15 +1634,15 @@ class _ItineraryPageState extends State<_ItineraryPage> {
             margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: _isSuccess ? const Color(0xFFECFDF5) : const Color(0xFFFEF2F2),
+              color: _isSuccess ? context.c.okWash : context.c.badWash,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: _isSuccess ? const Color(0xFF6EE7B7) : const Color(0xFFFCA5A5)),
             ),
             child: Row(
               children: [
-                Icon(_isSuccess ? Icons.check_circle_rounded : Icons.error_rounded, size: 18, color: _isSuccess ? const Color(0xFF059669) : const Color(0xFFDC2626)),
+                Icon(_isSuccess ? Icons.check_circle_rounded : Icons.error_rounded, size: 18, color: _isSuccess ? context.c.ok : context.c.bad),
                 const SizedBox(width: 10),
-                Expanded(child: Text(_statusMessage!, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _isSuccess ? const Color(0xFF059669) : const Color(0xFFDC2626)))),
+                Expanded(child: Text(_statusMessage!, style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: _isSuccess ? context.c.ok : context.c.bad))),
               ],
             ),
           ),
@@ -1403,28 +1654,28 @@ class _ItineraryPageState extends State<_ItineraryPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Full Itinerary', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
+                  Text('Full Itinerary', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey[300]!)),
-                    child: Text('AI GENERATED', style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.grey[600], letterSpacing: 0.5)),
+                    decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(8), border: Border.all(color: context.c.ink3)),
+                    child: Text('AI GENERATED', style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 0.5)),
                   ),
                 ],
               ),
               // Summary — only show in edit mode
               if (_isEditing) ...[
                 const SizedBox(height: 16),
-                Text('Summary', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.grey[500])),
+                Text('Summary', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.ink2)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _summaryController,
                   maxLines: null,
                   minLines: 2,
-                  style: GoogleFonts.dmSans(fontSize: 14, height: 1.5),
+                  style: AppTypography.dmSans(fontSize: 14, height: 1.5),
                   decoration: InputDecoration(
                     hintText: 'Edit summary...',
                     filled: true,
-                    fillColor: const Color(0xFFF8F9FA),
+                    fillColor: context.c.surfaceSunken,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.all(16),
                   ),
@@ -1442,33 +1693,49 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                   children: [
                     Row(
                       children: [
-                        Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFFFF6B2C), shape: BoxShape.circle)),
+                        Container(width: 10, height: 10, decoration: BoxDecoration(color: context.c.brand, shape: BoxShape.circle)),
                         const SizedBox(width: 12),
-                        Text('DAY ${day['day']}', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, color: const Color(0xFFFF6B2C), fontSize: 13, letterSpacing: 0.5)),
+                        Text('DAY ${day['day']}', style: AppTypography.dmSans(fontWeight: FontWeight.w800, color: context.c.brand, fontSize: 13, letterSpacing: 0.5)),
                         const Spacer(),
                         if (widget.isDriver && _isEditing)
                           GestureDetector(
                             onTap: () => _pickDayImage(dayIndex),
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(color: const Color(0xFFFFF3EE), borderRadius: BorderRadius.circular(8)),
+                              decoration: BoxDecoration(color: context.c.brandWash, borderRadius: BorderRadius.circular(8)),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.add_photo_alternate_rounded, size: 14, color: Color(0xFFFF6B2C)),
+                                  Icon(Icons.add_photo_alternate_rounded, size: 14, color: context.c.brand),
                                   const SizedBox(width: 4),
-                                  Text(dayImage != null ? 'Change' : 'Add Photo', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                  Text(dayImage != null ? 'Change' : 'Add Photo', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w700, color: context.c.brand)),
                                 ],
                               ),
                             ),
                           ),
                       ],
                     ),
-                    if (dayImage != null) ...[
+                    // A day image is only rendered when there is a real URL to
+                    // render. `getFullImageUrl` used to return an Unsplash
+                    // placeholder for a null path and prefix the API host onto a
+                    // `/uploads/...` path — and those files live on a container
+                    // disk that is wiped on every deploy, so the request 404'd
+                    // and the slot became the broken-image box testers reported.
+                    // `_dayImageUrl` returns null for both cases and the block
+                    // is skipped entirely.
+                    if (_dayImageUrl(dayImage) case final url?) ...[
                       const SizedBox(height: 8),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: SafeNetworkImage(url: ApiService.getFullImageUrl(dayImage), height: 160, width: double.infinity, fit: BoxFit.cover),
+                        borderRadius: AppRadius.cardR,
+                        child: SafeNetworkImage(
+                          url: url,
+                          height: 160,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          // Nothing rather than a broken-image glyph: an
+                          // itinerary reads fine without a photo.
+                          errorWidget: const SizedBox.shrink(),
+                        ),
                       ),
                     ],
                     Padding(
@@ -1476,7 +1743,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                       child: Container(
                         margin: const EdgeInsets.only(top: 8, bottom: 16),
                         padding: const EdgeInsets.only(left: 16),
-                        decoration: const BoxDecoration(border: Border(left: BorderSide(color: Color(0xFFFFE4D6), width: 2))),
+                        decoration: BoxDecoration(border: Border(left: BorderSide(color: context.c.brandWash, width: 2))),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1487,7 +1754,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 12),
                                   padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(12)),
+                                  decoration: BoxDecoration(color: context.c.surfaceSunken, borderRadius: BorderRadius.circular(12)),
                                   child: Column(
                                     children: [
                                       Row(
@@ -1496,7 +1763,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                             width: 70,
                                             child: TextFormField(
                                               initialValue: act['time'] ?? '',
-                                              style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C)),
+                                              style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: context.c.brand),
                                               decoration: const InputDecoration(hintText: 'Time', isDense: true, border: InputBorder.none, contentPadding: EdgeInsets.zero),
                                               onChanged: (v) => (activities[actIndex] as Map)['time'] = v,
                                             ),
@@ -1505,7 +1772,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                           Expanded(
                                             child: TextFormField(
                                               initialValue: act['description'] ?? '',
-                                              style: GoogleFonts.dmSans(fontSize: 14, height: 1.4),
+                                              style: AppTypography.dmSans(fontSize: 14, height: 1.4),
                                               maxLines: null,
                                               decoration: const InputDecoration(hintText: 'Activity description', isDense: true, border: InputBorder.none, contentPadding: EdgeInsets.zero),
                                               onChanged: (v) => (activities[actIndex] as Map)['description'] = v,
@@ -1513,7 +1780,7 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                           ),
                                           GestureDetector(
                                             onTap: () => setState(() => activities.removeAt(actIndex)),
-                                            child: Icon(Icons.close_rounded, size: 16, color: Colors.grey[400]),
+                                            child: Icon(Icons.close_rounded, size: 16, color: context.c.ink3),
                                           ),
                                         ],
                                       ),
@@ -1526,9 +1793,9 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(act['time'] ?? '', style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                    Text(act['time'] ?? '', style: AppTypography.dmSans(fontSize: 12, fontWeight: FontWeight.w700, color: context.c.brand)),
                                     const SizedBox(width: 12),
-                                    Expanded(child: Text(act['description'] ?? '', style: GoogleFonts.dmSans(fontSize: 14, height: 1.4, color: Colors.grey[800]))),
+                                    Expanded(child: Text(act['description'] ?? '', style: AppTypography.dmSans(fontSize: 14, height: 1.4, color: context.c.ink2))),
                                   ],
                                 ),
                               );
@@ -1541,9 +1808,9 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                                   padding: const EdgeInsets.symmetric(vertical: 10),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.add_circle_outline_rounded, size: 16, color: Color(0xFFFF6B2C)),
+                                      Icon(Icons.add_circle_outline_rounded, size: 16, color: context.c.brand),
                                       const SizedBox(width: 8),
-                                      Text('Add activity', style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFFFF6B2C))),
+                                      Text('Add activity', style: AppTypography.dmSans(fontSize: 13, fontWeight: FontWeight.w700, color: context.c.brand)),
                                     ],
                                   ),
                                 ),
@@ -1560,10 +1827,10 @@ class _ItineraryPageState extends State<_ItineraryPage> {
                 OutlinedButton.icon(
                   onPressed: widget.onRegenerate,
                   icon: const Icon(Icons.refresh_rounded, size: 18),
-                  label: Text('Regenerate with AI', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+                  label: Text('Regenerate with AI', style: AppTypography.dmSans(fontWeight: FontWeight.w700)),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFFF6B2C),
-                    side: const BorderSide(color: Color(0xFFFF6B2C)),
+                    foregroundColor: context.c.brand,
+                    side: BorderSide(color: context.c.brand),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
@@ -1600,8 +1867,8 @@ class _ExpensesPageState extends State<_ExpensesPage> {
     _loadExpenses();
   }
 
-  Future<void> _loadExpenses() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadExpenses({bool showSkeleton = true}) async {
+    if (showSkeleton) setState(() => _isLoading = true);
     try {
       final results = await Future.wait([
         _api.getExpenses(widget.rideId),
@@ -1619,16 +1886,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
     }
   }
 
-  String _personName(dynamic p) {
-    if (p == null) return 'Unknown';
-    final name = p['name']?.toString() ?? '';
-    if (name.isNotEmpty && name != 'null') return name;
-    final first = p['firstName']?.toString() ?? '';
-    final last = p['lastName']?.toString() ?? '';
-    final full = '$first $last'.trim();
-    if (full.isNotEmpty) return full;
-    return p['email']?.toString().split('@')[0] ?? 'Unknown';
-  }
+  String _personName(dynamic p) => userName(p, fallback: 'Unknown');
 
   void _addExpense() {
     final descCtrl = TextEditingController();
@@ -1657,21 +1915,21 @@ class _ExpensesPageState extends State<_ExpensesPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Container(
           padding: EdgeInsets.fromLTRB(24, 16, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
-          decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+          decoration: BoxDecoration(color: context.c.surfaceRaised, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)))),
+                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(2)))),
                 const SizedBox(height: 20),
-                Text('Add Expense', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
+                Text('Add Expense', style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 20),
 
                 // Description
                 TextField(
                   controller: descCtrl,
-                  decoration: InputDecoration(hintText: 'What was it for? (e.g. Fuel, Dinner)', filled: true, fillColor: const Color(0xFFF8F9FA), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+                  decoration: InputDecoration(hintText: 'What was it for? (e.g. Fuel, Dinner)', filled: true, fillColor: context.c.surfaceSunken, border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
                 ),
                 const SizedBox(height: 12),
 
@@ -1679,12 +1937,12 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                 TextField(
                   controller: amountCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(hintText: 'Amount', prefixText: '₹ ', filled: true, fillColor: const Color(0xFFF8F9FA), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
+                  decoration: InputDecoration(hintText: 'Amount', prefixText: '₹ ', filled: true, fillColor: context.c.surfaceSunken, border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none)),
                 ),
                 const SizedBox(height: 20),
 
                 // Paid by
-                Text('Paid by', style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700])),
+                Text('Paid by', style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: context.c.ink2)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -1692,11 +1950,11 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                   children: allParticipants.map((p) {
                     final selected = paidById == p['id'];
                     return ChoiceChip(
-                      label: Text(p['name']!, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: selected ? Colors.white : const Color(0xFF475569))),
+                      label: Text(p['name']!, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: selected ? context.c.onBrand : context.c.ink2)),
                       selected: selected,
                       onSelected: (_) => setSheetState(() => paidById = p['id']!),
-                      selectedColor: const Color(0xFFFF6B2C),
-                      backgroundColor: const Color(0xFFF1F5F9),
+                      selectedColor: context.c.brand,
+                      backgroundColor: context.c.surfaceSunken,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       side: BorderSide.none,
                     );
@@ -1705,7 +1963,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                 const SizedBox(height: 20),
 
                 // Split among
-                Text('Split among', style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.grey[700])),
+                Text('Split among', style: AppTypography.dmSans(fontSize: 14, fontWeight: FontWeight.w700, color: context.c.ink2)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -1714,16 +1972,16 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                     final id = p['id']!;
                     final isSelected = splitIds.contains(id);
                     return FilterChip(
-                      label: Text(p['name']!, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: isSelected ? Colors.white : const Color(0xFF475569))),
+                      label: Text(p['name']!, style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 13, color: isSelected ? context.c.onBrand : context.c.ink2)),
                       selected: isSelected,
                       onSelected: (val) {
                         setSheetState(() {
                           if (val) { splitIds.add(id); } else if (splitIds.length > 1) { splitIds.remove(id); }
                         });
                       },
-                      selectedColor: const Color(0xFFFF6B2C),
-                      backgroundColor: const Color(0xFFF1F5F9),
-                      checkmarkColor: Colors.white,
+                      selectedColor: context.c.brand,
+                      backgroundColor: context.c.surfaceSunken,
+                      checkmarkColor: context.c.onBrand,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       side: BorderSide.none,
                     );
@@ -1732,7 +1990,7 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                 if (splitIds.length < allParticipants.length)
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
-                    child: Text('Splitting among ${splitIds.length} of ${allParticipants.length} riders', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                    child: Text('Splitting among ${splitIds.length} of ${allParticipants.length} riders', style: AppTypography.dmSans(fontSize: 11, color: context.c.ink2, fontWeight: FontWeight.w600)),
                   ),
                 const SizedBox(height: 24),
 
@@ -1758,8 +2016,8 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                         if (ctx.mounted) showError(ctx, 'Failed to add expense');
                       }
                     },
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B2C), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 0),
-                    child: Text('Add Expense', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                    style: ElevatedButton.styleFrom(backgroundColor: context.c.brand, foregroundColor: context.c.onBrand, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 0),
+                    child: Text('Add Expense', style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
                   ),
                 ),
               ],
@@ -1770,14 +2028,15 @@ class _ExpensesPageState extends State<_ExpensesPage> {
     );
   }
 
-  String _displayName(dynamic user) {
-    if (user == null) return 'User';
-    final name = user['name'] as String?;
-    if (name != null && name.trim().isNotEmpty) return name;
-    final first = user['firstName'] as String? ?? '';
-    final last = user['lastName'] as String? ?? '';
-    return '$first $last'.trim().isEmpty ? 'User' : '$first $last'.trim();
-  }
+  /// The payer's name.
+  ///
+  /// This used to read `user['name'] ?? '$firstName $lastName'`, and the
+  /// expenses endpoint returned the raw users row — so `firstName` was AES
+  /// ciphertext and the row rendered as
+  /// "Paid by 1ff1c69de911…:5fb5155c…:d67368add5fc". The server now sends a
+  /// PublicUser with a computed `name`; userName() additionally refuses any
+  /// value that still looks like ciphertext.
+  String _displayName(dynamic user) => userName(user);
 
   IconData _expenseIcon(String desc) {
     final d = desc.toLowerCase();
@@ -1797,21 +2056,42 @@ class _ExpensesPageState extends State<_ExpensesPage> {
     final balancesList = (_balances?['balances'] as List?) ?? [];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        title: Text('Trip Expenses', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800)),
-        backgroundColor: Colors.white, elevation: 0,
+        title: Text('Trip Expenses', style: AppTypography.dmSans(fontWeight: FontWeight.w800)),
+        backgroundColor: context.c.surface, elevation: 0,
       ),
-      floatingActionButton: widget.canEdit ? FloatingActionButton(
-        onPressed: _addExpense,
-        backgroundColor: const Color(0xFFFF6B2C),
-        child: const Icon(Icons.add_rounded, color: Colors.white),
-      ) : null,
+      floatingActionButton: widget.canEdit
+          ? Pressable(
+              onTap: _addExpense,
+              scale: 0.92,
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: context.c.brand,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                        color: context.c.brand.withValues(alpha: 0.28),
+                        blurRadius: 14,
+                        offset: const Offset(0, 5)),
+                  ],
+                ),
+                child:
+                    Icon(Icons.add_rounded, color: context.c.onBrand, size: 26),
+              ),
+            )
+          : null,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFFF6B2C)))
+          ? const Padding(
+              padding: EdgeInsets.only(top: AppSpacing.md),
+              child: ListSkeleton(count: 4),
+            )
           : RefreshIndicator(
-              onRefresh: _loadExpenses,
-              color: const Color(0xFFFF6B2C),
+              onRefresh: () => _loadExpenses(showSkeleton: false),
+              color: context.c.brand,
+              backgroundColor: context.c.surfaceRaised,
               child: ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
@@ -1819,17 +2099,26 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFFE8551A), Color(0xFFFF8C5A)]),
-                      borderRadius: BorderRadius.circular(24),
+                      color: context.c.brand,
+                      borderRadius: BorderRadius.circular(AppRadius.card),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Total Trip Expense', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w700)),
+                        Text('Total Trip Expense', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.7), fontSize: 13, fontWeight: FontWeight.w700)),
                         const SizedBox(height: 8),
-                        Text('₹${(total is num ? total : double.tryParse('$total') ?? 0).toStringAsFixed(0)}', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w800)),
+                        AnimatedCount(
+                          value: total is num
+                              ? total.toDouble()
+                              : double.tryParse('$total') ?? 0,
+                          builder: (_, v) => Text('₹${v.toStringAsFixed(0)}',
+                              style: AppTypography.dmSans(
+                                  color: context.c.onBrand,
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w800)),
+                        ),
                         const SizedBox(height: 16),
-                        Container(height: 1, color: Colors.white24),
+                        Container(height: 1, color: context.c.onBrand.withValues(alpha: 0.24)),
                         const SizedBox(height: 16),
                         Row(
                           children: [
@@ -1837,9 +2126,9 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('YOUR SHARE', style: GoogleFonts.dmSans(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                                  Text('YOUR SHARE', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                                   const SizedBox(height: 4),
-                                  Text('₹${(perPerson is num ? perPerson : double.tryParse('$perPerson') ?? 0).toStringAsFixed(0)}', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                                  Text('₹${(perPerson is num ? perPerson : double.tryParse('$perPerson') ?? 0).toStringAsFixed(0)}', style: AppTypography.dmSans(color: context.c.onBrand, fontSize: 20, fontWeight: FontWeight.w800)),
                                 ],
                               ),
                             ),
@@ -1847,9 +2136,9 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('EXPENSES', style: GoogleFonts.dmSans(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                                  Text('EXPENSES', style: AppTypography.dmSans(color: context.c.onBrand.withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                                   const SizedBox(height: 4),
-                                  Text('${_expenses.length}', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                                  Text('${_expenses.length}', style: AppTypography.dmSans(color: context.c.onBrand, fontSize: 20, fontWeight: FontWeight.w800)),
                                 ],
                               ),
                             ),
@@ -1863,40 +2152,56 @@ class _ExpensesPageState extends State<_ExpensesPage> {
 
                   // Recent expenses
                   if (_expenses.isNotEmpty) ...[
-                    Text('Recent Expenses', style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w800)),
+                    Text('Recent Expenses', style: AppTypography.dmSans(fontSize: 18, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 16),
-                    ..._expenses.map((exp) {
+                    ..._expenses.asMap().entries.map((entry) {
+                      final exp = entry.value;
                       final desc = exp['description'] ?? 'Expense';
                       final amount = double.tryParse('${exp['amount']}') ?? 0;
-                      final payer = exp['payer'];
-                      final payerName = _displayName(payer);
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8F9FA),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(color: const Color(0xFFFFF3EE), borderRadius: BorderRadius.circular(12)),
-                              child: Icon(_expenseIcon(desc), color: const Color(0xFFFF6B2C), size: 20),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(desc, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 15)),
-                                  const SizedBox(height: 2),
-                                  Text('Paid by $payerName', style: GoogleFonts.dmSans(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w600)),
-                                ],
+                      final payerName = _displayName(exp['payer']);
+                      return FadeSlideIn(
+                        index: entry.key.clamp(0, 8),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: context.c.surfaceSunken,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    color: context.c.brandWash,
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Icon(_expenseIcon(desc),
+                                    color: context.c.brand, size: 20),
                               ),
-                            ),
-                            Text('₹${amount.toStringAsFixed(0)}', style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16)),
-                          ],
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(desc,
+                                        style: AppTypography.dmSans(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 15)),
+                                    const SizedBox(height: 2),
+                                    Text('Paid by $payerName',
+                                        style: AppTypography.dmSans(
+                                            color: context.c.ink2,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600)),
+                                  ],
+                                ),
+                              ),
+                              Text('₹${amount.toStringAsFixed(0)}',
+                                  style: AppTypography.dmSans(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16)),
+                            ],
+                          ),
                         ),
                       );
                     }),
@@ -1905,11 +2210,11 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                     Center(
                       child: Column(
                         children: [
-                          Icon(Icons.receipt_long_rounded, size: 48, color: Colors.grey[300]),
+                          Icon(Icons.receipt_long_rounded, size: 48, color: context.c.ink3),
                           const SizedBox(height: 12),
-                          Text('No expenses yet', style: GoogleFonts.dmSans(color: Colors.grey[400], fontWeight: FontWeight.w600)),
+                          Text('No expenses yet', style: AppTypography.dmSans(color: context.c.ink3, fontWeight: FontWeight.w600)),
                           if (widget.canEdit)
-                            Text('Tap + to add an expense', style: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 12)),
+                            Text('Tap + to add an expense', style: AppTypography.dmSans(color: context.c.ink3, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -1921,14 +2226,14 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8F9FA),
+                        color: context.c.surfaceSunken,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.grey[200]!),
+                        border: Border.all(color: context.c.ink3),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('BALANCES', style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey[500], letterSpacing: 0.5)),
+                          Text('BALANCES', style: AppTypography.dmSans(fontSize: 11, fontWeight: FontWeight.w800, color: context.c.ink2, letterSpacing: 0.5)),
                           const SizedBox(height: 16),
                           ...balancesList.map((b) {
                             final balance = (b['balance'] as num?)?.toDouble() ?? 0;
@@ -1937,16 +2242,17 @@ class _ExpensesPageState extends State<_ExpensesPage> {
                               padding: const EdgeInsets.only(bottom: 12),
                               child: Row(
                                 children: [
-                                  CircleAvatar(
-                                    radius: 16,
-                                    backgroundColor: const Color(0xFFFFE4D6),
-                                    child: Text((b['userName'] ?? 'U')[0].toUpperCase(), style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 11, color: const Color(0xFFFF6B2C))),
-                                  ),
+                                  // Was `(userName ?? 'U')[0]` — the same
+                                  // hazard as the map pin: one character of a
+                                  // ciphertext, and a crash on an empty string.
+                                  Avatar(
+                                      size: 32,
+                                      name: b['userName']?.toString()),
                                   const SizedBox(width: 12),
-                                  Expanded(child: Text(b['userName'] ?? 'User', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 14))),
+                                  Expanded(child: Text(b['userName'] ?? 'User', style: AppTypography.dmSans(fontWeight: FontWeight.w700, fontSize: 14))),
                                   Text(
                                     '${isPositive ? '+' : ''}₹${balance.toStringAsFixed(0)}',
-                                    style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: isPositive ? const Color(0xFF059669) : const Color(0xFFDC2626)),
+                                    style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 14, color: isPositive ? context.c.ok : context.c.bad),
                                   ),
                                 ],
                               ),
@@ -2006,11 +2312,11 @@ class _LiveMapFabState extends State<_LiveMapFab>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
           decoration: BoxDecoration(
-            color: const Color(0xFF1A0A08),
+            color: context.c.ink,
             borderRadius: BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(
-                  color: const Color(0xFF1A0A08).withOpacity(0.35),
+                  color: context.c.ink.withOpacity(0.35),
                   blurRadius: 16,
                   offset: const Offset(0, 6)),
             ],
@@ -2022,16 +2328,16 @@ class _LiveMapFabState extends State<_LiveMapFab>
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
-                    color: Color(0xFF10B981), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                    color: context.c.ok, shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
               const Icon(Icons.map_rounded, color: Colors.white, size: 16),
               const SizedBox(width: 6),
               Text(
                 'LIVE MAP',
-                style: GoogleFonts.dmSans(
-                  color: Colors.white,
+                style: AppTypography.dmSans(
+                  color: context.c.surfaceRaised,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.0,
@@ -2045,3 +2351,81 @@ class _LiveMapFabState extends State<_LiveMapFab>
   }
 }
 
+/// Shown once, when a ride is marked complete.
+///
+/// Replaces an AlertDialog whose title was "Ride Complete! 🏁", whose body was
+/// bold 14pt, and whose only action shouted "GREAT". A moment worth marking
+/// deserves composition rather than punctuation: the number is the hero, the
+/// emoji are gone, and the button says what it does.
+class _RideCompleteSheet extends StatelessWidget {
+  const _RideCompleteSheet({required this.points});
+
+  final int points;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    return Dialog(
+      backgroundColor: c.surfaceRaised,
+      insetPadding: const EdgeInsets.all(AppSpacing.xl),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.sheet)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration:
+                  BoxDecoration(color: c.okWash, borderRadius: AppRadius.cardR),
+              child: Icon(Icons.check_rounded, color: c.ok, size: 24),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text('Ride complete',
+                style: AppTypography.title.copyWith(color: c.ink)),
+            const SizedBox(height: AppSpacing.xxs),
+            Text('Nice one. Everyone who travelled with you earned points too.',
+                style: AppTypography.callout.copyWith(color: c.ink2)),
+            const SizedBox(height: AppSpacing.lg),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.sm, horizontal: AppSpacing.md),
+              decoration: BoxDecoration(
+                  color: c.brandWash, borderRadius: AppRadius.cardR),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text('+$points',
+                      style: AppTypography.display
+                          .copyWith(color: c.brand, fontSize: 30)),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text('Compass Points',
+                      style: AppTypography.callout.copyWith(color: c.brand)),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: c.brand,
+                  textStyle: AppTypography.bodyStrong,
+                  minimumSize: const Size(0, AppTouch.min),
+                ),
+                child: const Text('Done'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

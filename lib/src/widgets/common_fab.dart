@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_typography.dart';
 import 'dart:ui';
 import '../screens/create_post_screen.dart';
 import '../screens/create_ride_screen.dart';
 import '../screens/buddies_screen.dart';
 import '../services/api_service.dart';
 import '../utils/snackbar_helper.dart';
+import 'motion.dart';
 
 class CommonFab extends StatelessWidget {
   final VoidCallback? onPostCreated;
@@ -24,8 +26,8 @@ class CommonFab extends StatelessWidget {
       isScrollControlled: true,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
@@ -36,19 +38,19 @@ class CommonFab extends StatelessWidget {
               child: Container(
                 width: 40, 
                 height: 4, 
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))
+                decoration: BoxDecoration(color: context.c.ink3, borderRadius: BorderRadius.circular(2))
               ),
             ),
             const SizedBox(height: 24),
-            Text("Create New", style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
+            Text("Create New", style: AppTypography.dmSans(fontSize: 20, fontWeight: FontWeight.w800, color: context.c.ink)),
             const SizedBox(height: 24),
             _buildOptionTile(
               context, 
               "Post", 
               "Share an update", 
               Icons.edit_note_rounded, 
-              const Color(0xFF4F46E5),
-              const Color(0xFFEFF6FF),
+              context.c.brand,
+              context.c.routeWash,
               () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const CreatePostScreen()))
@@ -61,7 +63,7 @@ class CommonFab extends StatelessWidget {
               "Ride",
               "Create a new ride", 
               Icons.directions_car_rounded, 
-              const Color(0xFFFF6B2C),
+              context.c.brand,
               const Color(0xFFFFF1EB),
                () {
                 Navigator.pop(context);
@@ -76,7 +78,7 @@ class CommonFab extends StatelessWidget {
               "Find travel buddies", 
               Icons.person_add_rounded, 
               Colors.teal,
-              const Color(0xFFECFDF5),
+              context.c.okWash,
                () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const BuddiesScreen()));
@@ -162,17 +164,16 @@ class CommonFab extends StatelessWidget {
   }
 
   Widget _buildOptionTile(BuildContext context, String title, String subtitle, IconData icon, Color color, Color bgColor, VoidCallback onTap) {
-    return GestureDetector(
+    return Pressable(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surfaceRaised,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey[100]!),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4)),
-          ],
+          // Was Colors.grey[100] — an all-but-white hairline, invisible on the
+          // dark sheet this now sits on.
+          border: Border.all(color: context.c.rule),
         ),
         child: Row(
           children: [
@@ -189,13 +190,13 @@ class CommonFab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 16, color: const Color(0xFF1E293B))),
+                  Text(title, style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 16, color: context.c.ink)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text(subtitle, style: AppTypography.dmSans(color: context.c.ink3, fontSize: 12, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: Colors.grey[300]),
+            Icon(Icons.chevron_right_rounded, color: context.c.ink3),
           ],
         ),
       ),
@@ -204,18 +205,26 @@ class CommonFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Pressable(
       onTap: () => _showCreateOptions(context),
+      scale: 0.92,
       child: Container(
         width: 64,
         height: 64,
         decoration: BoxDecoration(
-          color: const Color(0xFFFF6B2C),
+          color: context.c.brand,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: const Color(0xFFFF6B2C).withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 8))],
-          border: Border.all(color: Colors.white, width: 4),
+          // Was 0.4 at 15pt blur, which on the dark canvas spread into a halo
+          // rather than reading as a shadow.
+          boxShadow: [
+            BoxShadow(
+                color: context.c.brand.withValues(alpha: 0.24),
+                blurRadius: 14,
+                offset: const Offset(0, 6)),
+          ],
+          border: Border.all(color: context.c.surface, width: 3),
         ),
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
+        child: Icon(Icons.add_rounded, color: context.c.onBrand, size: 32),
       ),
     );
   }

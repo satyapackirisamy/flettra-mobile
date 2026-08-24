@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/flettra_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import '../services/api_service.dart';
+import '../utils/snackbar_helper.dart';
 import '../services/auth_service.dart';
-import '../widgets/network_image_widget.dart';
+import '../utils/user_display.dart';
+import '../widgets/avatar.dart';
+import '../widgets/moderation_sheet.dart';
+import '../widgets/motion.dart';
 
 class ChatScreen extends StatefulWidget {
   final Map<String, dynamic> buddy;
@@ -37,9 +43,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool          _isLoading  = true;
   bool          _isConnected = false;
 
-  static const Color _orange    = Color(0xFFFF6B2C);
-  static const Color _orangeEnd = Color(0xFFFF8C5A);
-  static const Color _dark      = Color(0xFF1A0A08);
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────────
 
@@ -95,7 +98,10 @@ class _ChatScreenState extends State<ChatScreen> {
     if (token == null) return;
 
     _socket = IO.io(ApiService.baseUrl, <String, dynamic>{
-      'transports': ['websocket'],
+      // Websocket first, but keep polling as a fallback. Websocket-only meant a
+      // blocked or failed upgrade left the chat permanently silent, with no
+      // indication of why.
+      'transports': ['websocket', 'polling'],
       'autoConnect': false,
       'auth': {'token': token},
     });
@@ -125,14 +131,51 @@ class _ChatScreenState extends State<ChatScreen> {
     _socket!.onDisconnect((_) {
       if (mounted) setState(() => _isConnected = false);
     });
+
+    // The gateway answers a rejected join or send with an error event. Nothing
+    // listened for it, so "not buddies with this user" was indistinguishable
+    // from a message that simply never arrived.
+    _socket!.on('error', (data) {
+      if (mounted) showError(context, data?.toString() ?? 'Chat error');
+    });
+    _socket!.onConnectError((_) {
+      if (mounted) setState(() => _isConnected = false);
+    });
     _socket!.connect();
   }
 
   void _onMessage(dynamic data) {
-    if (mounted) {
-      setState(() => _messages.add(data));
-      _scrollToBottom();
-    }
+    if (!mounted || data is! Map) return;
+    setState(() {
+      final id = data['id']?.toString();
+
+      // Replace the optimistic copy rather than showing the message twice. It
+      // matches on content + sender because the pending copy has no server id.
+      final pending = _messages.indexWhere((m) =>
+          m is Map &&
+          m['_pending'] == true &&
+          m['content'] == data['content'] &&
+          _senderIdOf(m) == _senderIdOf(data));
+      if (pending != -1) {
+        _messages[pending] = data;
+        return;
+      }
+
+      // Guard a genuine duplicate (a reconnect can replay the room).
+      if (id != null &&
+          _messages.any((m) => m is Map && m['id']?.toString() == id)) {
+        return;
+      }
+      _messages.add(data);
+    });
+    _scrollToBottom();
+  }
+
+  static String? _senderIdOf(dynamic m) {
+    if (m is! Map) return null;
+    final sender = m['sender'];
+    if (sender is Map) return sender['id']?.toString();
+    return m['senderId']?.toString();
   }
 
   void _scrollToBottom() {
@@ -149,7 +192,28 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _sendMessage() {
     final text = _msgCtrl.text.trim();
-    if (text.isEmpty || _socket == null) return;
+    if (text.isEmpty) return;
+    if (_socket == null || !_isConnected) {
+      showError(context, 'Not connected — your message was not sent.');
+      return;
+    }
+
+    // Show it straight away. The sender's own message previously appeared only
+    // once the server echoed it back to the room, so if the room join had been
+    // rejected or the echo was lost, the message was saved on the server and
+    // invisible to the person who sent it. That is exactly what "sent but not
+    // showing" looks like.
+    setState(() {
+      _messages.add(<String, dynamic>{
+        '_pending': true,
+        'content': text,
+        'createdAt': DateTime.now().toIso8601String(),
+        'sender': {'id': _userId},
+        'senderId': _userId,
+      });
+    });
+    _scrollToBottom();
+
     if (widget.rideId != null) {
       _socket!.emit('sendRideMessage', {'rideId': widget.rideId, 'userId': _userId, 'content': text});
     } else if (widget.groupId != null) {
@@ -158,6 +222,15 @@ class _ChatScreenState extends State<ChatScreen> {
       _socket!.emit('sendBuddyMessage', {'senderId': _userId, 'receiverId': widget.buddy['id']?.toString(), 'content': text});
     }
     _msgCtrl.clear();
+
+    // Safety net: if the echo never lands, reconcile with the server so the
+    // list ends up correct instead of stuck on a pending bubble.
+    Future.delayed(const Duration(seconds: 4), () {
+      if (!mounted) return;
+      if (_messages.any((m) => m is Map && m['_pending'] == true)) {
+        _fetchHistory();
+      }
+    });
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -168,24 +241,13 @@ class _ChatScreenState extends State<ChatScreen> {
     return _buddyName;
   }
 
-  String get _buddyName {
-    final b = widget.buddy;
-    final n = b['name']?.toString() ?? '';
-    if (n.isNotEmpty) return n;
-    final first = b['firstName']?.toString() ?? '';
-    final last  = b['lastName']?.toString()  ?? '';
-    final full  = '$first $last'.trim();
-    return full.isNotEmpty ? full : 'Chat';
-  }
+  String get _buddyName => userName(widget.buddy, fallback: 'Chat');
 
   String get _chatSubtitle {
     if (widget.rideId != null)  return '${_messages.length} messages • Ride';
     if (widget.groupId != null) return '${_messages.length} messages • Group';
     return _isConnected ? 'Online now' : 'Offline';
   }
-
-  String get _buddyAvatarUrl =>
-      ApiService.getAvatarUrl(widget.buddy['profilePicture'], name: _buddyName);
 
   bool _isDifferentDay(dynamic a, dynamic b) {
     try {
@@ -202,7 +264,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: Column(
         children: [
           _buildHeader(),
@@ -215,90 +277,118 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // ─── Header ───────────────────────────────────────────────────────────────────
 
+  /// The lime header.
+  ///
+  /// Every element on it was drawn in white: the back chevron, the overflow
+  /// glyph, and `Colors.white70` for the subtitle. White on `#B9F227` is about
+  /// 1.3:1 — which is why the name and "Online now" read as one smudged block.
+  /// Everything now uses `onBrand` (the near-black the palette defines as the
+  /// foreground for brand fills), so the header holds its contrast in both
+  /// themes, and the two lines are separated by weight and opacity rather than
+  /// by colour alone.
   Widget _buildHeader() {
+    final c = context.c;
+    final onBrand = c.onBrand;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [_orange, _orangeEnd],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+      color: c.brand,
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 16, 18),
+          padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xs, AppSpacing.xs, AppSpacing.md, AppSpacing.sm),
           child: Row(
             children: [
               // Back
-              GestureDetector(
+              Pressable(
                 onTap: () => Navigator.pop(context),
+                scale: 0.9,
                 child: Container(
-                  width: 40, height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
+                  width: AppTouch.iosMin,
+                  height: AppTouch.iosMin,
+                  alignment: Alignment.center,
+                  child: Icon(Icons.arrow_back_ios_new_rounded,
+                      color: onBrand, size: 18),
                 ),
               ),
-              const SizedBox(width: 12),
-              // Avatar + online dot
+              const SizedBox(width: AppSpacing.xxs),
+
+              // Avatar + presence dot
               Stack(
                 children: [
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(
+                          color: onBrand.withValues(alpha: 0.18), width: 2),
                     ),
-                    child: WebCircleAvatar(url: _buddyAvatarUrl, radius: 20),
+                    child: Avatar(
+                      size: 40,
+                      imageUrl: userPicture(widget.buddy),
+                      name: _buddyName,
+                    ),
                   ),
                   if (_isConnected)
                     Positioned(
-                      bottom: 1, right: 1,
+                      bottom: 0,
+                      right: 0,
                       child: Container(
-                        width: 11, height: 11,
+                        width: 12,
+                        height: 12,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4ADE80),
+                          color: c.ok,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
+                          border: Border.all(color: c.brand, width: 2),
                         ),
                       ),
                     ),
                 ],
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.sm),
+
               // Title + subtitle
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       _chatTitle,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 16, fontWeight: FontWeight.w800, color: Colors.white,
+                      style: AppTypography.heading.copyWith(
+                        color: onBrand,
+                        fontWeight: FontWeight.w700,
                       ),
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 1),
                     Text(
                       _chatSubtitle,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w500,
+                      style: AppTypography.caption.copyWith(
+                        // 0.7 alpha over lime still clears 4.5:1, unlike white.
+                        color: onBrand.withValues(alpha: 0.7),
+                        letterSpacing: 0,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-              // More options
-              GestureDetector(
-                onTap: () {},
+
+              // Overflow
+              Pressable(
+                onTap: () => showModerationSheet(
+                  context,
+                  targetUserId: widget.buddy['id']?.toString() ?? '',
+                  targetName: _buddyName,
+                ),
+                scale: 0.9,
                 child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.more_horiz_rounded, color: Colors.white, size: 20),
+                  width: AppTouch.iosMin,
+                  height: AppTouch.iosMin,
+                  alignment: Alignment.center,
+                  child: Icon(Icons.more_horiz_rounded, color: onBrand, size: 22),
                 ),
               ),
             ],
@@ -312,7 +402,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageList() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: _orange));
+      return Center(child: CircularProgressIndicator(color: context.c.brand));
     }
 
     if (_messages.isEmpty) {
@@ -323,20 +413,20 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: _orange.withOpacity(0.08),
+                color: context.c.brand.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.chat_bubble_outline_rounded, size: 48, color: _orange),
+              child: Icon(Icons.chat_bubble_outline_rounded, size: 48, color: context.c.brand),
             ),
             const SizedBox(height: 16),
             Text(
               'No messages yet',
-              style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: _dark),
+              style: AppTypography.dmSans(fontSize: 16, fontWeight: FontWeight.w800, color: context.c.ink),
             ),
             const SizedBox(height: 6),
             Text(
               'Say hello to $_chatTitle!',
-              style: GoogleFonts.dmSans(fontSize: 13, color: Colors.grey[400]),
+              style: AppTypography.dmSans(fontSize: 13, color: context.c.ink3),
             ),
           ],
         ),
@@ -378,12 +468,12 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: context.c.ink3,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             label,
-            style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.grey[500]),
+            style: AppTypography.dmSans(fontSize: 10, fontWeight: FontWeight.w700, color: context.c.ink2),
           ),
         ),
       ),
@@ -395,12 +485,9 @@ class _ChatScreenState extends State<ChatScreen> {
     final senderId   = sender is Map
         ? sender['id']?.toString()
         : msg['senderId']?.toString();
-    final senderName = sender is Map
-        ? (sender['name'] ?? sender['firstName'] ?? 'User').toString()
-        : 'User';
-    final senderAvatar = sender is Map
-        ? ApiService.getAvatarUrl(sender['profilePicture'], name: senderName)
-        : ApiService.getAvatarUrl(null, name: senderName);
+    // userName() ignores a value that is still AES ciphertext, so a response
+    // from an older server never puts a hex blob above the bubble.
+    final displayName = userName(sender, fallback: _buddyName);
 
     final isMe       = senderId == _userId;
     final content    = msg['content']?.toString() ?? '';
@@ -420,7 +507,10 @@ class _ChatScreenState extends State<ChatScreen> {
     final isFirstFromSender = prevSenderId != senderId;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: EdgeInsets.only(
+        top: isFirstFromSender ? AppSpacing.sm : 0,
+        bottom: AppSpacing.xxs + 2,
+      ),
       child: Row(
         mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -430,7 +520,11 @@ class _ChatScreenState extends State<ChatScreen> {
             isFirstFromSender
                 ? Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: WebCircleAvatar(url: senderAvatar, radius: 16),
+                    child: Avatar(
+                      size: 32,
+                      imageUrl: userPicture(sender),
+                      name: displayName,
+                    ),
                   )
                 : const SizedBox(width: 40),
           ],
@@ -446,9 +540,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 4),
                     child: Text(
-                      senderName,
-                      style: GoogleFonts.dmSans(
-                        fontSize: 11, fontWeight: FontWeight.w800, color: _orange,
+                      displayName,
+                      style: AppTypography.dmSans(
+                        fontSize: 12, fontWeight: FontWeight.w500, color: context.c.ink3,
                       ),
                     ),
                   ),
@@ -457,26 +551,24 @@ class _ChatScreenState extends State<ChatScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    gradient: isMe
-                        ? const LinearGradient(
-                            colors: [_orange, _orangeEnd],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          )
-                        : null,
-                    color: isMe ? null : const Color(0xFFF2F2F2),
+                    color: context.c.surfaceRaised,
                     borderRadius: BorderRadius.only(
-                      topLeft:     const Radius.circular(18),
-                      topRight:    const Radius.circular(18),
-                      bottomLeft:  Radius.circular(isMe ? 18 : 4),
-                      bottomRight: Radius.circular(isMe ? 4 : 18),
+                      topLeft: const Radius.circular(16),
+                      topRight: const Radius.circular(16),
+                      bottomLeft: Radius.circular(isMe ? 16 : 5),
+                      bottomRight: Radius.circular(isMe ? 5 : 16),
+                    ),
+                    border: Border.all(
+                      color: isMe
+                          ? context.c.brand.withValues(alpha: 0.55)
+                          : context.c.rule,
                     ),
                   ),
                   child: Text(
                     content,
-                    style: GoogleFonts.dmSans(
+                    style: AppTypography.dmSans(
                       fontSize: 14,
-                      color: isMe ? Colors.white : const Color(0xFF1A1A1A),
+                      color: context.c.ink,
                       height: 1.45,
                     ),
                   ),
@@ -490,13 +582,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       Text(
                         timeStr,
-                        style: GoogleFonts.dmSans(
-                          fontSize: 9, color: Colors.grey[400], fontWeight: FontWeight.w500,
+                        style: AppTypography.dmSans(
+                          fontSize: 9, color: context.c.ink3, fontWeight: FontWeight.w500,
                         ),
                       ),
                       if (isMe) ...[
                         const SizedBox(width: 4),
-                        Icon(Icons.done_all_rounded, size: 12, color: _orange.withOpacity(0.7)),
+                        Icon(Icons.done_all_rounded, size: 12, color: context.c.brand),
                       ],
                     ],
                   ),
@@ -516,11 +608,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildInputBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surfaceRaised,
         border: Border(top: BorderSide(color: Colors.grey[100]!, width: 1)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, -4)),
-        ],
       ),
       child: SafeArea(
         top: false,
@@ -532,10 +621,10 @@ class _ChatScreenState extends State<ChatScreen> {
               Container(
                 width: 38, height: 38,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
+                  border: Border.all(color: context.c.ink3),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.add_rounded, color: Colors.grey[500], size: 20),
+                child: Icon(Icons.add_rounded, color: context.c.ink2, size: 20),
               ),
               const SizedBox(width: 8),
 
@@ -543,15 +632,20 @@ class _ChatScreenState extends State<ChatScreen> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
+                    color: context.c.surfaceSunken,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: TextField(
                     controller: _msgCtrl,
-                    style: GoogleFonts.dmSans(fontSize: 14, color: _dark),
+                    minLines: 1,
+                    maxLines: 4,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.send,
+                    textCapitalization: TextCapitalization.sentences,
+                    style: AppTypography.dmSans(fontSize: 14, color: context.c.ink),
                     decoration: InputDecoration(
                       hintText: 'Message...',
-                      hintStyle: GoogleFonts.dmSans(color: Colors.grey[400], fontSize: 14),
+                      hintStyle: AppTypography.dmSans(color: context.c.ink3, fontSize: 14),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
@@ -562,7 +656,7 @@ class _ChatScreenState extends State<ChatScreen> {
               const SizedBox(width: 8),
 
               // Emoji
-              Icon(Icons.sentiment_satisfied_alt_outlined, color: Colors.grey[400], size: 22),
+              Icon(Icons.sentiment_satisfied_alt_outlined, color: context.c.ink3, size: 22),
               const SizedBox(width: 8),
 
               // Send — orange circle with arrow
@@ -570,11 +664,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 onTap: _sendMessage,
                 child: Container(
                   width: 44, height: 44,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(colors: [_orange, _orangeEnd]),
+                  decoration: BoxDecoration(
+                      color: context.c.brand,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
+                  child: Icon(Icons.arrow_forward_ios_rounded, color: context.c.onBrand, size: 18),
                 ),
               ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/flettra_colors.dart';
+import '../../theme/app_typography.dart';
 import '../../services/api_service.dart';
 
 class AdminRideManagementScreen extends StatefulWidget {
@@ -72,7 +73,7 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: context.c.surfaceSunken,
       appBar: AppBar(
         title: const Text('Manage Rides'),
       ),
@@ -85,11 +86,11 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.directions_car_outlined, size: 64, color: Colors.grey[400]),
+                          Icon(Icons.directions_car_outlined, size: 64, color: context.c.ink3),
                           const SizedBox(height: 16),
                           Text(
                             'No active rides found',
-                            style: GoogleFonts.dmSans(fontSize: 18, color: Colors.grey[600]),
+                            style: AppTypography.dmSans(fontSize: 18, color: context.c.ink2),
                           ),
                         ],
                       ),
@@ -121,7 +122,7 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
                     Expanded(
                       child: Text(
                         '${ride['origin']} → ${ride['destination']}',
-                        style: GoogleFonts.dmSans(fontWeight: FontWeight.w800, fontSize: 18),
+                        style: AppTypography.dmSans(fontWeight: FontWeight.w800, fontSize: 18),
                       ),
                     ),
                     _buildStatusBadge(ride['status']),
@@ -173,10 +174,10 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
     Color badgeColor;
     switch (status) {
       case 'ongoing': badgeColor = Colors.blue; break;
-      case 'completed': badgeColor = const Color(0xFF10B981); break;
+      case 'completed': badgeColor = context.c.ok; break;
       case 'cancelled': badgeColor = Colors.red; break;
       case 'paused': badgeColor = Colors.amber; break;
-      default: badgeColor = const Color(0xFF4F46E5); break;
+      default: badgeColor = context.c.brand; break;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -198,7 +199,7 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
       children: [
         Text(
           label.toUpperCase(),
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 10,
             fontWeight: FontWeight.bold,
             color: const Color(0xFF94A3B8),
@@ -208,10 +209,10 @@ class _AdminRideManagementScreenState extends State<AdminRideManagementScreen> {
         const SizedBox(height: 2),
         Text(
           value,
-          style: GoogleFonts.dmSans(
+          style: AppTypography.dmSans(
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1E293B),
+            color: context.c.ink,
           ),
         ),
       ],
